@@ -1,0 +1,11 @@
+﻿.venv/
+__pycache__/
+*.pyc
+.env
+data/downloads/
+data/raw/
+*.tar.bz2
+*.tar
+*.tsv
+.pytest_cache/
+.vscode/
