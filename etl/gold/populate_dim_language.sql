@@ -1,16 +1,16 @@
 -- ============================================================================
--- POBLADO DE DIMENSIÓN CONFORMADA: gold.dim_language
+-- POBLADO DE DIMENSIÓN CONFORMADA: gold.dim_idioma
 -- ============================================================================
 
 -- Registro para idioma no especificado o nulo (Clave 0)
-INSERT INTO gold.dim_language (language_key, language_id, language_name, iso_code)
+INSERT INTO gold.dim_idioma (idioma_key, idioma_id, nombre_idioma, codigo_iso)
 VALUES (0, 0, 'Idioma No Especificado', 'und')
-ON CONFLICT (language_id) DO NOTHING;
+ON CONFLICT (idioma_id) DO NOTHING;
 
 -- Mapeo estructurado de idiomas según estándar ISO 639-3 / MusicBrainz
-INSERT INTO gold.dim_language (language_id, language_name, iso_code)
+INSERT INTO gold.dim_idioma (idioma_id, nombre_idioma, codigo_iso)
 SELECT DISTINCT
-    COALESCE(language, 0) AS language_id,
+    COALESCE(language, 0) AS idioma_id,
     CASE COALESCE(language, 0)
         WHEN 120 THEN 'Inglés'
         WHEN 402 THEN 'Español'
@@ -38,7 +38,7 @@ SELECT DISTINCT
         WHEN 182 THEN 'Hebreo'
         WHEN 180 THEN 'Hindi'
         ELSE 'Otro Idioma (' || COALESCE(language::TEXT, '0') || ')'
-    END AS language_name,
+    END AS nombre_idioma,
     CASE COALESCE(language, 0)
         WHEN 120 THEN 'eng'
         WHEN 402 THEN 'spa'
@@ -54,8 +54,8 @@ SELECT DISTINCT
         WHEN 485 THEN 'mul'
         WHEN 480 THEN 'und'
         ELSE 'und'
-    END AS iso_code
+    END AS codigo_iso
 FROM silver.release
-ON CONFLICT (language_id) DO UPDATE
-SET language_name = EXCLUDED.language_name,
-    iso_code = EXCLUDED.iso_code;
+ON CONFLICT (idioma_id) DO UPDATE
+SET nombre_idioma = EXCLUDED.nombre_idioma,
+    codigo_iso = EXCLUDED.codigo_iso;

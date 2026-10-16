@@ -3,11 +3,14 @@ ingest_silver.py
 ================
 Ingestión de datos crudos (TSV) a la capa Silver mediante COPY binario/texto
 ultrarrápido en PostgreSQL 16 con registro de auditoría en meta.etl_audit.
+Soporta extracción quirúrgica bajo demanda desde mbdump.tar.bz2 si algún
+archivo TSV aún no ha sido extraído en data/raw/mbdump/.
 """
 
 import os
 import sys
 import time
+import subprocess
 from pathlib import Path
 from datetime import datetime
 import psycopg2
@@ -23,8 +26,51 @@ DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres123")
 
 RAW_DIR = BASE_DIR / "data" / "raw" / "mbdump"
+CANDIDATE_DUMPS = [
+    Path(os.getenv("MBDUMP_PATH", r"C:\Users\sebas\Downloads\mbdump.tar.bz2")),
+    BASE_DIR / "data" / "downloads" / "mbdump.tar.bz2",
+]
 
-TABLE_ORDER = ["area", "artist", "isrc", "medium", "release", "recording", "track"]
+TABLE_ORDER = [
+    "area",
+    "artist",
+    "artist_credit_name",
+    "release",
+    "release_country",
+    "release_unknown_country",
+    "medium",
+    "isrc",
+    "recording",
+    "track",
+]
+
+
+def resolve_dump_archive():
+    for path in CANDIDATE_DUMPS:
+        if path.exists():
+            return path
+    return None
+
+
+def ensure_raw_file(table_name):
+    file_path = RAW_DIR / table_name
+    if file_path.exists():
+        return file_path
+
+    archive_path = resolve_dump_archive()
+    if archive_path is None:
+        return file_path
+
+    RAW_DIR.parent.mkdir(parents=True, exist_ok=True)
+    tar_exe = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32" / "tar.exe"
+    tar_cmd = str(tar_exe) if tar_exe.exists() else "tar"
+
+    print(f"[*] Extrayendo mbdump/{table_name} desde {archive_path} ...")
+    subprocess.run(
+        [tar_cmd, "-xf", str(archive_path), "-C", str(RAW_DIR.parent), f"mbdump/{table_name}"],
+        check=True,
+    )
+    return file_path
 
 
 def log_audit_start(cursor, batch_id, table_name):
@@ -41,18 +87,19 @@ def log_audit_end(cursor, audit_id, rows_inserted, duration_sec, error=None):
     cursor.execute("""
         UPDATE meta.etl_audit
         SET status = %s,
+            rows_read = %s,
             rows_inserted = %s,
             end_time = clock_timestamp(),
             duration_seconds = %s,
             error_message = %s
         WHERE audit_id = %s;
-    """, (status, rows_inserted, duration_sec, error, audit_id))
+    """, (status, rows_inserted, rows_inserted, duration_sec, error, audit_id))
 
 
 def ingest_table(cursor, table_name, batch_id):
-    file_path = RAW_DIR / table_name
+    file_path = ensure_raw_file(table_name)
     if not file_path.exists():
-        print(f"[-] Omitiendo '{table_name}': el archivo raw aun no existe o no ha terminado de descomprimirse.")
+        print(f"[-] Omitiendo '{table_name}': el archivo raw no existe en {file_path}.")
         return 0
 
     print(f"\n========================================================")
@@ -69,7 +116,7 @@ def ingest_table(cursor, table_name, batch_id):
         
         # Ingestion masiva via COPY FROM STDIN
         copy_sql = f"COPY silver.{table_name} FROM STDIN WITH (FORMAT text, DELIMITER E'\\t', NULL '\\N')"
-        with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+        with open(file_path, "r", encoding="utf-8-sig", errors="replace") as f:
             cursor.copy_expert(copy_sql, f)
 
         elapsed = time.time() - start_time

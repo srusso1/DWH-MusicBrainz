@@ -1,16 +1,16 @@
 -- ============================================================================
--- POBLADO DE DIMENSIÓN CONFORMADA: gold.dim_format
+-- POBLADO DE DIMENSIÓN CONFORMADA: gold.dim_formato
 -- ============================================================================
 
 -- Registro para formato desconocido o no especificado (Clave 0)
-INSERT INTO gold.dim_format (format_key, format_id, format_name, category)
+INSERT INTO gold.dim_formato (formato_key, formato_id, nombre_formato, categoria_formato)
 VALUES (0, 0, 'Formato No Especificado', 'Desconocido')
-ON CONFLICT (format_id) DO NOTHING;
+ON CONFLICT (formato_id) DO NOTHING;
 
 -- Mapeo estructurado de formatos según estándar MusicBrainz
-INSERT INTO gold.dim_format (format_id, format_name, category)
+INSERT INTO gold.dim_formato (formato_id, nombre_formato, categoria_formato)
 SELECT DISTINCT
-    COALESCE(format, 0) AS format_id,
+    COALESCE(format, 0) AS formato_id,
     CASE COALESCE(format, 0)
         WHEN 1 THEN 'CD'
         WHEN 2 THEN 'DualDisc'
@@ -41,15 +41,15 @@ SELECT DISTINCT
         WHEN 42 THEN 'Blu-ray'
         WHEN 54 THEN 'Archivos de Audio Lossless'
         ELSE 'Otro Formato (' || COALESCE(format::TEXT, '0') || ')'
-    END AS format_name,
+    END AS nombre_formato,
     CASE 
         WHEN COALESCE(format, 0) IN (12, 13, 14, 15, 16, 17, 18, 54) THEN 'Digital / Streaming'
         WHEN COALESCE(format, 0) IN (7, 29, 30, 31) THEN 'Físico / Vinilo'
         WHEN COALESCE(format, 0) IN (1, 2, 3, 4, 5, 6, 19, 20, 33, 35, 42) THEN 'Físico / Óptico'
         WHEN COALESCE(format, 0) IN (8, 9, 10, 11, 34) THEN 'Físico / Magnético'
         ELSE 'Otros Formatos'
-    END AS category
+    END AS categoria_formato
 FROM silver.medium
-ON CONFLICT (format_id) DO UPDATE 
-SET format_name = EXCLUDED.format_name,
-    category = EXCLUDED.category;
+ON CONFLICT (formato_id) DO UPDATE 
+SET nombre_formato = EXCLUDED.nombre_formato,
+    categoria_formato = EXCLUDED.categoria_formato;
