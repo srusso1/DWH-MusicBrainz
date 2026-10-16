@@ -1,128 +1,132 @@
-# Guía de Modelado DAX y Métricas para Power BI (DWMusicBrainz)
+# Guía de Modelado DAX y Métricas para Power BI (`DWMusicBrainz`)
 
 ## 1. Conexión a PostgreSQL en Power BI Desktop
 * **Servidor:** `localhost:5435`
 * **Base de Datos:** `dw_musicbrainz`
-* **Modo de Conexión:** **Import** (o **DirectQuery** aprovechando el particionamiento de PostgreSQL 16)
-* **Tablas a Importar (Capa Gold):**
-  * `gold.fact_tracks`
-  * `gold.dim_date`
-  * `gold.dim_artist`
-  * `gold.dim_release`
-  * `gold.dim_format`
-  * `gold.dim_geography`
-  * `gold.dim_language`
+* **Modo de Conexión:** **Import** o **DirectQuery**
+* **Tablas a Importar (Capa Gold en Español):**
+  * `gold.fact_produccion_musical` (Tabla de hechos histórica diaria con métricas aditivas)
+  * `gold.dim_fecha`
+  * `gold.dim_artista`
+  * `gold.dim_lanzamiento`
+  * `gold.dim_formato`
+  * `gold.dim_geografia`
+  * `gold.dim_idioma`
 
 ---
 
 ## 2. Relaciones del Modelo en Estrella (Kimball Star Schema)
-| Tabla Origen (1) | Campo Origen | Tabla Destino (*) | Campo Destino | Cardinalidad | Filtro Cruzado |
+| Tabla Dimensión (1) | Campo PK | Tabla de Hechos (*) | Campo FK | Cardinalidad | Filtro Cruzado |
 |---|---|---|---|---|---|
-| `gold.dim_date` | `date_key` | `gold.fact_tracks` | `date_key` | 1 a Varios (1:*) | Único (Single) |
-| `gold.dim_artist` | `artist_key` | `gold.fact_tracks` | `artist_key` | 1 a Varios (1:*) | Único (Single) |
-| `gold.dim_release` | `release_key` | `gold.fact_tracks` | `release_key` | 1 a Varios (1:*) | Único (Single) |
-| `gold.dim_format` | `format_key` | `gold.fact_tracks` | `format_key` | 1 a Varios (1:*) | Único (Single) |
-| `gold.dim_geography` | `geo_key` | `gold.fact_tracks` | `geo_key` | 1 a Varios (1:*) | Único (Single) |
-| `gold.dim_language` | `language_key` | `gold.fact_tracks` | `language_key` | 1 a Varios (1:*) | Único (Single) |
+| `gold.dim_fecha` | `fecha_key` | `gold.fact_produccion_musical` | `fecha_key` | 1 a Varios (`1:*`) | Único (Single) |
+| `gold.dim_artista` | `artista_key` | `gold.fact_produccion_musical` | `artista_key` | 1 a Varios (`1:*`) | Único (Single) |
+| `gold.dim_lanzamiento` | `lanzamiento_key` | `gold.fact_produccion_musical` | `lanzamiento_key` | 1 a Varios (`1:*`) | Único (Single) |
+| `gold.dim_formato` | `formato_key` | `gold.fact_produccion_musical` | `formato_key` | 1 a Varios (`1:*`) | Único (Single) |
+| `gold.dim_geografia` | `geografia_key` | `gold.fact_produccion_musical` | `geografia_key` | 1 a Varios (`1:*`) | Único (Single) |
+| `gold.dim_idioma` | `idioma_key` | `gold.fact_produccion_musical` | `idioma_key` | 1 a Varios (`1:*`) | Único (Single) |
 
 ---
 
-## 3. Diccionario de Medidas DAX Fundamentales
+## 3. Diccionario de Medidas DAX (100% Basadas en `SUM` Aditivo)
 
-### 3.1. Volumetría Básica
+### 3.1. Volumetría de Producción Musical
 ```dax
-Total Tracks = SUM(gold_fact_tracks[track_count])
+Total Lanzamientos = SUM(gold_fact_produccion_musical[lanzamientos_total])
 ```
 
 ```dax
-Total Releases = DISTINCTCOUNT(gold_fact_tracks[release_key])
+Total Soportes = SUM(gold_fact_produccion_musical[soportes_total])
 ```
 
 ```dax
-Active Artists = DISTINCTCOUNT(gold_fact_tracks[artist_key])
+Total Pistas = SUM(gold_fact_produccion_musical[pistas_total])
 ```
 
-### 3.2. Métricas de Tiempo y Duración
 ```dax
-Total Duration (Hours) = 
+Artistas Activos = DISTINCTCOUNT(gold_fact_produccion_musical[artista_key])
+```
+
+### 3.2. Métricas de Tiempo y Duración Ponderada
+```dax
+Duracion Total (Horas) = 
 DIVIDE(
-    SUM(gold_fact_tracks[duration_minutes]), 
+    SUM(gold_fact_produccion_musical[duracion_total_minutos]), 
     60, 
     0
 )
 ```
 
 ```dax
-Average Duration (Minutes) = 
-AVERAGE(gold_fact_tracks[duration_minutes])
-```
-
-```dax
-Average Duration (Seconds) = 
-AVERAGE(gold_fact_tracks[duration_seconds])
-```
-
-### 3.3. Estándares Internacionales y Calidad (ISRC)
-```dax
-Tracks with ISRC = 
-CALCULATE(
-    [Total Tracks],
-    gold_fact_tracks[has_isrc] = TRUE()
-)
-```
-
-```dax
-ISRC Coverage Rate = 
+Duracion Promedio por Pista (Segundos) = 
 DIVIDE(
-    [Tracks with ISRC],
-    [Total Tracks],
+    SUM(gold_fact_produccion_musical[duracion_total_segundos]),
+    SUM(gold_fact_produccion_musical[pistas_completas_total]),
     0
 )
 ```
 
-### 3.4. Análisis de Formatos (Evolución Temporal RF03)
 ```dax
-Digital Tracks = 
-CALCULATE(
-    [Total Tracks],
-    gold_dim_format[category] = "Digital / Streaming"
+Duracion Promedio por Pista (Minutos) = 
+DIVIDE(
+    [Duracion Promedio por Pista (Segundos)],
+    60,
+    0
+)
+```
+
+### 3.3. Estándares Internacionales (ISRC) y Canciones Largas
+```dax
+Total Pistas con ISRC = SUM(gold_fact_produccion_musical[pistas_con_isrc_total])
+```
+
+```dax
+Tasa Cobertura ISRC % = 
+DIVIDE(
+    [Total Pistas con ISRC],
+    [Total Pistas],
+    0
 )
 ```
 
 ```dax
-Vinyl Tracks = 
+Total Pistas Largas (>5 min) = SUM(gold_fact_produccion_musical[pistas_largas_total])
+```
+
+```dax
+Proporcion Pistas Largas % = 
+DIVIDE(
+    [Total Pistas Largas (>5 min)],
+    [Total Pistas],
+    0
+)
+```
+
+### 3.4. Análisis de Formatos (Evolución Temporal RF02 & RF04)
+```dax
+Lanzamientos Digitales = 
 CALCULATE(
-    [Total Tracks],
-    gold_dim_format[category] = "Físico / Vinilo"
+    [Total Lanzamientos],
+    gold_dim_formato[categoria_formato] = "Digital / Streaming"
 )
 ```
 
 ```dax
-CD Tracks = 
+Lanzamientos Vinilo = 
 CALCULATE(
-    [Total Tracks],
-    gold_dim_format[category] = "Físico / Óptico"
+    [Total Lanzamientos],
+    gold_dim_formato[categoria_formato] = "Físico / Vinilo"
 )
 ```
 
 ```dax
-Cassette Tracks = 
+Lanzamientos CD Optico = 
 CALCULATE(
-    [Total Tracks],
-    gold_dim_format[category] = "Físico / Magnético"
+    [Total Lanzamientos],
+    gold_dim_formato[categoria_formato] = "Físico / Óptico"
 )
 ```
 
 ```dax
-Digital Share % = 
-DIVIDE([Digital Tracks], [Total Tracks], 0)
+Participacion Digital % = 
+DIVIDE([Lanzamientos Digitales], [Total Lanzamientos], 0)
 ```
-
----
-
-## 4. Estructura de Reportes Analíticos (RF01 a RF08)
-1. **RF01 (Tendencias Temporales):** Gráfico de líneas con `Total Tracks` y `Total Duration (Hours)` por `gold_dim_date[year]` y `gold_dim_date[decade]`.
-2. **RF02 (Artistas Top):** Tabla y gráfico de barras de `[Total Tracks]` por `gold_dim_artist[artist_name]` y `gold_dim_artist[country_name]`.
-3. **RF03 (Evolución de Formatos):** Gráfico de áreas apiladas con `[Digital Share %]`, Vinilos, CDs y Cassettes de 1950 a 2026.
-4. **RF04 (Distribución Geográfica):** Mapa coroplético por `gold_dim_geography[country_name]` con `[Total Tracks]`.
-5. **RF05 (Adopción ISRC):** Indicador tipo Gauge con `[ISRC Coverage Rate]` y evolución por década.

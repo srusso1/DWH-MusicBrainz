@@ -1,13 +1,13 @@
-# Arquitectura del Data Warehouse Masivo de MusicBrainz (DWMusicBrainz)
+# Arquitectura del Data Warehouse Masivo de MusicBrainz (`DWMusicBrainz`)
 
 ## 1. Visión General y Objetivos de Negocio
-El proyecto **DWMusicBrainz** implementa un Data Warehouse analítico de alta volumetría sobre **PostgreSQL 16**, modelado bajo los principios fundamentales de **Ralph Kimball (Kimball Pure Star Schema)** y orquestado mediante una arquitectura **Medallion (Bronze / Raw -> Silver -> Gold)**.
+El proyecto **DWMusicBrainz** implementa un Data Warehouse analítico de alta volumetría sobre **PostgreSQL 16**, modelado bajo los principios fundamentales de **Ralph Kimball (Kimball Pure Star Schema)** con nomenclatura de negocio en español y orquestado mediante una arquitectura **Medallion (Raw -> Silver -> Gold)**.
 
 ### Características Clave:
 * **Datos 100% Reales y Auditables:** Alimentado exclusivamente desde el volcado oficial nativo de **MusicBrainz (MetaBrainz Foundation)** con Schema Sequence 31 (Octubre 2026). **Cero registros ficticios o sintéticos.**
-* **Volumetría Masiva:** Supera los 15 millones de registros en la tabla de hechos central y más de 30 millones de filas consolidadas entre todas las capas.
-* **Huella de Almacenamiento en Disco:** Supera ampliamente los 3.0 GB de almacenamiento físico en PostgreSQL.
-* **Modelo en Estrella Puro:** 1 tabla de hechos central (`gold.fact_tracks`) conectada a 6 dimensiones conformadas mediante surrogate keys, con total garantía de integridad referencial (0 huérfanos).
+* **Tabla de Hechos Histórica con Grano Diario:** Consolida la historia diaria de lanzamientos y producción musical mediante claves foráneas conformadas y **métricas numéricas 100% aditivas** (cero columnas de texto y cero booleanos en la tabla de hechos).
+* **Fechas y Artistas Históricos Reales:** Extrae las fechas reales de publicación por país desde `silver.release_country` y `silver.release_unknown_country`, y resuelve la autoría real mediante `silver.artist_credit_name`.
+* **Modelo en Estrella Puro en Español:** 1 tabla de hechos central (`gold.fact_produccion_musical`) conectada a 6 dimensiones conformadas (`dim_fecha`, `dim_artista`, `dim_lanzamiento`, `dim_geografia`, `dim_formato`, `dim_idioma`) mediante surrogate keys con patrón de **Fila Cero (`Key 0`)** (0 huérfanos).
 
 ---
 
@@ -15,85 +15,87 @@ El proyecto **DWMusicBrainz** implementa un Data Warehouse analítico de alta vo
 
 ```mermaid
 erDiagram
-    gold_dim_date ||--o{ gold_fact_tracks : "date_key"
-    gold_dim_artist ||--o{ gold_fact_tracks : "artist_key"
-    gold_dim_release ||--o{ gold_fact_tracks : "release_key"
-    gold_dim_format ||--o{ gold_fact_tracks : "format_key"
-    gold_dim_geography ||--o{ gold_fact_tracks : "geo_key"
-    gold_dim_language ||--o{ gold_fact_tracks : "language_key"
+    gold_dim_fecha ||--o{ gold_fact_produccion_musical : "fecha_key"
+    gold_dim_artista ||--o{ gold_fact_produccion_musical : "artista_key"
+    gold_dim_lanzamiento ||--o{ gold_fact_produccion_musical : "lanzamiento_key"
+    gold_dim_formato ||--o{ gold_fact_produccion_musical : "formato_key"
+    gold_dim_geografia ||--o{ gold_fact_produccion_musical : "geografia_key"
+    gold_dim_idioma ||--o{ gold_fact_produccion_musical : "idioma_key"
 
-    gold_dim_date {
-        int date_key PK "YYYYMMDD"
-        date full_date
-        int year
-        int quarter
-        int month
-        varchar decade
-        varchar century
+    gold_dim_fecha {
+        int fecha_key PK "YYYYMMDD"
+        date fecha_completa
+        int anio
+        int trimestre
+        int mes
+        varchar decada
+        varchar siglo
     }
 
-    gold_dim_artist {
-        int artist_key PK "Surrogate"
-        int artist_id UK "Business Key"
-        uuid artist_gid
-        text artist_name
-        varchar artist_type
-        varchar gender
-        text country_name
-        smallint begin_year
+    gold_dim_artista {
+        int artista_key PK "Surrogate"
+        int artista_id UK "Business Key"
+        uuid artista_gid
+        text nombre_artista
+        varchar tipo_artista
+        varchar genero
+        int area_id
+        text nombre_pais
+        smallint anio_inicio
     }
 
-    gold_dim_release {
-        int release_key PK "Surrogate"
-        int release_id UK "Business Key"
-        uuid release_gid
-        text release_name
-        varchar release_status
-        varchar packaging_type
-        varchar barcode
-        varchar quality
+    gold_dim_lanzamiento {
+        int lanzamiento_key PK "Surrogate"
+        int estado_id
+        int empaque_id
+        smallint calidad_id
+        varchar estado_lanzamiento
+        varchar tipo_empaque
+        varchar calidad_datos
     }
 
-    gold_dim_format {
-        int format_key PK "Surrogate"
-        int format_id UK "Business Key"
-        varchar format_name
-        varchar category "Physical / Digital / Optical"
+    gold_dim_formato {
+        int formato_key PK "Surrogate"
+        int formato_id UK "Business Key"
+        varchar nombre_formato
+        varchar categoria_formato
     }
 
-    gold_dim_geography {
-        int geo_key PK "Surrogate"
+    gold_dim_geografia {
+        int geografia_key PK "Surrogate"
         int area_id UK "Business Key"
         uuid area_gid
-        text area_name
-        varchar area_type
-        text country_name
+        text nombre_area
+        varchar tipo_area
+        text nombre_pais
     }
 
-    gold_dim_language {
-        int language_key PK "Surrogate"
-        int language_id UK "Business Key"
-        varchar language_name
-        varchar iso_code
+    gold_dim_idioma {
+        int idioma_key PK "Surrogate"
+        int idioma_id UK "Business Key"
+        varchar nombre_idioma
+        varchar codigo_iso
     }
 
-    gold_fact_tracks {
-        bigint track_key PK
-        int date_key PK "Partition Key"
-        int artist_key FK
-        int release_key FK
-        int geo_key FK
-        int format_key FK
-        int language_key FK
-        int track_id "Degenerate"
-        int recording_id "Degenerate"
-        varchar isrc_code "Degenerate"
-        text track_name
-        int duration_ms "Metric"
-        numeric duration_seconds "Metric"
-        numeric duration_minutes "Metric"
-        int track_count "Metric"
-        smallint is_complete "Metric"
+    gold_fact_produccion_musical {
+        bigint hecho_key PK
+        int fecha_key PK "Partition Key"
+        int artista_key FK
+        int lanzamiento_key FK
+        int geografia_key FK
+        int formato_key FK
+        int idioma_key FK
+        int lanzamientos_total "Métrica Aditiva"
+        int soportes_total "Métrica Aditiva"
+        int pistas_total "Métrica Aditiva"
+        int grabaciones_unicas_total "Métrica Aditiva"
+        bigint duracion_total_ms "Métrica Aditiva"
+        numeric duracion_total_segundos "Métrica Aditiva"
+        numeric duracion_total_minutos "Métrica Aditiva"
+        int pistas_con_isrc_total "Métrica Aditiva"
+        int pistas_largas_total "Métrica Aditiva"
+        int pistas_video_total "Métrica Aditiva"
+        int pistas_completas_total "Métrica Aditiva"
     }
 ```
 
@@ -102,43 +104,47 @@ erDiagram
 ## 3. Diccionario de Datos del Modelo Dimensional (Gold)
 
 ### 3.1. Dimensiones Conformadas
-1. **`gold.dim_date` (47,848 filas):**
+1. **`gold.dim_fecha` (47.848 filas):**
    * Cobertura granular diaria completa desde 1900 hasta 2030.
-   * Clave especial `date_key = 0` para registros sin fecha conocida.
-   * Atributos: Año, Trimestre, Mes, Día, Día de Semana, Fin de Semana, Década, Siglo.
+   * Clave especial `fecha_key = 0` para registros sin fecha conocida.
+   * Atributos: `anio`, `trimestre`, `nombre_trimestre`, `mes`, `nombre_mes`, `dia`, `dia_semana`, `nombre_dia`, `es_fin_de_semana`, `decada`, `siglo`.
 
-2. **`gold.dim_artist` (3,010,452 filas):**
+2. **`gold.dim_artista` (3.010.452 filas):**
    * Artistas solistas, bandas, orquestas, coros y personajes.
-   * Enriquecido con el país y área de origen desde `silver.area`.
-   * Atributos: Nombre, Nombre de Ordenamiento, Tipo de Artista, Género, País, Año de Inicio.
+   * Enriquecido con `area_id`, `nombre_area` y `nombre_pais` desde `silver.area`.
+   * Atributos: `nombre_artista`, `nombre_orden`, `tipo_artista`, `genero`, `nombre_pais`, `anio_inicio`, `anio_fin`, `finalizado`.
 
-3. **`gold.dim_geography` (120,108 filas):**
+3. **`gold.dim_geografia` (120.108 filas):**
    * Jerarquía geográfica global oficial de MusicBrainz.
-   * Atributos: ID, GID, Nombre de Área, Tipo (País, Subdivisión, Condado, Municipio, Ciudad, Distrito, Isla), Nombre de País Normalizado.
+   * Atributos: `area_id`, `area_gid`, `nombre_area`, `tipo_area` (País, Subdivisión, Condado, Municipio, Ciudad, Distrito, Isla), `nombre_pais`.
 
-4. **`gold.dim_format` (114 filas):**
+4. **`gold.dim_formato` (114 filas):**
    * Formatos físicos, ópticos, magnéticos y digitales (CD, Vinilo 12", Digital Media, Cassette, DVD, etc.).
-   * Categorías analíticas: `Digital / Streaming`, `Físico / Vinilo`, `Físico / Óptico`, `Físico / Magnético`, `Otros Formatos`.
+   * Categorías analíticas (`categoria_formato`): `Digital / Streaming`, `Físico / Vinilo`, `Físico / Óptico`, `Físico / Magnético`, `Otros Formatos`.
 
-5. **`gold.dim_release` (5,844,570 filas):**
-   * Álbumes, EPs, sencillos y compilaciones musicales.
-   * Atributos: Nombre de Lanzamiento, Estado (Oficial, Promocional, Bootleg), Tipo de Empaque, Código de Barras, Calidad.
+5. **`gold.dim_lanzamiento` (~150 perfiles conformados):**
+   * Dimensión de perfil analítico de lanzamiento que agrupa las combinaciones únicas de `estado_lanzamiento` (Oficial, Promocional, Bootleg, Pseudo-Release), `tipo_empaque` (Jewel Case, Digipak, Gatefold, Digital) y `calidad_datos` (Alta, Normal, Baja).
+   * Permite que la tabla de hechos consolide múltiples álbumes/lanzamientos por día en `lanzamientos_total`.
 
-6. **`gold.dim_language` (354 filas):**
+6. **`gold.dim_idioma` (354 filas):**
    * Idiomas oficiales ISO 639-3 presentes en los lanzamientos musicales (Inglés, Español, Japonés, Francés, Alemán, Instrumental/zxx, etc.).
 
-### 3.2. Tabla de Hechos Central: `gold.fact_tracks`
-* **Granularidad:** 1 fila por pista musical (`track`) incluida en un medio de un lanzamiento.
-* **Particionamiento Físico:** Particionada por rango de fecha en `date_key` (Pre-1970, décadas 70s, 80s, 90s, 2000s, 2010s, anuales 2020 a 2026, y default).
-* **Métricas Aditivas y Semiaditivas:**
-  * `duration_ms`: Duración en milisegundos.
-  * `duration_seconds`: Duración en segundos (para cálculos DAX).
-  * `duration_minutes`: Duración en minutos (para reportes analíticos).
-  * `track_count`: Métrica aditiva unitaria (1 por fila) para conteos sin agregaciones lentas.
-  * `is_complete`: Indicador binario (1 si tiene duración > 0, 0 en caso contrario).
+### 3.2. Tabla de Hechos Histórica Central: `gold.fact_produccion_musical`
+* **Granularidad:** 1 registro histórico por día (`fecha_key`) y combinación de dimensiones conformadas (`artista_key`, `lanzamiento_key`, `geografia_key`, `formato_key`, `idioma_key`).
+* **Particionamiento Físico:** Particionada por rango de fecha en `fecha_key` (`unknown`, `pre_1970`, décadas `1970s` a `2010s`, anuales `2020` a `2025`, `2026_plus` y `default`).
+* **Métricas 100% Aditivas (`SUM`):**
+  * `lanzamientos_total`: Cantidad de lanzamientos comerciales publicados.
+  * `soportes_total`: Cantidad de discos/medios (`medium`) asociados.
+  * `pistas_total`: Total de pistas musicales consolidadas.
+  * `grabaciones_unicas_total`: Total de grabaciones de audio (`recording`) distintas.
+  * `duracion_total_ms`, `duracion_total_segundos`, `duracion_total_minutos`: Duración acumulada.
+  * `pistas_con_isrc_total`: Total de pistas que poseen código internacional ISRC.
+  * `pistas_largas_total`: Total de pistas con duración mayor a 5 minutos (> 300.000 ms).
+  * `pistas_video_total`: Total de pistas que son grabaciones de video.
+  * `pistas_completas_total`: Total de pistas con duración válida (> 0 ms) para cálculo exacto de promedios ponderados.
 
 ---
 
 ## 4. Auditoría y Trazabilidad (Capa Meta)
-* **`meta.etl_audit`:** Registra cada lote de carga, capa origen/destino, filas leídas, filas insertadas, filas rechazadas, tiempos de inicio/fin y tasas de rendimiento (filas/segundo).
-* **`meta.data_quality_log`:** Almacena los resultados de las comprobaciones de integridad referencial, nulos y rangos inválidos.
+* **`meta.etl_audit`:** Registra cada lote de carga, capa origen/destino, filas leídas, filas insertadas, tiempos de inicio/fin y tasas de rendimiento (filas/segundo).
+* **`meta.data_quality_log`:** Almacena las pruebas de integridad referencial (0 huérfanos en las 6 dimensiones) y consistencia de métricas aditivas ejecutadas al cierre del pipeline Gold.

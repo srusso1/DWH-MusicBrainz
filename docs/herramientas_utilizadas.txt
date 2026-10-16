@@ -8,91 +8,65 @@
   * Motor relacional y gestor de almacenamiento para el Data Warehouse analítico.
   * ¿Por qué se utilizó PostgreSQL 16?
     - Soporte maduro y de alto desempeño para Particionamiento Declarativo por Rangos
-      (Range Partitioning), permitiendo Partition Pruning en consultas masivas.
+      (Range Partitioning) sobre `fecha_key`, permitiendo Partition Pruning en consultas masivas.
     - Soporte nativo para COPY streaming ultrarrápido desde flujos en memoria (STDIN),
       alcanzando tasas sostenidas superiores a 150.000 filas por segundo.
-    - Manejo eficiente de Vistas Materializadas con índices únicos que habilitan
-      su refresco concurrente o periódico (`REFRESH MATERIALIZED VIEW`).
+    - Manejo eficiente de Vistas Materializadas en español con índices únicos que habilitan
+      su refresco (`REFRESH MATERIALIZED VIEW`).
     - Tipos de datos nativos de alta precisión: `UUID` para identificadores únicos
-      globales (MBID), `TIMESTAMPTZ` para auditoría temporal con huso horario,
-      `BIGINT` para métricas acumuladas y `TEXT` sin penalización para cadenas extensas.
-    - Motor de costos optimizado con Workers Paralelos (`max_parallel_workers`, 
-      `max_parallel_maintenance_workers`) y soporte de Dynamic Shared Memory (`posix`).
-  * Configuración y Tuning de Rendimiento en PostgreSQL:
+      globales (MBID), `TIMESTAMPTZ` para auditoría temporal, `BIGINT` / `INTEGER` para
+      métricas numéricas 100% aditivas y `TEXT` con compresión TOAST para cadenas extensas.
+    - Motor de costos optimizado con Workers Paralelos y Dynamic Shared Memory (`posix`).
+  * Configuración y Tuning de Rendimiento en PostgreSQL (`docker-compose.yml`):
     - `shared_buffers = 1GB`: Buffer pool ampliado para cachear páginas de datos e índices.
     - `maintenance_work_mem = 1GB`: Memoria dedicada para creación de índices B-Tree y VACUUM.
-    - `work_mem = 64MB`: Memoria asignada por operación para Hash Joins y ordenamientos.
+    - `work_mem = 64MB`: Memoria asignada por operación para Hash Joins y agrupaciones (`GROUP BY`).
     - `max_wal_size = 8GB`: Margen holgado para amortiguar checkpoints durante ingestas masivas.
     - `checkpoint_completion_target = 0.9`: Suavizado de operaciones de escritura I/O en disco.
     - `shm_size = 1gb` (Docker): Memoria compartida asignada al contenedor para evitar errores
-      de Dynamic Shared Memory al procesar agrupaciones masivas sobre 19M de registros.
+      de Dynamic Shared Memory al consolidar `gold.fact_produccion_musical` y vistas materializadas.
 
 2. INFRAESTRUCTURA, VIRTUALIZACIÓN Y AISLAMIENTO
 --------------------------------------------------------------------------------
 - Docker & Docker Compose v2:
-  * Despliegue reproducibilidad y portabilidad total del entorno empresarial sin ensuciar
-    el sistema operativo anfitrión.
+  * Despliegue reproducible y portabilidad total del entorno empresarial.
   * Puerto aislado `5435:5432` para evitar colisiones con instancias locales de PostgreSQL.
   * Volumen nombrado persistente `mb_pgdata` con retención de datos entre recreaciones.
-- PowerShell 7 / Windows Terminal:
-  * Entorno de scripting y ejecución CLI para automatización de tareas y monitoreo.
+- PowerShell / Windows Terminal:
+  * Entorno de scripting y ejecución CLI para automatización de tareas y extracción con `tar.exe`.
 
 3. LENGUAJE Y ENTORNO DE DESARROLLO (ORQUESTACIÓN ETL)
 --------------------------------------------------------------------------------
-- Python 3.12+ (Entorno Virtual Aislado `.venv`):
-  * Lenguaje líder en Ingeniería de Datos para la orquestación del flujo E2E.
-  * ¿Por qué se eligió Python sin frameworks pesados (Spark, Airflow)?
-    - Principio de Simplicidad y Cero Sobrecarga (KISS / Solid Foundations):
-      Un pipeline directo con streaming en Python + `psycopg2` aprovecha el motor de
-      PostgreSQL nativo sin la latencia ni el consumo de recursos de una JVM distribuida.
-    - Control granular del flujo de memoria mediante la clase `MaxLineReader`, que
-      implementa streaming con buffer de 128 KB para cargar exactamente 15.000.000 de pistas
-      sin saturar la memoria RAM del host.
-- uv / venv:
-  * Gestor de dependencias ultrarrápido y aislamiento de paquetes de Python.
+- Python 3.10+ / 3.12+ (Entorno Virtual `.venv`):
+  * Lenguaje central para la orquestación del flujo E2E (`setup_database.py`, `ingest_silver.py`,
+    `ingest_tracks_sliced.py`, `run_gold_pipeline.py`, `verify_dwh.py`).
+  * Control granular del flujo de memoria mediante la clase `MaxLineReader` (buffer de 128 KB)
+    para ingestar exactamente 15.000.000 de pistas reales en `silver.track` sin saturar la RAM.
 
 4. LIBRERÍAS Y DEPENDENCIAS DE PYTHON (requirements.txt)
 --------------------------------------------------------------------------------
 - psycopg2-binary:
   * Driver PostgreSQL nativo escrito en C. Provee acceso de bajo nivel a la API libpq,
-    habilitando `copy_expert` para streaming directo a través del protocolo COPY binario/texto.
+    habilitando `copy_expert` para streaming directo vía `COPY FROM STDIN`.
 - python-dotenv:
-  * Carga automática de variables de entorno desde `.env` para garantizar seguridad y
-    cero credenciales quemadas en el código fuente (Twelve-Factor App).
-- reportlab (v5.0+):
-  * Motor de composición y maquetación de PDFs programáticos de estándar editorial.
-    Permite construir el documento de sustentación técnica con diseño responsive,
-    tablas profesionales con estilo, cajas de código y numeración dinámica de dos pasadas.
+  * Carga automática de variables de entorno desde `.env`.
+- reportlab:
+  * Motor de composición y maquetación programática de `docs/Documento_Sustentacion_DWH_MusicBrainz.pdf`
+    mediante `scripts/build_sustentacion_pdf.py`.
 
-5. CLIENTES DE BASE DE DATOS Y GESTIÓN VISUAL
---------------------------------------------------------------------------------
-- DBeaver Community Edition:
-  * Cliente gráfico universal para inspección de esquemas (`meta`, `silver`, `gold`),
-    análisis de planes de ejecución (`EXPLAIN ANALYZE`) y verificación de integridad referencial.
-- psql:
-  * Utilidad CLI interactiva de PostgreSQL ejecutada dentro y fuera del contenedor para
-    diagnóstico de procesos en tiempo real (`pg_stat_activity`, `pg_statio_user_tables`).
-
-6. CONTROL DE VERSIONES Y GOBERNANZA DE CÓDIGO
---------------------------------------------------------------------------------
-- Git:
-  * Control de versiones distribuido bajo el estándar estricto de Conventional Commits
-    (`feat:`, `fix:`, `docs:`, `perf:`, `refactor:`).
-- GitHub:
-  * Repositorio remoto centralizado para auditoría de código, documentación técnica y entrega.
-
-7. ORIGEN Y PROCEDENCIA DE LOS DATOS (100% REALES)
+5. ORIGEN Y PROCEDENCIA DE LOS DATOS (100% REALES - 10 TABLAS SILVER)
 --------------------------------------------------------------------------------
 - MusicBrainz Database Full Export (MetaBrainz Foundation):
   * Archivo oficial maestro `mbdump.tar.bz2` (Schema Sequence 31, Octubre 2026).
-  * Tablas base extraídas: `area`, `artist`, `medium`, `release`, `recording`, `track`, `isrc`.
-  * **Cero datos sintéticos o simulados:** Cumplimiento estricto del principio de veracidad
-    y calidad de datos de grado corporativo.
+  * 10 tablas extraídas hacia `silver`: `area`, `artist`, `artist_credit_name`, `release`,
+    `release_country`, `release_unknown_country`, `medium`, `recording`, `track`, `isrc`.
+  * Hacia `gold` se consolida el Modelo en Estrella Puro en Español: 6 dimensiones conformadas
+    (`dim_fecha`, `dim_artista`, `dim_lanzamiento`, `dim_geografia`, `dim_formato`, `dim_idioma`)
+    y 1 tabla de hechos histórica diaria (`fact_produccion_musical`) con 11 métricas aditivas.
 
-8. DESTINO DE CONSUMO ANALÍTICO Y REPORTING
+6. DESTINO DE CONSUMO ANALÍTICO Y REPORTING
 --------------------------------------------------------------------------------
 - Microsoft Power BI Desktop:
-  * Herramienta de Business Intelligence corporativa para modelado dimensional,
-    cálculo de métricas analíticas DAX (correlaciones Pearson, duraciones acumuladas,
-    cobertura ISRC) y cuadros de mando interactivos con navegación Drill-Down.
+  * Modelado dimensional en estrella (relaciones `1:*`), cálculo de medidas DAX basadas 100% en
+    funciones `SUM()` sobre las métricas aditivas de `gold.fact_produccion_musical` y cuadros de mando.
 ================================================================================
