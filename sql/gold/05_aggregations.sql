@@ -1,100 +1,128 @@
-﻿-- ============================================================================
+-- ============================================================================
 -- PROYECTO: DWMusicBrainz (Data Warehouse Masivo de la Industria Musical)
 -- CAPA: Gold / Vistas Materializadas y Agregaciones Analíticas (Power BI)
 -- ARCHIVO: 05_aggregations.sql
--- DESCRIPCIÓN: Vistas materializadas indexadas para acelerar consultas analíticas
+-- DESCRIPCIÓN: Vistas materializadas en español basadas 100% en SUM de métricas aditivas
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- 1. RF01: TENDENCIAS TEMPORALES DE PRODUCCIÓN MUSICAL POR AÑO Y DÉCADA
+-- 1. RF01 & RF05: TENDENCIAS TEMPORALES DE PRODUCCIÓN MUSICAL POR AÑO Y DÉCADA
 -- ----------------------------------------------------------------------------
-CREATE MATERIALIZED VIEW IF NOT EXISTS gold.mv_yearly_production_trends AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS gold.mv_tendencias_produccion_anual AS
 SELECT 
-    d.year,
-    d.decade,
-    d.century,
-    COUNT(f.track_key) AS total_tracks,
-    COUNT(DISTINCT f.artist_key) AS active_artists,
-    COUNT(DISTINCT f.release_key) AS total_releases,
-    ROUND(SUM(f.duration_minutes), 2) AS total_duration_minutes,
-    ROUND(AVG(f.duration_seconds), 2) AS avg_track_duration_seconds,
-    COUNT(CASE WHEN f.has_isrc THEN 1 END) AS tracks_with_isrc,
-    ROUND(COUNT(CASE WHEN f.has_isrc THEN 1 END) * 100.0 / NULLIF(COUNT(f.track_key), 0), 2) AS isrc_coverage_pct
-FROM gold.fact_tracks f
-JOIN gold.dim_date d ON f.date_key = d.date_key
-WHERE d.year BETWEEN 1950 AND 2026
-GROUP BY d.year, d.decade, d.century
-ORDER BY d.year
+    d.anio,
+    d.decada,
+    d.siglo,
+    SUM(f.lanzamientos_total) AS lanzamientos_total,
+    SUM(f.soportes_total) AS soportes_total,
+    SUM(f.pistas_total) AS pistas_total,
+    COUNT(DISTINCT f.artista_key) AS artistas_activos,
+    ROUND(SUM(f.duracion_total_minutos), 2) AS duracion_total_minutos,
+    ROUND(
+        SUM(f.duracion_total_segundos) / NULLIF(SUM(f.pistas_completas_total), 0),
+        2
+    ) AS duracion_promedio_segundos,
+    SUM(f.pistas_con_isrc_total) AS pistas_con_isrc_total,
+    SUM(f.pistas_largas_total) AS pistas_largas_total,
+    SUM(f.pistas_video_total) AS pistas_video_total,
+    ROUND(
+        SUM(f.pistas_con_isrc_total) * 100.0 / NULLIF(SUM(f.pistas_total), 0),
+        2
+    ) AS cobertura_isrc_pct
+FROM gold.fact_produccion_musical f
+JOIN gold.dim_fecha d ON f.fecha_key = d.fecha_key
+WHERE d.anio BETWEEN 1950 AND 2026
+GROUP BY d.anio, d.decada, d.siglo
+ORDER BY d.anio
 WITH NO DATA;
 
-CREATE UNIQUE INDEX IF NOT EXISTS uq_mv_yearly_trends_year ON gold.mv_yearly_production_trends(year);
-CREATE INDEX IF NOT EXISTS idx_mv_yearly_trends_decade ON gold.mv_yearly_production_trends(decade);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_mv_tendencias_anio ON gold.mv_tendencias_produccion_anual(anio);
+CREATE INDEX IF NOT EXISTS idx_mv_tendencias_decada ON gold.mv_tendencias_produccion_anual(decada);
 
 -- ----------------------------------------------------------------------------
--- 2. RF02 & RF06: ANALÍTICA AVANZADA DE ARTISTAS Y VOLUMETRÍA
+-- 2. RF01, RF06 & RF08: ANALÍTICA AVANZADA DE ARTISTAS Y VOLUMETRÍA
 -- ----------------------------------------------------------------------------
-CREATE MATERIALIZED VIEW IF NOT EXISTS gold.mv_artist_analytics AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS gold.mv_analitica_artistas AS
 SELECT 
-    a.artist_key,
-    a.artist_id,
-    a.artist_name,
-    a.artist_type,
-    a.gender,
-    a.country_name,
-    a.begin_year,
-    COUNT(f.track_key) AS total_tracks,
-    COUNT(DISTINCT f.release_key) AS total_releases,
-    ROUND(SUM(f.duration_minutes), 2) AS total_duration_minutes,
-    ROUND(AVG(f.duration_seconds), 2) AS avg_track_duration_seconds,
-    COUNT(CASE WHEN f.has_isrc THEN 1 END) AS tracks_with_isrc
-FROM gold.fact_tracks f
-JOIN gold.dim_artist a ON f.artist_key = a.artist_key
+    a.artista_key,
+    a.artista_id,
+    a.nombre_artista,
+    a.tipo_artista,
+    a.genero,
+    a.nombre_pais,
+    a.anio_inicio,
+    SUM(f.lanzamientos_total) AS lanzamientos_total,
+    SUM(f.soportes_total) AS soportes_total,
+    SUM(f.pistas_total) AS pistas_total,
+    ROUND(SUM(f.duracion_total_minutos), 2) AS duracion_total_minutos,
+    ROUND(
+        SUM(f.duracion_total_segundos) / NULLIF(SUM(f.pistas_completas_total), 0),
+        2
+    ) AS duracion_promedio_segundos,
+    SUM(f.pistas_con_isrc_total) AS pistas_con_isrc_total,
+    SUM(f.pistas_largas_total) AS pistas_largas_total,
+    ROUND(
+        SUM(f.pistas_con_isrc_total) * 100.0 / NULLIF(SUM(f.pistas_total), 0),
+        2
+    ) AS cobertura_isrc_pct
+FROM gold.fact_produccion_musical f
+JOIN gold.dim_artista a ON f.artista_key = a.artista_key
 GROUP BY 
-    a.artist_key, a.artist_id, a.artist_name, a.artist_type, 
-    a.gender, a.country_name, a.begin_year
+    a.artista_key, a.artista_id, a.nombre_artista, a.tipo_artista, 
+    a.genero, a.nombre_pais, a.anio_inicio
 WITH NO DATA;
 
-CREATE UNIQUE INDEX IF NOT EXISTS uq_mv_artist_analytics_key ON gold.mv_artist_analytics(artist_key);
-CREATE INDEX IF NOT EXISTS idx_mv_artist_analytics_country ON gold.mv_artist_analytics(country_name);
-CREATE INDEX IF NOT EXISTS idx_mv_artist_analytics_tracks ON gold.mv_artist_analytics(total_tracks DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_mv_analitica_artistas_key ON gold.mv_analitica_artistas(artista_key);
+CREATE INDEX IF NOT EXISTS idx_mv_analitica_artistas_pais ON gold.mv_analitica_artistas(nombre_pais);
+CREATE INDEX IF NOT EXISTS idx_mv_analitica_artistas_pistas ON gold.mv_analitica_artistas(pistas_total DESC);
 
 -- ----------------------------------------------------------------------------
--- 3. RF03: EVOLUCIÓN DE FORMATOS (VINILOS, CDS, DIGITAL MEDIA, CASSETTES)
+-- 3. RF02 & RF04: EVOLUCIÓN DE FORMATOS (VINILOS, CDS, DIGITAL MEDIA, CASSETTES)
 -- ----------------------------------------------------------------------------
-CREATE MATERIALIZED VIEW IF NOT EXISTS gold.mv_format_evolution AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS gold.mv_evolucion_formatos AS
 SELECT 
-    d.year,
-    d.decade,
-    fmt.format_name,
-    fmt.category AS format_category,
-    COUNT(f.track_key) AS total_tracks,
-    COUNT(DISTINCT f.release_key) AS total_releases,
-    ROUND(SUM(f.duration_minutes), 2) AS total_duration_minutes
-FROM gold.fact_tracks f
-JOIN gold.dim_date d ON f.date_key = d.date_key
-JOIN gold.dim_format fmt ON f.format_key = fmt.format_key
-WHERE d.year BETWEEN 1950 AND 2026
-GROUP BY d.year, d.decade, fmt.format_name, fmt.category
+    d.anio,
+    d.decada,
+    fmt.nombre_formato,
+    fmt.categoria_formato,
+    SUM(f.lanzamientos_total) AS lanzamientos_total,
+    SUM(f.soportes_total) AS soportes_total,
+    SUM(f.pistas_total) AS pistas_total,
+    SUM(f.pistas_largas_total) AS pistas_largas_total,
+    ROUND(SUM(f.duracion_total_minutos), 2) AS duracion_total_minutos,
+    ROUND(
+        SUM(f.duracion_total_segundos) / NULLIF(SUM(f.pistas_completas_total), 0),
+        2
+    ) AS duracion_promedio_segundos
+FROM gold.fact_produccion_musical f
+JOIN gold.dim_fecha d ON f.fecha_key = d.fecha_key
+JOIN gold.dim_formato fmt ON f.formato_key = fmt.formato_key
+WHERE d.anio BETWEEN 1950 AND 2026
+GROUP BY d.anio, d.decada, fmt.nombre_formato, fmt.categoria_formato
 WITH NO DATA;
 
-CREATE UNIQUE INDEX IF NOT EXISTS uq_mv_format_evolution ON gold.mv_format_evolution(year, format_name);
-CREATE INDEX IF NOT EXISTS idx_mv_format_evolution_cat ON gold.mv_format_evolution(format_category);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_mv_evolucion_formatos ON gold.mv_evolucion_formatos(anio, nombre_formato);
+CREATE INDEX IF NOT EXISTS idx_mv_evolucion_formatos_cat ON gold.mv_evolucion_formatos(categoria_formato);
 
 -- ----------------------------------------------------------------------------
--- 4. RF04 & RF07: DISTRIBUCIÓN GEOGRÁFICA Y DE IDIOMAS
+-- 4. RF03 & RF06: DISTRIBUCIÓN GEOGRÁFICA Y FORMALIZACIÓN SONORA
 -- ----------------------------------------------------------------------------
-CREATE MATERIALIZED VIEW IF NOT EXISTS gold.mv_geography_distribution AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS gold.mv_distribucion_geografica AS
 SELECT 
-    g.geo_key,
-    g.country_name,
-    g.area_type,
-    COUNT(DISTINCT f.artist_key) AS total_artists,
-    COUNT(f.track_key) AS total_tracks,
-    ROUND(SUM(f.duration_minutes) / 60.0, 2) AS total_duration_hours
-FROM gold.fact_tracks f
-JOIN gold.dim_geography g ON f.geo_key = g.geo_key
-GROUP BY g.geo_key, g.country_name, g.area_type
+    g.geografia_key,
+    g.nombre_pais,
+    g.nombre_area,
+    g.tipo_area,
+    COUNT(DISTINCT f.artista_key) AS artistas_total,
+    SUM(f.lanzamientos_total) AS lanzamientos_total,
+    SUM(f.soportes_total) AS soportes_total,
+    SUM(f.pistas_total) AS pistas_total,
+    SUM(f.pistas_con_isrc_total) AS pistas_con_isrc_total,
+    ROUND(SUM(f.duracion_total_minutos) / 60.0, 2) AS duracion_total_horas
+FROM gold.fact_produccion_musical f
+JOIN gold.dim_geografia g ON f.geografia_key = g.geografia_key
+GROUP BY g.geografia_key, g.nombre_pais, g.nombre_area, g.tipo_area
 WITH NO DATA;
 
-CREATE UNIQUE INDEX IF NOT EXISTS uq_mv_geo_distribution_key ON gold.mv_geography_distribution(geo_key);
-CREATE INDEX IF NOT EXISTS idx_mv_geo_distribution_country ON gold.mv_geography_distribution(country_name);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_mv_dist_geo_key ON gold.mv_distribucion_geografica(geografia_key);
+CREATE INDEX IF NOT EXISTS idx_mv_dist_geo_pais ON gold.mv_distribucion_geografica(nombre_pais);
