@@ -1,0 +1,7 @@
+# Binarios: sin conversion de fin de linea
+*.pdf binary
+*.pptx binary
+*.docx binary
+*.png binary
+*.jpg binary
+*.abf binary
