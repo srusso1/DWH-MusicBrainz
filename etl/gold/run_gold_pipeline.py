@@ -33,6 +33,7 @@ DIMENSION_JOBS = [
     ("gold.dim_lanzamiento", "populate_dim_release.sql"),
     ("gold.dim_formato", "populate_dim_format.sql"),
     ("gold.dim_idioma", "populate_dim_language.sql"),
+    ("gold.dim_rango_duracion", "populate_dim_duration_band.sql"),
 ]
 
 MATERIALIZED_VIEWS = [
@@ -124,9 +125,24 @@ def log_data_quality_checks(cursor, batch_id):
             "SELECT COUNT(*) FROM gold.fact_produccion_musical f LEFT JOIN gold.dim_idioma d ON f.idioma_key = d.idioma_key WHERE d.idioma_key IS NULL;",
         ),
         (
+            "CONCILIACION_LANZAMIENTOS_UNICOS",
+            "lanzamientos_total",
+            "SELECT ABS((SELECT COALESCE(SUM(lanzamientos_total), 0) FROM gold.fact_produccion_musical) - (SELECT COUNT(DISTINCT m.release) FROM silver.track t JOIN silver.medium m ON t.medium = m.id));",
+        ),
+        (
+            "CONCILIACION_SOPORTES_UNICOS",
+            "soportes_total",
+            "SELECT ABS((SELECT COALESCE(SUM(soportes_total), 0) FROM gold.fact_produccion_musical) - (SELECT COUNT(DISTINCT t.medium) FROM silver.track t));",
+        ),
+        (
+            "CONCILIACION_PISTAS_DISTRIBUCION",
+            "pistas_total",
+            "SELECT ABS((SELECT COALESCE(SUM(pistas_total), 0) FROM gold.fact_distribucion_duracion) - (SELECT COALESCE(SUM(pistas_total), 0) FROM gold.fact_produccion_musical));",
+        ),
+        (
             "METRICAS_ADITIVAS_NO_NEGATIVAS",
             "duracion_total_ms",
-            "SELECT COUNT(*) FROM gold.fact_produccion_musical WHERE lanzamientos_total <= 0 OR pistas_total <= 0 OR duracion_total_ms < 0;",
+            "SELECT COUNT(*) FROM gold.fact_produccion_musical WHERE lanzamientos_total < 0 OR soportes_total < 0 OR pistas_total <= 0 OR duracion_total_ms < 0;",
         ),
     ]
 
@@ -180,6 +196,13 @@ def run_gold():
             batch_id,
             "gold.fact_produccion_musical",
             "populate_fact_tracks.sql",
+            operation="HISTORICAL_AGGREGATION",
+        )
+        execute_audited_sql(
+            cursor,
+            batch_id,
+            "gold.fact_distribucion_duracion",
+            "populate_fact_duration_distribution.sql",
             operation="HISTORICAL_AGGREGATION",
         )
 

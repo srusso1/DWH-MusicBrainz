@@ -3,6 +3,15 @@
 -- Grano: 1 registro histórico por Día (fecha_key) y combinación de las
 -- 5 dimensiones conformadas (artista_key, lanzamiento_key, geografia_key,
 -- formato_key, idioma_key) con Métricas Numéricas 100% Aditivas.
+--
+-- Regla de asignación (aditividad real): cada lanzamiento, soporte y
+-- grabación se cuenta UNA sola vez en todo el hecho, en la fila de su primera
+-- pista. Un COUNT(DISTINCT) por fila no es aditivo: el mismo lanzamiento
+-- aparecía en varias filas (varios artistas/formatos) y SUM lo contaba de más.
+--
+-- Regla de fecha: solo se usa la fecha real del lanzamiento. Si no existe,
+-- la fila va a la clave 0 ("Sin fecha"); ya no se imputa con el año de inicio
+-- del artista ni con la fecha de edición del registro (generaban anacronismos).
 -- ============================================================================
 
 TRUNCATE TABLE gold.fact_produccion_musical RESTART IDENTITY;
@@ -39,8 +48,8 @@ detalle_pistas AS (
     SELECT
         -- 1. Resolución de Fecha Histórica Real (YYYYMMDD) validada en rango 1900-2030
         CASE
-            WHEN COALESCE(re.date_year, art.begin_date_year) BETWEEN 1900 AND 2030 THEN
-                (COALESCE(re.date_year, art.begin_date_year)::INTEGER * 10000)
+            WHEN re.date_year BETWEEN 1900 AND 2030 THEN
+                (re.date_year::INTEGER * 10000)
                 + (
                     CASE
                         WHEN re.date_month BETWEEN 1 AND 12 THEN re.date_month::INTEGER
@@ -55,9 +64,6 @@ detalle_pistas AS (
                         ELSE 1
                     END
                 )
-            WHEN rel.last_updated IS NOT NULL
-                 AND EXTRACT(YEAR FROM rel.last_updated) BETWEEN 1900 AND 2030 THEN
-                TO_CHAR(rel.last_updated, 'YYYYMMDD')::INTEGER
             ELSE 0
         END AS fecha_candidata,
 
@@ -76,6 +82,13 @@ detalle_pistas AS (
         t.id AS track_id,
         t.recording AS recording_id,
         GREATEST(COALESCE(NULLIF(t.length, 0), NULLIF(rec.length, 0), 0), 0)::BIGINT AS duracion_ms,
+        -- Banderas de primera aparición: garantizan que SUM no cuente duplicados
+        CASE WHEN ROW_NUMBER() OVER (PARTITION BY rel.id ORDER BY m.position, m.id, t.position, t.id) = 1
+             THEN 1 ELSE 0 END AS es_primera_pista_lanzamiento,
+        CASE WHEN ROW_NUMBER() OVER (PARTITION BY m.id ORDER BY t.position, t.id) = 1
+             THEN 1 ELSE 0 END AS es_primera_pista_soporte,
+        CASE WHEN ROW_NUMBER() OVER (PARTITION BY t.recording ORDER BY rel.id, m.position, t.position, t.id) = 1
+             THEN 1 ELSE 0 END AS es_primera_aparicion_grabacion,
         CASE WHEN isrc_g.recording IS NOT NULL THEN 1 ELSE 0 END AS tiene_isrc,
         CASE WHEN COALESCE(rec.video, FALSE) IS TRUE THEN 1 ELSE 0 END AS es_video
 
@@ -122,10 +135,10 @@ SELECT
     COALESCE(di.idioma_key, 0) AS idioma_key,
 
     -- Métricas Históricas 100% Aditivas (Consolidación por Día y Dimensiones)
-    COUNT(DISTINCT dp.release_id)::INTEGER AS lanzamientos_total,
-    COUNT(DISTINCT dp.medium_id)::INTEGER AS soportes_total,
+    SUM(dp.es_primera_pista_lanzamiento)::INTEGER AS lanzamientos_total,
+    SUM(dp.es_primera_pista_soporte)::INTEGER AS soportes_total,
     COUNT(dp.track_id)::INTEGER AS pistas_total,
-    COUNT(DISTINCT dp.recording_id)::INTEGER AS grabaciones_unicas_total,
+    SUM(dp.es_primera_aparicion_grabacion)::INTEGER AS grabaciones_unicas_total,
     SUM(dp.duracion_ms)::BIGINT AS duracion_total_ms,
     ROUND(SUM(dp.duracion_ms) / 1000.0, 2) AS duracion_total_segundos,
     ROUND(SUM(dp.duracion_ms) / 60000.0, 2) AS duracion_total_minutos,

@@ -28,6 +28,7 @@ SQL_FILES = [
     BASE_DIR / "sql" / "gold" / "03_dimensions_facts.sql",
     BASE_DIR / "sql" / "gold" / "04_indexes_partitions.sql",
     BASE_DIR / "sql" / "gold" / "05_aggregations.sql",
+    BASE_DIR / "sql" / "gold" / "06_distribucion_duracion.sql",
 ]
 
 
