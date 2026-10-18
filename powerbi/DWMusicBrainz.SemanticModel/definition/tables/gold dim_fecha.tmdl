@@ -45,6 +45,7 @@ table 'gold dim_fecha'
 		lineageTag: 10c53e85-4fe3-46b2-9674-5e9dd9bcde2f
 		summarizeBy: none
 		sourceColumn: nombre_trimestre
+		sortByColumn: trimestre
 
 		annotation SummarizationSetBy = Automatic
 
@@ -126,6 +127,30 @@ table 'gold dim_fecha'
 		sourceColumn: siglo
 
 		annotation SummarizationSetBy = Automatic
+
+	/// Siglo > Década > Año > Trimestre > Mes (RF03).
+	hierarchy 'Jerarquia Temporal'
+		lineageTag: 577c2324-ffda-4e4a-a6ab-6284a7e397e9
+
+		level Siglo
+			lineageTag: 48c336b1-e620-493a-92cf-cf65c9590b51
+			column: siglo
+
+		level Decada
+			lineageTag: 6b2e3c9a-5218-4b50-8829-afe52ce93e7a
+			column: decada
+
+		level Anio
+			lineageTag: fda46bf4-ea23-4c46-bd0e-eb4f9d11d062
+			column: anio
+
+		level Trimestre
+			lineageTag: 80a81acd-8177-4740-a17c-04c2f5d8cd0f
+			column: nombre_trimestre
+
+		level Mes
+			lineageTag: f82c8f82-aaf3-4cc1-90eb-c69566cd3fe6
+			column: nombre_mes
 
 	partition 'gold dim_fecha' = m
 		mode: import

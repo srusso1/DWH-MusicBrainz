@@ -136,6 +136,44 @@ table _Medidas
 		displayFolder: 6. Distribucion
 		lineageTag: 5b85c8c0-29cf-4599-9d6d-07b0891402fb
 
+	/// Promedio de pistas por soporte físico o digital (RF07).
+	measure 'Pistas por Soporte' = DIVIDE ( [Total Pistas], [Total Soportes] )
+		formatString: #,0.0
+		displayFolder: 1. Volumen
+		lineageTag: f75fdded-3a47-4fca-a445-a2b13c4bbe4f
+
+	/// Lanzamientos excluyendo áreas sin país identificado; respeta el drill-down geográfico.
+	measure 'Lanzamientos (Pais Identificado)' =
+			CALCULATE (
+			    [Total Lanzamientos],
+			    KEEPFILTERS ( NOT 'gold dim_geografia'[nombre_pais] IN { "No Aplica", "Sin País Registrado" } )
+			)
+		formatString: #,0
+		displayFolder: 1. Volumen
+		lineageTag: ca849536-d04c-4bb2-888b-a099b5fe8139
+
+	/// Artistas con año de inicio 2015 o posterior y producción registrada (RF08).
+	measure 'Artistas Emergentes' =
+			CALCULATE (
+			    DISTINCTCOUNT ( 'gold fact_produccion_musical'[artista_key] ),
+			    KEEPFILTERS ( 'gold dim_artista'[anio_inicio] >= 2015 )
+			)
+		formatString: #,0
+		displayFolder: 7. Emergentes
+		lineageTag: 26e8e0e1-109b-4bb0-9ee4-c85016bbf3db
+
+	/// Lanzamientos de un artista emergente (inicio >= 2015) solo si el 100% de sus pistas tiene ISRC (RF08).
+	measure 'Lanzamientos Emergentes 100% ISRC' =
+			VAR _inicio = SELECTEDVALUE ( 'gold dim_artista'[anio_inicio] )
+			RETURN
+			    IF (
+			        _inicio >= 2015 && [Cobertura ISRC %] = 1,
+			        [Total Lanzamientos]
+			    )
+		formatString: #,0
+		displayFolder: 7. Emergentes
+		lineageTag: a8fefcb6-3f43-462b-a893-b6cb1174c616
+
 	column _
 		isHidden
 		lineageTag: de4a25f6-58a2-4dcb-9672-350446e9afc6

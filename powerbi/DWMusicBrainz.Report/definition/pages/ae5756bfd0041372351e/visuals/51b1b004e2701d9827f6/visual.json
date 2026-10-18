@@ -368,21 +368,25 @@
           "Where": [
             {
               "Condition": {
-                "Comparison": {
-                  "ComparisonKind": 1,
-                  "Left": {
-                    "Column": {
-                      "Expression": {
-                        "SourceRef": {
-                          "Source": "g"
+                "Not": {
+                  "Expression": {
+                    "Comparison": {
+                      "ComparisonKind": 0,
+                      "Left": {
+                        "Column": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Source": "g"
+                            }
+                          },
+                          "Property": "idioma_id"
                         }
                       },
-                      "Property": "idioma_id"
-                    }
-                  },
-                  "Right": {
-                    "Literal": {
-                      "Value": "0L"
+                      "Right": {
+                        "Literal": {
+                          "Value": "0L"
+                        }
+                      }
                     }
                   }
                 }

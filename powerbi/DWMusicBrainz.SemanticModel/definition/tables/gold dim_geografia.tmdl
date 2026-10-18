@@ -63,6 +63,22 @@ table 'gold dim_geografia'
 
 		annotation SummarizationSetBy = Automatic
 
+	/// País > Tipo de área > Área (RF03).
+	hierarchy 'Jerarquia Geografica'
+		lineageTag: adef222c-cc1d-46fb-a7dc-4dcbda5943fc
+
+		level Pais
+			lineageTag: 8d8989c6-731f-4d78-942f-171b7277f8a0
+			column: nombre_pais
+
+		level 'Tipo de Area'
+			lineageTag: d3951b7f-16cf-4677-822e-71a7ccc037d3
+			column: tipo_area
+
+		level Area
+			lineageTag: c2b5862e-b353-4720-ba2b-4ebfe3720ace
+			column: nombre_area
+
 	partition 'gold dim_geografia' = m
 		mode: import
 		source =
