@@ -1,0 +1,49 @@
+table 'gold dim_formato'
+	lineageTag: d88501a1-ffc8-4d72-a65b-47f666d89a1d
+
+	column formato_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 5f04c8a2-e1d7-4dc9-8215-32ec290783d0
+		summarizeBy: none
+		sourceColumn: formato_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column formato_id
+		dataType: int64
+		formatString: 0
+		lineageTag: f5cc15c3-6306-4e90-aa5b-04509cd52a85
+		summarizeBy: none
+		sourceColumn: formato_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column nombre_formato
+		dataType: string
+		lineageTag: 17608d4f-d436-4371-bd8c-4b74bf71328d
+		summarizeBy: none
+		sourceColumn: nombre_formato
+
+		annotation SummarizationSetBy = Automatic
+
+	column categoria_formato
+		dataType: string
+		lineageTag: 406b5c84-18cc-4476-9282-032518f1ceb6
+		summarizeBy: none
+		sourceColumn: categoria_formato
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'gold dim_formato' = m
+		mode: import
+		source =
+				let
+				  Origen = PostgreSQL.Database("localhost:5432", "dw_musicbrainz"),
+				  #"Navegación 1" = Origen{[Schema = "gold", Item = "dim_formato"]}[Data]
+				in
+				  #"Navegación 1"
+
+	annotation PBI_ResultType = Table
+

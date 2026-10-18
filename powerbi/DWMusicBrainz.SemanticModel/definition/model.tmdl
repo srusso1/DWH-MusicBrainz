@@ -1,0 +1,28 @@
+model Model
+	culture: es-ES
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: es-CO
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["gold dim_artista","gold dim_fecha","gold dim_formato","gold dim_geografia","gold dim_idioma","gold dim_lanzamiento","gold fact_produccion_musical","gold dim_rango_duracion","gold fact_distribucion_duracion"]
+
+annotation PBI_ProTooling = ["DevMode","MCP-PBIModeling"]
+
+ref table 'gold dim_artista'
+ref table 'gold dim_fecha'
+ref table 'gold dim_formato'
+ref table 'gold dim_geografia'
+ref table 'gold dim_idioma'
+ref table 'gold dim_lanzamiento'
+ref table 'gold fact_produccion_musical'
+ref table _Medidas
+ref table 'gold dim_rango_duracion'
+ref table 'gold fact_distribucion_duracion'
+
+ref cultureInfo es-ES
+

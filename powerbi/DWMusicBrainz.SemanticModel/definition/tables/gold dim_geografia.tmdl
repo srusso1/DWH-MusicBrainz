@@ -1,0 +1,76 @@
+table 'gold dim_geografia'
+	lineageTag: e4e95542-894c-42ec-8708-84a923192573
+
+	column geografia_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e99dc61d-430f-4e6c-8380-f57c4449961f
+		summarizeBy: none
+		sourceColumn: geografia_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column area_id
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 534883bf-3780-4ff2-aa17-2e43fad51f2c
+		summarizeBy: none
+		sourceColumn: area_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column area_gid
+		dataType: string
+		lineageTag: 374083bd-b8ed-44e7-937b-9aa73cc1a056
+		summarizeBy: none
+		sourceColumn: area_gid
+
+		annotation SummarizationSetBy = Automatic
+
+	column nombre_area
+		dataType: string
+		lineageTag: 7d6df9af-6c8f-48d3-bd3c-0a472dacb009
+		summarizeBy: none
+		sourceColumn: nombre_area
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo_area
+		dataType: string
+		lineageTag: 5783a74a-3897-4b67-a482-a64f6e65ec42
+		summarizeBy: none
+		sourceColumn: tipo_area
+
+		annotation SummarizationSetBy = Automatic
+
+	column nombre_pais
+		dataType: string
+		lineageTag: 210c2e3e-07bc-4511-b6b0-63f737c7752f
+		dataCategory: Country
+		summarizeBy: none
+		sourceColumn: nombre_pais
+
+		annotation SummarizationSetBy = Automatic
+
+	column creado_en
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: e892c94e-4ac4-4306-9006-53f78680c985
+		summarizeBy: none
+		sourceColumn: creado_en
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'gold dim_geografia' = m
+		mode: import
+		source =
+				let
+				  Origen = PostgreSQL.Database("localhost:5432", "dw_musicbrainz"),
+				  #"Navegación 1" = Origen{[Schema = "gold", Item = "dim_geografia"]}[Data]
+				in
+				  #"Navegación 1"
+
+	annotation PBI_ResultType = Table
+

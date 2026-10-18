@@ -1,0 +1,135 @@
+table 'gold dim_artista'
+	lineageTag: 7a234247-38e8-4264-8d30-b3ac96e5ef1d
+
+	column artista_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d28e1ed6-2730-406d-b1f8-6075ea8fdc40
+		summarizeBy: none
+		sourceColumn: artista_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column artista_id
+		dataType: int64
+		formatString: 0
+		lineageTag: dc8df51f-ebd8-4544-8b4f-308c54fb51d5
+		summarizeBy: none
+		sourceColumn: artista_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column artista_gid
+		dataType: string
+		lineageTag: db581102-462e-4fb3-83f8-d2372965d721
+		summarizeBy: none
+		sourceColumn: artista_gid
+
+		annotation SummarizationSetBy = Automatic
+
+	column nombre_artista
+		dataType: string
+		lineageTag: 8287a801-f429-4d66-a06e-3c312295bf7d
+		summarizeBy: none
+		sourceColumn: nombre_artista
+
+		annotation SummarizationSetBy = Automatic
+
+	column nombre_orden
+		dataType: string
+		lineageTag: b614630a-1c4d-48a7-a589-f69f86711534
+		summarizeBy: none
+		sourceColumn: nombre_orden
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo_artista
+		dataType: string
+		lineageTag: e0344862-ddb1-454f-97e9-c949b75b3d88
+		summarizeBy: none
+		sourceColumn: tipo_artista
+
+		annotation SummarizationSetBy = Automatic
+
+	column genero
+		dataType: string
+		lineageTag: 8846f982-56df-445a-9d47-724e25b35721
+		summarizeBy: none
+		sourceColumn: genero
+
+		annotation SummarizationSetBy = Automatic
+
+	column area_id
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 62aef024-d88e-4ae1-9aef-a83f277e97f0
+		summarizeBy: none
+		sourceColumn: area_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column nombre_area
+		dataType: string
+		lineageTag: 94202e0b-9347-4c65-a275-a22af57e53f8
+		summarizeBy: none
+		sourceColumn: nombre_area
+
+		annotation SummarizationSetBy = Automatic
+
+	column nombre_pais
+		dataType: string
+		lineageTag: 0d016ab9-4534-48b9-9eb1-f6370043899d
+		summarizeBy: none
+		sourceColumn: nombre_pais
+
+		annotation SummarizationSetBy = Automatic
+
+	column anio_inicio
+		dataType: int64
+		formatString: 0
+		lineageTag: 343e3ee0-801e-49ce-80cc-e1fbdfbd19fc
+		summarizeBy: none
+		sourceColumn: anio_inicio
+
+		annotation SummarizationSetBy = Automatic
+
+	column anio_fin
+		dataType: int64
+		formatString: 0
+		lineageTag: ef55d9b9-281e-4e51-996c-cb6e9dd2c27c
+		summarizeBy: none
+		sourceColumn: anio_fin
+
+		annotation SummarizationSetBy = Automatic
+
+	column finalizado
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: ba700c89-9e63-4baa-af35-0bcc8a61ead2
+		summarizeBy: none
+		sourceColumn: finalizado
+
+		annotation SummarizationSetBy = Automatic
+
+	column creado_en
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: ed4d9d52-ecc0-43f4-9693-b19b4dbb874d
+		summarizeBy: none
+		sourceColumn: creado_en
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'gold dim_artista' = m
+		mode: import
+		source =
+				let
+				  Origen = PostgreSQL.Database("localhost:5432", "dw_musicbrainz"),
+				  #"Navegación 1" = Origen{[Schema = "gold", Item = "dim_artista"]}[Data]
+				in
+				  #"Navegación 1"
+
+	annotation PBI_ResultType = Table
+

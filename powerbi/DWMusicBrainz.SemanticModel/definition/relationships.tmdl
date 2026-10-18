@@ -1,0 +1,49 @@
+relationship AutoDetected_2568fcfa-b163-43cb-bbc7-57fa546673d3
+	fromColumn: 'gold fact_produccion_musical'.artista_key
+	toColumn: 'gold dim_artista'.artista_key
+
+relationship AutoDetected_789489ea-5ad2-4bee-9e7b-a9c668736b97
+	isActive: false
+	fromColumn: 'gold dim_artista'.area_id
+	toColumn: 'gold dim_geografia'.area_id
+
+relationship AutoDetected_690bb3b2-6bd6-4e69-bc77-d9ecb24542e8
+	fromColumn: 'gold fact_produccion_musical'.fecha_key
+	toColumn: 'gold dim_fecha'.fecha_key
+
+relationship AutoDetected_98bd66cf-6250-4dd2-889d-235b525501fb
+	fromColumn: 'gold fact_produccion_musical'.formato_key
+	toColumn: 'gold dim_formato'.formato_key
+
+relationship AutoDetected_a39b32bb-ed4f-46ad-a8e7-21012c0cf37e
+	fromColumn: 'gold fact_produccion_musical'.geografia_key
+	toColumn: 'gold dim_geografia'.geografia_key
+
+relationship AutoDetected_983d42ac-161f-4008-bd6d-3bb3b36e476e
+	fromColumn: 'gold fact_produccion_musical'.idioma_key
+	toColumn: 'gold dim_idioma'.idioma_key
+
+relationship AutoDetected_ac51d37b-1ff2-4752-9b19-36ae15406d0e
+	fromColumn: 'gold fact_produccion_musical'.lanzamiento_key
+	toColumn: 'gold dim_lanzamiento'.lanzamiento_key
+
+relationship 'gold fact_distribucion_duracion_fecha_key_gold dim_fecha_fecha_key'
+	fromColumn: 'gold fact_distribucion_duracion'.fecha_key
+	toColumn: 'gold dim_fecha'.fecha_key
+
+relationship 'gold fact_distribucion_duracion_formato_key_gold dim_formato_formato_key'
+	fromColumn: 'gold fact_distribucion_duracion'.formato_key
+	toColumn: 'gold dim_formato'.formato_key
+
+relationship 'gold fact_distribucion_duracion_idioma_key_gold dim_idioma_idioma_key'
+	fromColumn: 'gold fact_distribucion_duracion'.idioma_key
+	toColumn: 'gold dim_idioma'.idioma_key
+
+relationship 'gold fact_distribucion_duracion_geografia_key_gold dim_geografia_geografia_key'
+	fromColumn: 'gold fact_distribucion_duracion'.geografia_key
+	toColumn: 'gold dim_geografia'.geografia_key
+
+relationship 'gold fact_distribucion_duracion_rango_duracion_key_gold dim_rango_duracion_rango_duracion_key'
+	fromColumn: 'gold fact_distribucion_duracion'.rango_duracion_key
+	toColumn: 'gold dim_rango_duracion'.rango_duracion_key
+

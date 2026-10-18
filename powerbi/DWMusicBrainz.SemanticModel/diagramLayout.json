@@ -1,0 +1,152 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 50,
+            "y": 178.86659073174292
+          },
+          "nodeIndex": "gold dim_artista",
+          "nodeLineageTag": "7a234247-38e8-4264-8d30-b3ac96e5ef1d",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 670.0651408495396,
+            "y": 124.91644796678838
+          },
+          "nodeIndex": "gold dim_fecha",
+          "nodeLineageTag": "51163cd7-1690-4b22-a857-a6653aef99e8",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 705.11687564552267,
+            "y": 513.34365135013445
+          },
+          "nodeIndex": "gold dim_formato",
+          "nodeLineageTag": "d88501a1-ffc8-4d72-a65b-47f666d89a1d",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 96.521627534449209,
+            "y": 532.25889501796019
+          },
+          "nodeIndex": "gold dim_geografia",
+          "nodeLineageTag": "e4e95542-894c-42ec-8708-84a923192573",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 337.05023833326379,
+            "y": -50
+          },
+          "nodeIndex": "gold dim_idioma",
+          "nodeLineageTag": "4ae8ca20-8273-4538-b17a-82faa263e1a6",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 418.06192630567762,
+            "y": 681.46541485253465
+          },
+          "nodeIndex": "gold dim_lanzamiento",
+          "nodeLineageTag": "5594a29c-d5e6-4925-bd9a-b3b9e8720a31",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 383.01699538348055,
+            "y": 327.84881431918757
+          },
+          "nodeIndex": "gold fact_produccion_musical",
+          "nodeLineageTag": "04c4d472-459b-4eb7-93ef-25efb3ab28e0",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 939.11687564552267,
+            "y": 401.73270742626732
+          },
+          "nodeIndex": "_Medidas",
+          "nodeLineageTag": "72b65f60-d60b-4a5b-8b0a-848c3ec71864",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1173.1168756455227,
+            "y": 401.73270742626732
+          },
+          "nodeIndex": "gold dim_rango_duracion",
+          "nodeLineageTag": "2a6ca722-6d6c-4608-8b25-d510c7693410",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1457.1168756455227,
+            "y": 377.73270742626732
+          },
+          "nodeIndex": "gold fact_distribucion_duracion",
+          "nodeLineageTag": "6ff8610c-b45b-4532-a193-a41e9d9d4387",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "Todas las tablas",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "Todas las tablas",
+  "defaultDiagram": "Todas las tablas"
+}

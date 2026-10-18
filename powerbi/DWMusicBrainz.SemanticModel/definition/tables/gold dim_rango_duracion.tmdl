@@ -1,0 +1,46 @@
+/// Dimensión de bandas de duración de pista (30 s).
+table 'gold dim_rango_duracion'
+	lineageTag: 2a6ca722-6d6c-4608-8b25-d510c7693410
+
+	column rango_duracion_key
+		dataType: int64
+		isHidden
+		lineageTag: dcea207c-83bd-4055-967f-e3485de95880
+		summarizeBy: none
+		sourceColumn: rango_duracion_key
+
+	column orden
+		dataType: int64
+		isHidden
+		lineageTag: 270d0674-97f9-4b43-91c9-f7deb1ab3884
+		summarizeBy: none
+		sourceColumn: orden
+
+	column etiqueta_rango
+		dataType: string
+		lineageTag: c76450eb-aa08-4d0c-87ca-7669fefe893b
+		summarizeBy: none
+		sourceColumn: etiqueta_rango
+		sortByColumn: orden
+
+	column limite_inferior_seg
+		dataType: int64
+		lineageTag: b9528591-1795-426a-be25-e9efd69122a3
+		summarizeBy: none
+		sourceColumn: limite_inferior_seg
+
+	column limite_superior_seg
+		dataType: int64
+		lineageTag: b7c4be4c-f0b2-4003-8ef0-98fb5f197d58
+		summarizeBy: none
+		sourceColumn: limite_superior_seg
+
+	partition 'gold dim_rango_duracion' = m
+		mode: import
+		source =
+				let
+				  Origen = PostgreSQL.Database("localhost:5432", "dw_musicbrainz"),
+				  Tabla = Origen{[Schema = "gold", Item = "dim_rango_duracion"]}[Data]
+				in
+				  Tabla
+

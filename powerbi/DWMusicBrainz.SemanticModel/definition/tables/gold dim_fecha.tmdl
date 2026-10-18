@@ -1,0 +1,140 @@
+table 'gold dim_fecha'
+	lineageTag: 51163cd7-1690-4b22-a857-a6653aef99e8
+
+	column fecha_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c6d2bfac-47cd-42cd-a006-49937c001804
+		summarizeBy: none
+		sourceColumn: fecha_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column fecha_completa
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 47727a46-3080-4222-a481-a7dc9dbf710c
+		summarizeBy: none
+		sourceColumn: fecha_completa
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column anio
+		dataType: int64
+		formatString: 0
+		lineageTag: 906aa9a8-814b-4738-8625-4c0227fd75c6
+		summarizeBy: none
+		sourceColumn: anio
+
+		annotation SummarizationSetBy = Automatic
+
+	column trimestre
+		dataType: int64
+		formatString: 0
+		lineageTag: 8a24e4c0-0a3e-4c51-852f-beb8b3e3e3ba
+		summarizeBy: none
+		sourceColumn: trimestre
+
+		annotation SummarizationSetBy = Automatic
+
+	column nombre_trimestre
+		dataType: string
+		lineageTag: 10c53e85-4fe3-46b2-9674-5e9dd9bcde2f
+		summarizeBy: none
+		sourceColumn: nombre_trimestre
+
+		annotation SummarizationSetBy = Automatic
+
+	column mes
+		dataType: int64
+		formatString: 0
+		lineageTag: 591a045c-964c-442f-a0a9-e0df610bfa1c
+		summarizeBy: none
+		sourceColumn: mes
+
+		annotation SummarizationSetBy = Automatic
+
+	column nombre_mes
+		dataType: string
+		lineageTag: 7abbfc48-7877-4fe2-88b2-996b909c9dda
+		summarizeBy: none
+		sourceColumn: nombre_mes
+		sortByColumn: mes
+
+		annotation SummarizationSetBy = Automatic
+
+	column nombre_mes_corto
+		dataType: string
+		lineageTag: 4d53597f-9d75-4c86-8abb-3e95d1f5264c
+		summarizeBy: none
+		sourceColumn: nombre_mes_corto
+		sortByColumn: mes
+
+		annotation SummarizationSetBy = Automatic
+
+	column dia
+		dataType: int64
+		formatString: 0
+		lineageTag: 8ac1e695-c728-43fd-9eac-41a68f8990eb
+		summarizeBy: none
+		sourceColumn: dia
+
+		annotation SummarizationSetBy = Automatic
+
+	column dia_semana
+		dataType: int64
+		formatString: 0
+		lineageTag: 11fac655-3a16-472d-8d52-0033e9188b4a
+		summarizeBy: none
+		sourceColumn: dia_semana
+
+		annotation SummarizationSetBy = Automatic
+
+	column nombre_dia
+		dataType: string
+		lineageTag: 0e754020-e71d-4d41-9a91-66f1dc60c36a
+		summarizeBy: none
+		sourceColumn: nombre_dia
+		sortByColumn: dia_semana
+
+		annotation SummarizationSetBy = Automatic
+
+	column es_fin_de_semana
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 41242f56-0e0c-4bc1-a4a2-ea8dec06073b
+		summarizeBy: none
+		sourceColumn: es_fin_de_semana
+
+		annotation SummarizationSetBy = Automatic
+
+	column decada
+		dataType: string
+		lineageTag: 4975a012-ebf6-4c22-bf81-16400d1c094b
+		summarizeBy: none
+		sourceColumn: decada
+
+		annotation SummarizationSetBy = Automatic
+
+	column siglo
+		dataType: string
+		lineageTag: cbd40224-5538-4d16-b112-148c530ec1d9
+		summarizeBy: none
+		sourceColumn: siglo
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'gold dim_fecha' = m
+		mode: import
+		source =
+				let
+				  Origen = PostgreSQL.Database("localhost:5432", "dw_musicbrainz"),
+				  #"Navegación 1" = Origen{[Schema = "gold", Item = "dim_fecha"]}[Data]
+				in
+				  #"Navegación 1"
+
+	annotation PBI_ResultType = Table
+

@@ -1,7 +1,7 @@
 # Guía de Modelado DAX y Métricas para Power BI (`DWMusicBrainz`)
 
 ## 1. Conexión a PostgreSQL en Power BI Desktop
-* **Servidor:** `localhost:5435`
+* **Servidor:** `localhost:5432 (puerto definido en DB_PORT del archivo .env)`
 * **Base de Datos:** `dw_musicbrainz`
 * **Modo de Conexión:** **Import** o **DirectQuery**
 * **Tablas a Importar (Capa Gold en Español):**
@@ -31,26 +31,26 @@
 
 ### 3.1. Volumetría de Producción Musical
 ```dax
-Total Lanzamientos = SUM(gold_fact_produccion_musical[lanzamientos_total])
+Total Lanzamientos = SUM('gold fact_produccion_musical'[lanzamientos_total])
 ```
 
 ```dax
-Total Soportes = SUM(gold_fact_produccion_musical[soportes_total])
+Total Soportes = SUM('gold fact_produccion_musical'[soportes_total])
 ```
 
 ```dax
-Total Pistas = SUM(gold_fact_produccion_musical[pistas_total])
+Total Pistas = SUM('gold fact_produccion_musical'[pistas_total])
 ```
 
 ```dax
-Artistas Activos = DISTINCTCOUNT(gold_fact_produccion_musical[artista_key])
+Artistas Activos = DISTINCTCOUNT('gold fact_produccion_musical'[artista_key])
 ```
 
 ### 3.2. Métricas de Tiempo y Duración Ponderada
 ```dax
 Duracion Total (Horas) = 
 DIVIDE(
-    SUM(gold_fact_produccion_musical[duracion_total_minutos]), 
+    SUM('gold fact_produccion_musical'[duracion_total_minutos]), 
     60, 
     0
 )
@@ -59,8 +59,8 @@ DIVIDE(
 ```dax
 Duracion Promedio por Pista (Segundos) = 
 DIVIDE(
-    SUM(gold_fact_produccion_musical[duracion_total_segundos]),
-    SUM(gold_fact_produccion_musical[pistas_completas_total]),
+    SUM('gold fact_produccion_musical'[duracion_total_segundos]),
+    SUM('gold fact_produccion_musical'[pistas_completas_total]),
     0
 )
 ```
@@ -76,7 +76,7 @@ DIVIDE(
 
 ### 3.3. Estándares Internacionales (ISRC) y Canciones Largas
 ```dax
-Total Pistas con ISRC = SUM(gold_fact_produccion_musical[pistas_con_isrc_total])
+Total Pistas con ISRC = SUM('gold fact_produccion_musical'[pistas_con_isrc_total])
 ```
 
 ```dax
@@ -89,7 +89,7 @@ DIVIDE(
 ```
 
 ```dax
-Total Pistas Largas (>5 min) = SUM(gold_fact_produccion_musical[pistas_largas_total])
+Total Pistas Largas (>5 min) = SUM('gold fact_produccion_musical'[pistas_largas_total])
 ```
 
 ```dax
@@ -106,7 +106,7 @@ DIVIDE(
 Lanzamientos Digitales = 
 CALCULATE(
     [Total Lanzamientos],
-    gold_dim_formato[categoria_formato] = "Digital / Streaming"
+    'gold dim_formato'[categoria_formato] = "Digital / Streaming"
 )
 ```
 
@@ -114,7 +114,7 @@ CALCULATE(
 Lanzamientos Vinilo = 
 CALCULATE(
     [Total Lanzamientos],
-    gold_dim_formato[categoria_formato] = "Físico / Vinilo"
+    'gold dim_formato'[categoria_formato] = "Físico / Vinilo"
 )
 ```
 
@@ -122,7 +122,7 @@ CALCULATE(
 Lanzamientos CD Optico = 
 CALCULATE(
     [Total Lanzamientos],
-    gold_dim_formato[categoria_formato] = "Físico / Óptico"
+    'gold dim_formato'[categoria_formato] = "Físico / Óptico"
 )
 ```
 

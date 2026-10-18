@@ -1,0 +1,87 @@
+table 'gold dim_lanzamiento'
+	lineageTag: 5594a29c-d5e6-4925-bd9a-b3b9e8720a31
+
+	column lanzamiento_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 89073e6c-b4f8-4892-87b1-9ff59008428b
+		summarizeBy: none
+		sourceColumn: lanzamiento_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column estado_id
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 0786a57f-1f93-4274-882e-797e40d0dc91
+		summarizeBy: none
+		sourceColumn: estado_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column empaque_id
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 6b2bd6b6-c77e-40af-b958-ed79866ab36c
+		summarizeBy: none
+		sourceColumn: empaque_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column calidad_id
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 0f5e6cad-faf1-49a3-9070-af6b8c9c65dc
+		summarizeBy: none
+		sourceColumn: calidad_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column estado_lanzamiento
+		dataType: string
+		lineageTag: bfe0462a-1ac5-4fe6-b541-61e6e52cfdea
+		summarizeBy: none
+		sourceColumn: estado_lanzamiento
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo_empaque
+		dataType: string
+		lineageTag: 5d4ff1e2-e0e3-404b-b223-6af45ac46084
+		summarizeBy: none
+		sourceColumn: tipo_empaque
+
+		annotation SummarizationSetBy = Automatic
+
+	column calidad_datos
+		dataType: string
+		lineageTag: b242c6e6-98bc-4a72-a531-90df44d36527
+		summarizeBy: none
+		sourceColumn: calidad_datos
+
+		annotation SummarizationSetBy = Automatic
+
+	column creado_en
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 105ebf4b-2c3f-4dcf-b988-7a93ae67734e
+		summarizeBy: none
+		sourceColumn: creado_en
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'gold dim_lanzamiento' = m
+		mode: import
+		source =
+				let
+				  Origen = PostgreSQL.Database("localhost:5432", "dw_musicbrainz"),
+				  #"Navegación 1" = Origen{[Schema = "gold", Item = "dim_lanzamiento"]}[Data]
+				in
+				  #"Navegación 1"
+
+	annotation PBI_ResultType = Table
+

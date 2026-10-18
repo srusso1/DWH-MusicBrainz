@@ -1,0 +1,62 @@
+/// Hecho agregado anual: pistas por banda de duración.
+table 'gold fact_distribucion_duracion'
+	lineageTag: 6ff8610c-b45b-4532-a193-a41e9d9d4387
+
+	column fecha_key
+		dataType: int64
+		isHidden
+		lineageTag: 2bf7ef0e-eaa5-4d24-b8b5-b9609c47653c
+		summarizeBy: none
+		sourceColumn: fecha_key
+
+	column formato_key
+		dataType: int64
+		isHidden
+		lineageTag: f58e547d-2261-402c-b9eb-21a55fe9a373
+		summarizeBy: none
+		sourceColumn: formato_key
+
+	column idioma_key
+		dataType: int64
+		isHidden
+		lineageTag: 427e0b20-4c59-47a3-9417-038cf8e1d114
+		summarizeBy: none
+		sourceColumn: idioma_key
+
+	column geografia_key
+		dataType: int64
+		isHidden
+		lineageTag: 75cf2a88-2efd-49c0-9409-f31787c3bc71
+		summarizeBy: none
+		sourceColumn: geografia_key
+
+	column rango_duracion_key
+		dataType: int64
+		isHidden
+		lineageTag: 58ff8b44-c99b-4229-9516-cbab7741bb1b
+		summarizeBy: none
+		sourceColumn: rango_duracion_key
+
+	column pistas_total
+		dataType: int64
+		isHidden
+		lineageTag: a16a4c17-6052-4eb4-a621-9f7c3fb307bf
+		summarizeBy: sum
+		sourceColumn: pistas_total
+
+	column duracion_total_ms
+		dataType: int64
+		isHidden
+		lineageTag: a5b25145-2959-4fa0-9b88-7b1f0f3861be
+		summarizeBy: sum
+		sourceColumn: duracion_total_ms
+
+	partition 'gold fact_distribucion_duracion' = m
+		mode: import
+		source =
+				let
+				  Origen = PostgreSQL.Database("localhost:5432", "dw_musicbrainz"),
+				  Tabla = Origen{[Schema = "gold", Item = "fact_distribucion_duracion"]}[Data]
+				in
+				  Tabla
+

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "DWMusicBrainz"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "ec228c26-e7cf-44b4-b270-b7f7f5067ff2"
+  }
+}

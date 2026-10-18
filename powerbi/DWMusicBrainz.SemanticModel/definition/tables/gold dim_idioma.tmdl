@@ -1,0 +1,49 @@
+table 'gold dim_idioma'
+	lineageTag: 4ae8ca20-8273-4538-b17a-82faa263e1a6
+
+	column idioma_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 80124fb0-b93e-4434-a0ee-c5a0f30a7291
+		summarizeBy: none
+		sourceColumn: idioma_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column idioma_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 2bb39c5d-0181-442a-b1ab-94eec9ea2a24
+		summarizeBy: none
+		sourceColumn: idioma_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column nombre_idioma
+		dataType: string
+		lineageTag: 9b2daa24-aa6c-42f4-b7a4-2032e5926f1e
+		summarizeBy: none
+		sourceColumn: nombre_idioma
+
+		annotation SummarizationSetBy = Automatic
+
+	column codigo_iso
+		dataType: string
+		lineageTag: 539e29b0-8fb7-4005-a00d-744eb4d49102
+		summarizeBy: none
+		sourceColumn: codigo_iso
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'gold dim_idioma' = m
+		mode: import
+		source =
+				let
+				  Origen = PostgreSQL.Database("localhost:5432", "dw_musicbrainz"),
+				  #"Navegación 1" = Origen{[Schema = "gold", Item = "dim_idioma"]}[Data]
+				in
+				  #"Navegación 1"
+
+	annotation PBI_ResultType = Table
+

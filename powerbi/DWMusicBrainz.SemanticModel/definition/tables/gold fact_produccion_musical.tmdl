@@ -1,0 +1,185 @@
+table 'gold fact_produccion_musical'
+	lineageTag: 04c4d472-459b-4eb7-93ef-25efb3ab28e0
+
+	column hecho_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 157d3ae6-e2e3-4ed0-b1b8-a385e7504bff
+		summarizeBy: none
+		sourceColumn: hecho_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column fecha_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 1e5ad13a-e86c-4467-8397-f95357ee3505
+		summarizeBy: none
+		sourceColumn: fecha_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column artista_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 86ef3f5f-d134-4962-a186-29a86ff44b2a
+		summarizeBy: none
+		sourceColumn: artista_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column lanzamiento_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 499d0208-127b-4e7d-8cb2-7a346b7ced15
+		summarizeBy: none
+		sourceColumn: lanzamiento_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column geografia_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d7950032-77b7-43ab-ac1c-df6d9491b90a
+		summarizeBy: none
+		sourceColumn: geografia_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column formato_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f998f869-50e6-490f-8932-5eacbb512062
+		summarizeBy: none
+		sourceColumn: formato_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column idioma_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 71eb1411-874f-4823-a120-0f491964a52d
+		summarizeBy: none
+		sourceColumn: idioma_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column lanzamientos_total
+		dataType: int64
+		formatString: 0
+		lineageTag: c8259b01-236d-43f5-84d6-345d7a24bde9
+		summarizeBy: sum
+		sourceColumn: lanzamientos_total
+
+		annotation SummarizationSetBy = Automatic
+
+	column soportes_total
+		dataType: int64
+		formatString: 0
+		lineageTag: c9a9503d-1da0-4fe5-81d7-82a6ada86f93
+		summarizeBy: sum
+		sourceColumn: soportes_total
+
+		annotation SummarizationSetBy = Automatic
+
+	column pistas_total
+		dataType: int64
+		formatString: 0
+		lineageTag: 3420c31f-dc31-4cfe-9f45-b6fd8eb43593
+		summarizeBy: sum
+		sourceColumn: pistas_total
+
+		annotation SummarizationSetBy = Automatic
+
+	column grabaciones_unicas_total
+		dataType: int64
+		formatString: 0
+		lineageTag: 7b8bfff2-2345-482b-a1cf-8f4ea7549072
+		summarizeBy: sum
+		sourceColumn: grabaciones_unicas_total
+
+		annotation SummarizationSetBy = Automatic
+
+	column duracion_total_ms
+		dataType: int64
+		formatString: 0
+		lineageTag: 38a4a0a8-43a7-4e7d-a674-86d6a335253f
+		summarizeBy: sum
+		sourceColumn: duracion_total_ms
+
+		annotation SummarizationSetBy = Automatic
+
+	column duracion_total_segundos
+		dataType: double
+		lineageTag: 07d989f7-0bb4-4da7-8436-7de45d6ea871
+		summarizeBy: sum
+		sourceColumn: duracion_total_segundos
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column duracion_total_minutos
+		dataType: double
+		lineageTag: 4fc9091a-dbfd-42e2-8003-33e625fac90f
+		summarizeBy: sum
+		sourceColumn: duracion_total_minutos
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column pistas_con_isrc_total
+		dataType: int64
+		formatString: 0
+		lineageTag: 6030296a-b584-40e1-a61a-59b16c9221ac
+		summarizeBy: sum
+		sourceColumn: pistas_con_isrc_total
+
+		annotation SummarizationSetBy = Automatic
+
+	column pistas_largas_total
+		dataType: int64
+		formatString: 0
+		lineageTag: cfce6419-b808-4202-9604-8d6693b8bb55
+		summarizeBy: sum
+		sourceColumn: pistas_largas_total
+
+		annotation SummarizationSetBy = Automatic
+
+	column pistas_video_total
+		dataType: int64
+		formatString: 0
+		lineageTag: bdf69d42-ecc0-45de-9d17-b5ad67e07c31
+		summarizeBy: sum
+		sourceColumn: pistas_video_total
+
+		annotation SummarizationSetBy = Automatic
+
+	column pistas_completas_total
+		dataType: int64
+		formatString: 0
+		lineageTag: 4d6c4be0-5672-4d2a-98bf-67036ee331bb
+		summarizeBy: sum
+		sourceColumn: pistas_completas_total
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'gold fact_produccion_musical' = m
+		mode: import
+		source =
+				let
+				  Origen = PostgreSQL.Database("localhost:5432", "dw_musicbrainz"),
+				  #"Navegación 1" = Origen{[Schema = "gold", Item = "fact_produccion_musical"]}[Data]
+				in
+				  #"Navegación 1"
+
+	annotation PBI_ResultType = Table
+

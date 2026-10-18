@@ -1,0 +1,148 @@
+/// Tabla contenedora de medidas DAX del modelo DWMusicBrainz.
+table _Medidas
+	lineageTag: 72b65f60-d60b-4a5b-8b0a-848c3ec71864
+
+	/// Suma aditiva de lanzamientos registrados.
+	measure 'Total Lanzamientos' = SUM ( 'gold fact_produccion_musical'[lanzamientos_total] )
+		formatString: #,0
+		displayFolder: 1. Volumen
+		lineageTag: 285cea92-e974-4b18-b7d3-e920231a05d4
+
+	/// Suma de soportes físicos/digitales (mediums).
+	measure 'Total Soportes' = SUM ( 'gold fact_produccion_musical'[soportes_total] )
+		formatString: #,0
+		displayFolder: 1. Volumen
+		lineageTag: 69dc6f4a-fc81-4def-972e-d01984aaf7b8
+
+	/// Suma de pistas (tracks).
+	measure 'Total Pistas' = SUM ( 'gold fact_produccion_musical'[pistas_total] )
+		formatString: #,0
+		displayFolder: 1. Volumen
+		lineageTag: e65e456a-6101-49a6-8436-acee1f5fc307
+
+	/// Artistas distintos con al menos un hecho en el contexto de filtro.
+	measure 'Artistas Activos' = DISTINCTCOUNT ( 'gold fact_produccion_musical'[artista_key] )
+		formatString: #,0
+		displayFolder: 1. Volumen
+		lineageTag: 74712bc8-3ed2-46d7-913c-ecc32826b8d2
+
+	/// Promedio de pistas por lanzamiento.
+	measure 'Pistas por Lanzamiento' = DIVIDE ( [Total Pistas], [Total Lanzamientos] )
+		formatString: #,0.0
+		displayFolder: 1. Volumen
+		lineageTag: 58070656-ae45-4c5f-a36c-099bdd392c0c
+
+	/// Participación sobre el total visible en el visual.
+	measure '% del Total Lanzamientos' = DIVIDE ( [Total Lanzamientos], CALCULATE ( [Total Lanzamientos], ALLSELECTED () ) )
+		formatString: 0.0%
+		displayFolder: 1. Volumen
+		lineageTag: cbbc00f7-2e69-4bd3-a66c-9a750c1e0eda
+
+	/// Horas totales de audio con duración conocida.
+	measure 'Duracion Total (Horas)' = DIVIDE ( SUM ( 'gold fact_produccion_musical'[duracion_total_minutos] ), 60 )
+		formatString: #,0
+		displayFolder: 2. Duracion
+		lineageTag: 40fccfd8-64ab-4977-962b-e0cf75017d8a
+
+	/// Duración media ponderada; solo pistas con duración registrada.
+	measure 'Duracion Promedio por Pista (min)' = DIVIDE ( SUM ( 'gold fact_produccion_musical'[duracion_total_segundos] ), SUM ( 'gold fact_produccion_musical'[pistas_completas_total] ) ) / 60
+		formatString: 0.00
+		displayFolder: 2. Duracion
+		lineageTag: 0a34e205-bb6e-4fd9-8aa9-0c9b826ed790
+
+	measure 'Pistas con ISRC' = SUM ( 'gold fact_produccion_musical'[pistas_con_isrc_total] )
+		formatString: #,0
+		displayFolder: 3. Calidad
+		lineageTag: 616bbd15-d952-4a12-896c-90d8c230366a
+
+	/// Proporción de pistas con código ISRC.
+	measure 'Cobertura ISRC %' = DIVIDE ( [Pistas con ISRC], [Total Pistas] )
+		formatString: 0.0%
+		displayFolder: 3. Calidad
+		lineageTag: 6849801f-6272-4f09-9175-67a1a2c10e78
+
+	measure 'Pistas Largas (>5 min)' = SUM ( 'gold fact_produccion_musical'[pistas_largas_total] )
+		formatString: #,0
+		displayFolder: 3. Calidad
+		lineageTag: d755315a-7227-4b97-a293-ca8f681a02c8
+
+	measure '% Pistas Largas' = DIVIDE ( [Pistas Largas (>5 min)], [Total Pistas] )
+		formatString: 0.0%
+		displayFolder: 3. Calidad
+		lineageTag: 6af3bc1a-362f-4dff-8587-0e067cca64d0
+
+	measure 'Lanzamientos Digitales' = CALCULATE ( [Total Lanzamientos], 'gold dim_formato'[categoria_formato] = "Digital / Streaming" )
+		formatString: #,0
+		displayFolder: 4. Formatos
+		lineageTag: b0cc18a2-b63c-4006-b2a4-48d7032a78c1
+
+	measure 'Lanzamientos Vinilo' = CALCULATE ( [Total Lanzamientos], 'gold dim_formato'[categoria_formato] = "Físico / Vinilo" )
+		formatString: #,0
+		displayFolder: 4. Formatos
+		lineageTag: e63e06ea-dacf-494d-82e8-e0c5e3d22dc4
+
+	measure 'Lanzamientos CD Optico' = CALCULATE ( [Total Lanzamientos], 'gold dim_formato'[categoria_formato] = "Físico / Óptico" )
+		formatString: #,0
+		displayFolder: 4. Formatos
+		lineageTag: 0e3a24e6-5f72-4020-9689-ae5f7a821552
+
+	measure 'Participacion Digital %' = DIVIDE ( [Lanzamientos Digitales], [Total Lanzamientos] )
+		formatString: 0.0%
+		displayFolder: 4. Formatos
+		lineageTag: 9adb0c5d-e71f-4343-ac86-7279e4ba5a10
+
+	measure 'Participacion Vinilo %' = DIVIDE ( [Lanzamientos Vinilo], [Total Lanzamientos] )
+		formatString: 0.0%
+		displayFolder: 4. Formatos
+		lineageTag: 11a47588-0925-4fd8-b02d-0a955e324a20
+
+	measure 'Participacion CD Optico %' = DIVIDE ( [Lanzamientos CD Optico], [Total Lanzamientos] )
+		formatString: 0.0%
+		displayFolder: 4. Formatos
+		lineageTag: 08ad2101-e95a-48fb-93de-394da4d210eb
+
+	/// Lanzamientos del año calendario previo (requiere un único año en contexto).
+	measure 'Lanzamientos Anio Anterior' =
+			VAR _anio = SELECTEDVALUE ( 'gold dim_fecha'[anio] )
+			RETURN
+			    IF (
+			        _anio > 1900,
+			        CALCULATE ( [Total Lanzamientos], REMOVEFILTERS ( 'gold dim_fecha' ), 'gold dim_fecha'[anio] = _anio - 1 )
+			    )
+		formatString: #,0
+		displayFolder: 5. Tendencia
+		lineageTag: 17ce12cb-7a69-4c93-845c-8014ce49dc28
+
+	measure 'Variacion Interanual %' =
+			VAR _prev = [Lanzamientos Anio Anterior]
+			RETURN DIVIDE ( [Total Lanzamientos] - _prev, _prev )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 5. Tendencia
+		lineageTag: d52bdbd4-be3c-4cae-b8c5-442bd98f8bdf
+
+	/// Conteo de pistas por banda de duración (hecho agregado anual).
+	measure 'Pistas (Distribucion)' = SUM ( 'gold fact_distribucion_duracion'[pistas_total] )
+		formatString: #,0
+		displayFolder: 6. Distribucion
+		lineageTag: 214a15cd-80c3-4b96-b30a-e3d067cb3e6a
+
+	/// Frecuencia relativa de cada banda sobre el total visible.
+	measure '% Pistas (Distribucion)' =
+			DIVIDE (
+			    [Pistas (Distribucion)],
+			    CALCULATE ( [Pistas (Distribucion)], ALLSELECTED ( 'gold dim_rango_duracion' ) )
+			)
+		formatString: 0.0%
+		displayFolder: 6. Distribucion
+		lineageTag: 5b85c8c0-29cf-4599-9d6d-07b0891402fb
+
+	column _
+		isHidden
+		lineageTag: de4a25f6-58a2-4dcb-9672-350446e9afc6
+		isNameInferred
+		sourceColumn: [_]
+
+	partition _Medidas = calculated
+		mode: import
+		source = ROW("_", BLANK())
+

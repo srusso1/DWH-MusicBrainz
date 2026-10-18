@@ -9,3 +9,11 @@ data/raw/
 *.tsv
 .pytest_cache/
 .vscode/
+
+# Power BI (PBIP): cache de datos y configuración local de Desktop
+**/.pbi/cache.abf
+**/.pbi/localSettings.json
+powerbi_backup_*/
+
+# Herramientas locales de agentes
+.atl/
