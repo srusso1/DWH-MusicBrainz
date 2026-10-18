@@ -110,16 +110,17 @@ CREATE TABLE IF NOT EXISTS silver.release_unknown_country (
     date_day            SMALLINT
 );
 
--- 7. silver.medium (Discos físicos o digitales que componen cada release)
+-- 7. silver.medium (Discos físicos o digitales que componen cada release - Schema Sequence 31)
 CREATE TABLE IF NOT EXISTS silver.medium (
     id                  INTEGER PRIMARY KEY,
     release             INTEGER NOT NULL,
     position            INTEGER NOT NULL,
     format              INTEGER,
     name                TEXT,
-    edits_pending       INTEGER,
+    track_count         INTEGER,
     last_updated        TIMESTAMPTZ,
-    track_count         INTEGER
+    edits_pending       INTEGER,
+    gid                 UUID
 );
 
 CREATE INDEX IF NOT EXISTS idx_silver_medium_release ON silver.medium(release);
@@ -160,16 +161,26 @@ CREATE INDEX IF NOT EXISTS idx_silver_track_recording ON silver.track(recording)
 CREATE INDEX IF NOT EXISTS idx_silver_track_medium ON silver.track(medium);
 CREATE INDEX IF NOT EXISTS idx_silver_track_artist_credit ON silver.track(artist_credit);
 
--- 10. silver.isrc (Códigos Estándar Internacional de Grabación de Audio)
+-- 10. silver.isrc (Códigos Estándar Internacional de Grabación de Audio - Schema Sequence 31)
 CREATE TABLE IF NOT EXISTS silver.isrc (
     id                  INTEGER PRIMARY KEY,
     recording           INTEGER NOT NULL,
     isrc                CHAR(12) NOT NULL,
     source              SMALLINT,
-    edits_pending       INTEGER,
     created             TIMESTAMPTZ
 );
 
 CREATE INDEX IF NOT EXISTS idx_silver_isrc_recording ON silver.isrc(recording);
+
+-- 11. silver.language (Catálogo oficial de idiomas ISO 639 de MusicBrainz - Schema Sequence 31)
+CREATE TABLE IF NOT EXISTS silver.language (
+    id                  INTEGER PRIMARY KEY,
+    iso_code_2t         CHAR(3),
+    iso_code_2b         CHAR(3),
+    iso_code_1          CHAR(2),
+    name                TEXT NOT NULL,
+    frequency           INTEGER NOT NULL DEFAULT 0,
+    iso_code_3          CHAR(3)
+);
 
 COMMENT ON SCHEMA silver IS 'Capa Silver: Tablas intermedias normalizadas 3NF limpiadas desde los volcados de MusicBrainz.';

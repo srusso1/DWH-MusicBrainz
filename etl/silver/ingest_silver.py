@@ -42,6 +42,7 @@ TABLE_ORDER = [
     "isrc",
     "recording",
     "track",
+    "language",
 ]
 
 
@@ -52,24 +53,30 @@ def resolve_dump_archive():
     return None
 
 
-def ensure_raw_file(table_name):
-    file_path = RAW_DIR / table_name
-    if file_path.exists():
-        return file_path
-
+def ensure_raw_files(table_names):
     archive_path = resolve_dump_archive()
     if archive_path is None:
-        return file_path
+        return
+
+    missing = [t for t in table_names if not (RAW_DIR / t).exists()]
+    if not missing:
+        return
 
     RAW_DIR.parent.mkdir(parents=True, exist_ok=True)
     tar_exe = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32" / "tar.exe"
     tar_cmd = str(tar_exe) if tar_exe.exists() else "tar"
 
-    print(f"[*] Extrayendo mbdump/{table_name} desde {archive_path} ...")
-    subprocess.run(
-        [tar_cmd, "-xf", str(archive_path), "-C", str(RAW_DIR.parent), f"mbdump/{table_name}"],
-        check=True,
-    )
+    targets = [f"mbdump/{t}" for t in missing]
+    print(f"[*] Extrayendo {len(missing)} tablas ({', '.join(missing)}) desde {archive_path.name} en una sola pasada...")
+    cmd = [tar_cmd, "-xf", str(archive_path), "-C", str(RAW_DIR.parent)] + targets
+    subprocess.run(cmd, check=True)
+    print("[*] Extraccion completa exitosa.")
+
+
+def ensure_raw_file(table_name):
+    file_path = RAW_DIR / table_name
+    if not file_path.exists():
+        ensure_raw_files([table_name])
     return file_path
 
 
@@ -100,6 +107,13 @@ def ingest_table(cursor, table_name, batch_id):
     file_path = ensure_raw_file(table_name)
     if not file_path.exists():
         print(f"[-] Omitiendo '{table_name}': el archivo raw no existe en {file_path}.")
+        return 0
+
+    if table_name == "track":
+        print("\n========================================================")
+        print("-> Extraccion de raw track verificada.")
+        print("   La carga optimizada (15M filas) se delega a ingest_tracks_sliced.py")
+        print("========================================================")
         return 0
 
     print(f"\n========================================================")
@@ -155,6 +169,7 @@ def run_silver_ingestion(single_table=None):
     cursor = conn.cursor()
 
     targets = [single_table] if single_table else TABLE_ORDER
+    ensure_raw_files(targets)
     total_loaded = 0
 
     for table in targets:
