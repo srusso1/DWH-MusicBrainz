@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "b7ee11e3b559c5138d67",
   "position": {
     "x": 433,
@@ -42,7 +42,8 @@
                 }
               },
               "queryRef": "gold dim_geografia.tipo_area",
-              "nativeQueryRef": "tipo_area"
+              "nativeQueryRef": "tipo_area",
+              "active": false
             },
             {
               "field": {
@@ -56,7 +57,8 @@
                 }
               },
               "queryRef": "gold dim_geografia.nombre_area",
-              "nativeQueryRef": "nombre_area"
+              "nativeQueryRef": "nombre_area",
+              "active": false
             }
           ]
         },
@@ -97,36 +99,6 @@
         ],
         "isDefaultSort": true
       }
-    },
-    "drillFilterOtherVisuals": true,
-    "visualContainerObjects": {
-      "title": [
-        {
-          "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Top 10 países con drill-down geográfico (país → tipo de área → área)'"
-                }
-              }
-            },
-            "fontSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "8D"
-                }
-              }
-            },
-            "fontFamily": {
-              "expr": {
-                "Literal": {
-                  "Value": "''Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif'"
-                }
-              }
-            }
-          }
-        }
-      ]
     },
     "objects": {
       "categoryAxis": [
@@ -226,7 +198,37 @@
           }
         }
       ]
-    }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Top 10 países con drill-down geográfico (país → tipo de área → área)'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            },
+            "fontFamily": {
+              "expr": {
+                "Literal": {
+                  "Value": "''Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
   },
   "filterConfig": {
     "filters": [
