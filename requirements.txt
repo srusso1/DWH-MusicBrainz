@@ -5,3 +5,4 @@ pytest
 py7zr
 requests
 tqdm
+reportlab
