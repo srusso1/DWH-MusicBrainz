@@ -264,6 +264,16 @@ def fetch_metrics():
         """, (lo, hi))
         m["pearson"].append((lo, hi, float(r), float(slope) * 60, n))
 
+    m["emergentes"], m["emergentes_isrc100"] = one("""
+        WITH a AS (
+            SELECT f.artista_key, SUM(f.pistas_con_isrc_total) AS isrc, SUM(f.pistas_total) AS pistas,
+                   SUM(f.lanzamientos_total) AS lanzamientos
+            FROM gold.fact_produccion_musical f JOIN gold.dim_artista d USING (artista_key)
+            WHERE d.anio_inicio >= 2015 GROUP BY f.artista_key)
+        -- Mismo criterio que el dashboard: al menos un lanzamiento propio y 100 % de pistas con ISRC
+        SELECT COUNT(*), COUNT(*) FILTER (WHERE isrc = pistas AND lanzamientos > 0) FROM a
+    """)
+    m["pistas_por_soporte"] = m["pistas"] / m["soportes"]
     m["corea"] = next((p for p in m["paises"] if p[0] == "South Korea"), None)
     m["db_size"] = one("SELECT pg_size_pretty(pg_database_size(current_database()))")[0]
     conn.close()
@@ -627,7 +637,7 @@ def build_story(m):
         "La capa <b>Gold</b> de DWMusicBrainz transforma el modelo relacional normalizado (3FN) de la capa Silver en un "
         "<b>modelo dimensional en estrella</b> según la metodología de Ralph Kimball, optimizado para preguntas analíticas sobre "
         "la producción musical registrada en MusicBrainz. Sobre ese modelo se construyó un <b>modelo semántico en Power BI</b> "
-        "con medidas DAX y un <b>dashboard de dos páginas</b>: un resumen ejecutivo y un análisis detallado."
+        "con medidas DAX y un <b>dashboard de tres páginas</b>: resumen ejecutivo, análisis detallado y calidad y catálogo."
     ))
     story.append(kpi_grid([
         (fmt_int(m["lanzamientos"]), "Lanzamientos únicos"),
@@ -667,7 +677,7 @@ def build_story(m):
         ["Raw", "Archivos originales del volcado", "TSV", "mbdump/*"],
         ["Silver", "Datos limpios, tipados y auditados", "Relacional 3FN", "release, medium, track, recording, artist, area, language, isrc…"],
         ["Gold", "Consumo analítico (OLAP)", "Estrella (Kimball)", "2 hechos, 7 dimensiones, 4 vistas materializadas"],
-        ["Semántica", "Medidas de negocio y visualización", "Power BI (Import)", "22 medidas DAX, 2 páginas de dashboard"],
+        ["Semántica", "Medidas de negocio y visualización", "Power BI (Import)", "26 medidas DAX, 3 páginas de dashboard"],
     ], [2.2 * cm, 4.6 * cm, 3.2 * cm, 6.4 * cm]))
     story.append(Spacer(1, 8))
     story.append(P("Alcance de los datos", "h2"))
@@ -898,7 +908,8 @@ def build_story(m):
         "<b>Relación datos-tinta (Edward Tufte):</b> sin efectos 3D, sin sombras y con cuadrícula tenue. En los rankings se muestra el "
         "valor sobre la barra y se elimina el eje numérico redundante.",
         "<b>Una pregunta por página:</b> el Resumen ejecutivo responde «¿cuánto y cómo cambió la industria?»; el Análisis detallado "
-        "responde «¿qué la caracteriza por época, país, idioma y artista?».",
+        "responde «¿qué la caracteriza por época, país, idioma y artista?»; Calidad y catálogo responde «¿qué tan "
+        "formalizado y denso es el catálogo y quiénes son los nuevos talentos?».",
         "<b>Lienzo de 1280 × 720 px</b> con márgenes de 15 px y separación de 5 px, validado sin superposiciones.",
     ])
     story.append(P("Teoría del color", "h2"))
@@ -948,6 +959,16 @@ def build_story(m):
          "Cada punto es un país; la nube revela si existe asociación y muestra los casos atípicos."],
         ["Tabla Top 20 artistas", "¿Cuáles son los valores exactos de los principales artistas?", "Consulta de detalle",
          "Cuando se necesitan cifras exactas de varias métricas, la tabla es más precisa que un gráfico."],
+        ["Columnas con drill-down temporal", "¿Cómo se reparte la producción de siglo a mes?", "Comparación jerárquica en el tiempo",
+         "Las columnas comparan magnitudes por período; el drill-down recorre siglo → década → año → trimestre → mes (RF03)."],
+        ["Barras con drill-down geográfico", "¿Qué país produce más y en qué áreas?", "Comparación jerárquica entre categorías",
+         "Ranking de países que se abre en tipo de área y área (RF03)."],
+        ["Barras agrupadas por empaque", "¿Qué empaques tienen lanzamientos más densos?", "Comparación de dos medidas con la misma unidad",
+         "Pistas por lanzamiento y por soporte comparten unidad, así que se comparan sin doble eje; dos tonos del mismo azul indican medidas relacionadas (RF07)."],
+        ["Matriz mapa de calor ISRC", "¿Qué países y tipos de artista formalizan más?", "Magnitud en una cuadrícula",
+         "El mapa de calor de un solo tono (claro a oscuro) es la forma recomendada para comparar una magnitud en una grilla país × tipo (RF06)."],
+        ["Tabla de artistas emergentes", "¿Quiénes son los nuevos artistas más productivos y formalizados?", "Consulta de detalle",
+         "Lista exacta de artistas con inicio desde 2015 y 100 % de pistas con ISRC (RF08)."],
     ], [3.4 * cm, 3.8 * cm, 3.2 * cm, 6.0 * cm], first_col_bold=True))
     story.append(Spacer(1, 8))
     story.append(P("Gráficos descartados y por qué", "h2"))
@@ -1011,12 +1032,12 @@ def build_story(m):
         ["Requisito", "Dónde se responde", "Estado"],
         ["RF01 · Ranking Top N", "Tabla Top 20 artistas, Top 10 países; segmentadores de país y década", "Cubierto"],
         ["RF02 · Métricas por formato e idioma", "KPI de duración con segmentador de idioma; Top idiomas; mezcla de formatos", "Cubierto"],
-        ["RF03 · Drill-down geográfico y temporal", "Segmentadores de año, década y país; jerarquías no publicadas como drill-down", "Parcial"],
+        ["RF03 · Drill-down geográfico y temporal", "Página 3: drill-down siglo → década → año → trimestre → mes y país → tipo de área → área", "Cubierto"],
         ["RF04 · Digital vs físico y pistas largas", "Líneas Digital vs CD, área apilada, KPI % pistas > 5 min", "Cubierto"],
         ["RF05 · Correlación año–duración", "Sección 12 (SQL corr()); histograma de duración en el dashboard", "Cubierto en documento"],
-        ["RF06 · Formalización ISRC", "KPI de cobertura ISRC; columna ISRC en Top 20 con segmentadores de país y tipo", "Parcial"],
-        ["RF07 · Densidad de pistas", "KPI de pistas por lanzamiento; pistas por soporte no visualizado", "Parcial"],
-        ["RF08 · Artistas emergentes", "No incluido en el dashboard actual", "Pendiente"],
+        ["RF06 · Formalización ISRC", "Página 3: mapa de calor de cobertura ISRC por país y tipo de artista", "Cubierto"],
+        ["RF07 · Densidad de pistas", "Página 3: KPIs de pistas por lanzamiento y por soporte; barras por tipo de empaque", "Cubierto"],
+        ["RF08 · Artistas emergentes", f"Página 3: KPI ({fmt_int(m['emergentes'])} artistas desde 2015) y Top 15 con 100 % ISRC ({fmt_int(m['emergentes_isrc100'])} califican)", "Cubierto"],
     ], [5.2 * cm, 8.6 * cm, 2.6 * cm], first_col_bold=True))
 
     # 14. Limitaciones
@@ -1028,8 +1049,8 @@ def build_story(m):
         "<b>Nombres de idioma en inglés:</b> provienen del catálogo oficial de MusicBrainz; traducirlos a mano fue la causa del "
         "defecto 3.",
         "<b>Histograma sin artista:</b> el segmentador de tipo de artista no lo filtra.",
-        "<b>Trabajo futuro:</b> publicar jerarquías de drill-down (siglo → década → año; país → tipo de área → área), completar RF06–RF08 "
-        "y cargar el volcado completo de pistas.",
+        "<b>Emergentes:</b> el año de inicio proviene de MusicBrainz y puede faltar; los artistas sin año no se consideran emergentes.",
+        "<b>Trabajo futuro:</b> cargar el volcado completo de pistas y agregar artista al hecho de distribución.",
     ])
 
     # 15. Preguntas probables
@@ -1067,7 +1088,7 @@ def build_story(m):
     # 16. Guion
     section(story, "Sección 16", "Guion para la junta directiva")
     story.append(P(
-        "Duración estimada: <b>8 minutos</b>. Tono: un ingeniero de datos que traduce hallazgos técnicos en decisiones de negocio. "
+        "Duración estimada: <b>9 minutos</b>. Tono: un ingeniero de datos que traduce hallazgos técnicos en decisiones de negocio. "
         "Las frases en cursiva son para decir; las indicaciones entre corchetes son acciones en pantalla."
     ))
     guion = [
@@ -1096,14 +1117,19 @@ def build_story(m):
          "«Cada punto es un país. Si más volumen significara más digitalización, veríamos los puntos subir hacia la derecha, y no "
          + (f"pasa. Corea del Sur, con poco volumen, tiene {fmt_pct(corea[2])} de lanzamientos digitales. " if corea else "pasa. ")
          + "Esos mercados pequeños y muy digitales son una oportunidad de entrada con menos competencia.»"),
-        ("6:30 – 7:15 · Por qué pueden confiar en estos números", "[Sin cambio de pantalla]",
+        ("6:30 – 7:30 · Calidad del catálogo y nuevos talentos", "[Cambiar a Calidad y catálogo; señalar el mapa de calor y la tabla]",
+         f"«En esta página vemos la salud del catálogo. El mapa de calor muestra qué países y tipos de artista registran mejor sus "
+         f"códigos ISRC: cuanto más oscuro, más formalizado. A la derecha está el talento emergente: {fmt_int(m['emergentes'])} "
+         f"artistas empezaron desde 2015 y {fmt_int(m['emergentes_isrc100'])} ya tienen todas sus pistas registradas. Son "
+         "candidatos naturales para acuerdos de catálogo: producen y cumplen los estándares.»"),
+        ("7:30 – 8:15 · Por qué pueden confiar en estos números", "[Sin cambio de pantalla]",
          "«Antes de traerles este tablero lo auditamos. Encontramos y corregimos errores reales, como un conteo que duplicaba "
          "lanzamientos y un catálogo de idiomas mal mapeado. Hoy cada cifra se concilia automáticamente con la fuente y no hay "
          "registros huérfanos.»"),
-        ("7:15 – 8:00 · Recomendaciones y cierre", "[Volver al Resumen ejecutivo]",
+        ("8:15 – 9:00 · Recomendaciones y cierre", "[Volver al Resumen ejecutivo]",
          "«Tres recomendaciones. Primero, priorizar la distribución digital, que ya es el canal principal. Segundo, impulsar el "
          "registro de códigos ISRC: con solo una de cada cinco pistas identificada, estamos dejando regalías sin rastrear. Tercero, "
-         "explorar mercados pequeños y muy digitalizados. El tablero queda disponible para que cada área filtre por su país, "
+         "explorar mercados pequeños y muy digitalizados, y acercarnos a los artistas emergentes que ya cumplen los estándares. El tablero queda disponible para que cada área filtre por su país, "
          "formato o época. ¿Preguntas?»"),
     ]
     for when, action, say in guion:
@@ -1144,6 +1170,10 @@ def build_story(m):
         ("Lanzamientos Anio Anterior", "VAR a = SELECTEDVALUE('gold dim_fecha'[anio]) RETURN IF(a > 1900, CALCULATE([Total Lanzamientos], REMOVEFILTERS('gold dim_fecha'), 'gold dim_fecha'[anio] = a - 1))"),
         ("Variacion Interanual %", "DIVIDE([Total Lanzamientos] - [Lanzamientos Anio Anterior], [Lanzamientos Anio Anterior])"),
         ("Pistas (Distribucion)", "SUM('gold fact_distribucion_duracion'[pistas_total])"),
+        ("Pistas por Soporte", "DIVIDE([Total Pistas], [Total Soportes])"),
+        ("Lanzamientos (Pais Identificado)", "CALCULATE([Total Lanzamientos], KEEPFILTERS(NOT 'gold dim_geografia'[nombre_pais] IN {\"No Aplica\", \"Sin País Registrado\"}))"),
+        ("Artistas Emergentes", "CALCULATE(DISTINCTCOUNT('gold fact_produccion_musical'[artista_key]), KEEPFILTERS('gold dim_artista'[anio_inicio] >= 2015))"),
+        ("Lanzamientos Emergentes 100% ISRC", "VAR i = SELECTEDVALUE('gold dim_artista'[anio_inicio]) RETURN IF(i >= 2015 && [Cobertura ISRC %] = 1, [Total Lanzamientos])"),
         ("% Pistas (Distribucion)", "DIVIDE([Pistas (Distribucion)], CALCULATE([Pistas (Distribucion)], ALLSELECTED('gold dim_rango_duracion')))"),
     ]
     code_style = ParagraphStyle("code_cell", fontName="Courier", fontSize=7.2, leading=9.4, textColor=INK)
