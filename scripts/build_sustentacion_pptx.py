@@ -338,8 +338,8 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
         s1, 8.75, 5.1, 3.9, 1.7, PASTEL_MINT, PASTEL_MINT_BD,
         title="Alto Rendimiento & Gobernanza",
         bullets=[
-            "• ~89,3 M filas Silver | > 14,5 GB en disco.",
-            "• 14 Particiones por fecha_key + 4 Vistas Mat.",
+            "• ~98,6 M filas Silver | ~16 GB en disco.",
+            "• 15 Particiones por fecha_key + 4 Vistas Mat.",
             "• Auditoría en meta.etl_audit y data_quality_log."
         ],
         title_color=ACCENT_TEAL, font_size=10, header_badge=" POSTGRESQL 16 + DOCKER + POWER BI"
@@ -402,10 +402,10 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
             "• Enciclopedia musical global mantenida por la MetaBrainz Foundation (Schema Sequence 31).",
             "• Diseñada para transacciones operacionales (OLTP): inserciones y ediciones comunitarias ACID.",
             "• Alta fragmentación relacional en 10 tablas normalizadas:",
-            "  - area (120k), artist (3.01M), artist_credit_name (6.21M).",
-            "  - release (5.84M), release_country (5.48M), release_unknown_country (215k).",
-            "  - medium (6.41M), recording (40.53M), track (15M), isrc (6.48M).",
-            "• Total procesado en origen: ~89,3 millones de registros."
+            "  - area (120k), artist (3.02M), artist_credit_name (7.30M).",
+            "  - release (5.86M), release_country (13.34M), release_unknown_country (484k).",
+            "  - medium (6.43M), recording (40.60M), track (15M), isrc (6.50M).",
+            "• Total procesado en origen: ~98,6 millones de registros."
         ],
         title_color=ACCENT_NAVY, font_size=10
     )
@@ -417,7 +417,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
         bullets=[
             "• Encadenamiento de 8 a 10 JOINs por consulta: para relacionar una pista con su fecha real, país, formato y artista principal hay que cruzar decenas de millones de filas.",
             "• Ausencia de grano histórico consolidado: las tablas OLTP guardan entidades sueltas con flags booleanos y textos largos, no resúmenes históricos diarios.",
-            "• Penalización severa de I/O y RAM: calcular tendencias por década o cobertura ISRC sobre 40,5M de grabaciones y 15M de pistas en 3NF agota la memoria y tarda minutos.",
+            "• Penalización severa de I/O y RAM: calcular tendencias por década o cobertura ISRC sobre 40,6M de grabaciones y 15M de pistas en 3NF agota la memoria y tarda minutos.",
             "• Riesgo de Fan Traps: cruzar por nombres de áreas o múltiples ISRCs duplica conteos si no se pre-agrega."
         ],
         title_color=ACCENT_ROSE, font_size=10
@@ -431,7 +431,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
             "• Desacoplamiento Medallón (Silver → Gold): Silver limpia y tipa las 10 tablas 3NF; Gold consolida el modelo dimensional en español.",
             "• Tabla de Hechos Histórica Diaria (gold.fact_produccion_musical): agrupa por día (fecha_key) y las 5 dimensiones conformadas.",
             "• Cero textos y cero booleanos en hechos: solo llaves foráneas enteras y 11 métricas numéricas 100% aditivas (SUM).",
-            "• Particionamiento por rango en fecha_key (14 particiones) + 4 Vistas Materializadas: consultas en < 0,10 s."
+            "• Particionamiento por rango en fecha_key (15 particiones) + 4 Vistas Materializadas: consultas en < 0,10 s."
         ],
         title_color=ACCENT_TEAL, font_size=10
     )
@@ -526,8 +526,8 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
     rnf_rows = [
         ["Código", "Criterio Técnico", "Requisito Exigido en el Proyecto", "Implementación Real en DWMusicBrainz", "Estado"],
         ["RNF01", "Ingesta por Streaming", "Lectura por bloques sin desbordar la memoria RAM del host.", "Clase MaxLineReader con buffer de 128 KB hacia COPY FROM STDIN.", "CUMPLIDO"],
-        ["RNF02", "Huella Física en Disco", "Almacenamiento físico en PostgreSQL superior a 3,0 GB.", "> 14,5 GB consolidados en disco entre capas Silver, Gold y Meta.", "SUPERADO"],
-        ["RNF03", "Alta Volumetría Real", "Procesar más de 10 millones de registros musicales reales.", "~89,3 M de filas en Silver (10 tablas) y 15 M de pistas agregadas en Gold.", "SUPERADO"],
+        ["RNF02", "Huella Física en Disco", "Almacenamiento físico en PostgreSQL superior a 3,0 GB.", "~16 GB consolidados en disco entre capas Silver, Gold y Meta.", "SUPERADO"],
+        ["RNF03", "Alta Volumetría Real", "Procesar más de 10 millones de registros musicales reales.", "~98,6 M de filas en Silver (10 tablas) y 15 M de pistas agregadas en Gold.", "SUPERADO"],
         ["RNF04", "Cero Datos Sintéticos", "Prohibición absoluta de datos simulados o generados al azar.", "100% extraído del dump oficial mbdump.tar.bz2 (Schema Sequence 31).", "CUMPLIDO"],
         ["RNF05", "Idempotencia ETL", "Re-ejecución limpia del pipeline sin duplicar registros.", "TRUNCATE RESTART IDENTITY CASCADE y ON CONFLICT DO UPDATE.", "CUMPLIDO"],
         ["RNF06", "Auditoría y Linaje", "Bitácora automática de lotes, filas, tiempos y reglas de calidad.", "Tablas meta.etl_audit y meta.data_quality_log pobladas en Python.", "CUMPLIDO"],
@@ -561,7 +561,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
         bullets=[
             "• Archivo maestro: mbdump.tar.bz2 (7,1 GB comprimido).",
             "• Extracción quirúrgica bajo demanda hacia data/raw/mbdump/.",
-            "• 10 archivos TSV planos sin encabezados y con nulos representados como \\N.",
+            "• 11 archivos TSV planos (incluye el catálogo language) sin encabezados y con nulos representados como \\N.",
             "• metadatos verificados: SCHEMA_SEQUENCE = 31."
         ],
         title_color=ACCENT_AMBER, font_size=9.8
@@ -572,7 +572,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
         header_badge="2 · CAPA PLATA (ESQUEMA silver)",
         title="Staging Relacional 3NF",
         bullets=[
-            "• 10 tablas normalizadas en 3NF (~89,3 M de filas).",
+            "• 10 tablas normalizadas en 3NF (~98,6 M de filas).",
             "• Tipado fuerte nativo (INTEGER, SMALLINT, UUID, BOOLEAN, TIMESTAMPTZ).",
             "• Uso de tipo TEXT (TOAST) para soportar títulos de > 2.000 caracteres.",
             "• Incluye release_country y artist_credit_name."
@@ -598,7 +598,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
         header_badge="4 · CONSUMO BI (POWER BI)",
         title="Analítica & Medidas DAX",
         bullets=[
-            "• Conexión a localhost:5435 (esquema gold).",
+            "• Conexión a PostgreSQL (esquema gold) en modo Import.",
             "• Relaciones 1:* unidireccionales desde las 6 dimensiones hacia el hecho.",
             "• Medidas DAX basadas en SUM() directo sobre métricas aditivas.",
             "• Respuesta a los requerimientos RF01 a RF08."
@@ -638,14 +638,14 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
         [
             "1. Ingeniero de Datos\n(Data Engineer)",
             "• Configurar el contenedor Docker con PostgreSQL 16 (puerto 5435) y tuning de memoria (shared_buffers=1GB, shm_size=1gb).\n• Desarrollar ingest_silver.py para extraer bajo demanda los 10 TSV desde mbdump.tar.bz2.\n• Implementar MaxLineReader (buffer 128 KB) en ingest_tracks_sliced.py para cargar 15M de pistas vía COPY sin saturar RAM.",
-            "• Codificar las reglas de limpieza EDA (E01 a E10) en SQL set-based (utf-8-sig, TEXT TOAST, deduplicación ISRC).\n• Construir el orquestador run_gold_pipeline.py con registro transaccional en meta.etl_audit.\n• Automatizar las 7 pruebas de calidad en meta.data_quality_log.",
-            "• Ejecutar el refresco de las 4 vistas materializadas (REFRESH MATERIALIZED VIEW).\n• Auditar la huella física en disco (> 14,5 GB) y tiempos de ejecución con scripts/verify_dwh.py."
+            "• Codificar las reglas de limpieza EDA (E01 a E10) en SQL set-based (utf-8-sig, TEXT TOAST, deduplicación ISRC).\n• Construir el orquestador run_gold_pipeline.py con registro transaccional en meta.etl_audit.\n• Automatizar las 10 pruebas de calidad en meta.data_quality_log.",
+            "• Ejecutar el refresco de las 4 vistas materializadas (REFRESH MATERIALIZED VIEW).\n• Auditar la huella física en disco (~16 GB) y tiempos de ejecución con scripts/verify_dwh.py."
         ],
         [
             "2. Modelador\n(Dimensional Modeler)",
             "• Analizar el modelo relacional 3NF de MusicBrainz (Schema Sequence 31).\n• Identificar la necesidad de incluir release_country, release_unknown_country y artist_credit_name en Silver para no perder fechas reales ni autoría.",
             "• Definir el Grano Histórico Diario de la tabla de hechos gold.fact_produccion_musical.\n• Diseñar las 6 dimensiones conformadas en español (dim_fecha, dim_artista, dim_lanzamiento, dim_geografia, dim_formato, dim_idioma) con Surrogate Keys y Fila Cero (Key 0).\n• Eliminar textos y booleanos del hecho, definiendo las 11 métricas aditivas.",
-            "• Diseñar las 14 particiones físicas por rango en fecha_key (04_indexes_partitions.sql) y los índices B-Tree.\n• Certificar el cumplimiento de Cero Huérfanos y la eliminación de Fan Traps (JOIN por area_id)."
+            "• Diseñar las 15 particiones físicas por rango en fecha_key (04_indexes_partitions.sql) y los índices B-Tree.\n• Certificar el cumplimiento de Cero Huérfanos y la eliminación de Fan Traps (JOIN por area_id)."
         ],
         [
             "3. Analista de BI\n(BI Analyst)",
@@ -757,23 +757,23 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
     add_header(
         s9, 9, "Métricas de Escala y Almacenamiento",
         "Volumetría Oficial por Capa y Dimensionamiento en Disco",
-        "Consolidado de las 10 tablas de la capa Silver (~89,3 M de filas) y las entidades del Modelo Estrella en Gold (> 14,5 GB)",
+        "Consolidado de las 10 tablas de la capa Silver (~98,6 M de filas) y las entidades del Modelo Estrella en Gold (~16 GB)",
         PASTEL_MINT, ACCENT_TEAL
     )
 
     vol_silver = [
         ["Tabla Capa Silver (3NF)", "Filas Reales", "Disco", "Propósito en el DWH"],
-        ["silver.recording", "40.532.448", "4.998 MB", "Grabación maestra (duración y video)"],
-        ["silver.track", "15.000.000", "1.967 MB", "Pista en soporte (base de agregación)"],
-        ["silver.isrc", "6.478.709", "795 MB", "Código internacional ISRC por grabación"],
-        ["silver.medium", "6.411.799", "986 MB", "Soporte físico/digital y formato"],
-        ["silver.artist_credit_name", "~6.210.000", "420 MB", "Vínculo exacto a artist.id (position=0)"],
-        ["silver.release", "5.844.569", "1.108 MB", "Lanzamiento (estado, empaque, idioma)"],
-        ["silver.release_country", "~5.480.000", "385 MB", "Fecha histórica real (año/mes/día) y país"],
-        ["silver.artist", "3.010.451", "498 MB", "Músicos solistas, bandas y orquestas"],
-        ["silver.release_unknown_country", "~215.000", "18 MB", "Fecha histórica real sin país asignado"],
-        ["silver.area", "120.107", "14 MB", "Países, regiones y ciudades"],
-        ["TOTAL CAPA SILVER (10 Tablas)", "~89.303.083", "~11.189 MB", "Staging Relacional Completo 3NF"],
+        ["silver.recording", "40.595.893", "5.854 MB", "Grabación maestra (duración y video)"],
+        ["silver.track", "15.000.000", "2.865 MB", "Pista en soporte (base de agregación)"],
+        ["silver.isrc", "6.502.252", "798 MB", "Código internacional ISRC por grabación"],
+        ["silver.medium", "6.426.136", "988 MB", "Soporte físico/digital y formato"],
+        ["silver.artist_credit_name", "7.301.698", "741 MB", "Vínculo exacto a artist.id (position=0)"],
+        ["silver.release", "5.858.206", "1.110 MB", "Lanzamiento (estado, empaque, idioma)"],
+        ["silver.release_country", "13.337.269", "1.299 MB", "Fecha histórica real (año/mes/día) y país"],
+        ["silver.artist", "3.015.712", "499 MB", "Músicos solistas, bandas y orquestas"],
+        ["silver.release_unknown_country", "484.343", "36 MB", "Fecha histórica real sin país asignado"],
+        ["silver.area", "120.108", "16 MB", "Países, regiones y ciudades"],
+        ["TOTAL CAPA SILVER (10 Tablas)", "98.641.617", "14.206 MB", "Staging Relacional Completo 3NF"],
     ]
 
     t_s9_left = s9.shapes.add_table(len(vol_silver), 4, Inches(0.55), Inches(1.42), Inches(6.25), Inches(5.5))
@@ -785,15 +785,15 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
 
     vol_gold = [
         ["Objeto Capa Gold (Español)", "Filas / Reg.", "Disco", "Grano / Rol Dimensional"],
-        ["gold.fact_produccion_musical", "~4,5M – 5,8M", "~2.450 MB", "Hecho diario (consolida 15M pistas)"],
-        ["gold.dim_artista", "3.010.452", "758 MB", "Artistas únicos + Key 0"],
-        ["gold.dim_geografia", "120.108", "15 MB", "Áreas geográficas y países + Key 0"],
-        ["gold.dim_fecha", "47.848", "4 MB", "Calendario diario 1900–2030 + Key 0"],
+        ["gold.fact_produccion_musical", "2.967.681", "570 MB", "Hecho diario (consolida 15M pistas)"],
+        ["gold.dim_artista", "3.015.713", "1.476 MB", "Artistas únicos + Key 0"],
+        ["gold.dim_geografia", "120.109", "19 MB", "Áreas geográficas y países + Key 0"],
+        ["gold.dim_fecha", "47.847", "6 MB", "Calendario diario 1900–2030 + Key 0"],
         ["gold.dim_idioma", "354", "< 1 MB", "Idiomas ISO 639-3 + Key 0"],
-        ["gold.dim_lanzamiento", "~150", "< 1 MB", "Perfiles (Estado + Empaque + Calidad)"],
-        ["gold.dim_formato", "114", "< 1 MB", "Formatos y categoría física/digital"],
-        ["gold.mv_analitica_artistas", "~1.850.000", "165 MB", "Vista Mat. RF01, RF06 y RF08"],
-        ["Otras 3 Vistas Materializadas", "~10.477", "< 3 MB", "Tendencias anuales, formatos y geo"],
+        ["gold.dim_lanzamiento", "313", "< 1 MB", "Perfiles (Estado + Empaque + Calidad)"],
+        ["gold.dim_formato", "115", "< 1 MB", "Formatos y categoría física/digital"],
+        ["gold.mv_analitica_artistas", "690.454", "131 MB", "Vista Mat. RF01, RF06 y RF08"],
+        ["Otras 3 Vistas Materializadas", "4.711", "< 1 MB", "Tendencias anuales, formatos y geo"],
     ]
 
     t_s9_right = s9.shapes.add_table(len(vol_gold), 4, Inches(7.0), Inches(1.42), Inches(5.75), Inches(3.9))
@@ -805,10 +805,10 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
     add_pastel_card(
         s9, 7.0, 5.48, 5.75, 1.44, PASTEL_MINT, PASTEL_MINT_BD,
         header_badge="CUMPLIMIENTO HOLGADO DEL RNF02 Y RNF03",
-        title="Huella Total > 14,5 GB en PostgreSQL 16 (Meta: > 3,0 GB)",
+        title="Huella Total ~16 GB en PostgreSQL 16 (Meta: > 3,0 GB)",
         bullets=[
-            "• Supera en casi 500% el umbral mínimo de almacenamiento físico exigido.",
-            "• Al modelar dim_lanzamiento por perfil (~150 filas en vez de 5,8M), Power BI opera en memoria con máxima compresión."
+            "• Supera más de 5 veces el umbral mínimo de almacenamiento físico exigido.",
+            "• Al modelar dim_lanzamiento por perfil (313 filas en vez de 5,8M), Power BI opera en memoria con máxima compresión."
         ],
         title_color=ACCENT_TEAL, font_size=9.2
     )
@@ -858,7 +858,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
     add_pastel_card(
         s10, 0.55, 1.45, 3.35, 1.72, PASTEL_BLUE, PASTEL_BLUE_BD,
         header_badge="DIMENSIÓN 1  ·  1:N (fecha_key)",
-        title="gold.dim_fecha (47.848 filas)",
+        title="gold.dim_fecha (47.847 filas)",
         bullets=[
             "• Grano diario continuo (1900 a 2030).",
             "• Jerarquía: siglo → decada → anio → trimestre → mes → dia."
@@ -868,7 +868,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
     add_pastel_card(
         s10, 0.55, 3.33, 3.35, 1.72, PASTEL_MINT, PASTEL_MINT_BD,
         header_badge="DIMENSIÓN 2  ·  1:N (artista_key)",
-        title="gold.dim_artista (3,01 M filas)",
+        title="gold.dim_artista (3,02 M filas)",
         bullets=[
             "• Solistas, bandas, coros y orquestas.",
             "• Atributos: nombre_artista, tipo_artista, genero, nombre_pais, anio_inicio."
@@ -878,7 +878,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
     add_pastel_card(
         s10, 0.55, 5.21, 3.35, 1.72, PASTEL_PEACH, PASTEL_PEACH_BD,
         header_badge="DIMENSIÓN 3  ·  1:N (lanzamiento_key)",
-        title="gold.dim_lanzamiento (~150)",
+        title="gold.dim_lanzamiento (313)",
         bullets=[
             "• Perfil analítico del lanzamiento.",
             "• Combina estado_lanzamiento, tipo_empaque y calidad_datos."
@@ -890,7 +890,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
     add_pastel_card(
         s10, 9.4, 1.45, 3.35, 1.72, PASTEL_ROSE, PASTEL_ROSE_BD,
         header_badge="DIMENSIÓN 4  ·  1:N (geografia_key)",
-        title="gold.dim_geografia (120.108)",
+        title="gold.dim_geografia (120.109)",
         bullets=[
             "• Ubicación geográfica normalizada.",
             "• Atributos: area_id, nombre_area, tipo_area, nombre_pais."
@@ -900,7 +900,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
     add_pastel_card(
         s10, 9.4, 3.33, 3.35, 1.72, PASTEL_LEMON, PASTEL_LEMON_BD,
         header_badge="DIMENSIÓN 5  ·  1:N (formato_key)",
-        title="gold.dim_formato (114 filas)",
+        title="gold.dim_formato (115 filas)",
         bullets=[
             "• Soportes físicos, ópticos y digitales.",
             "• Atributos: nombre_formato, categoria_formato."
@@ -931,7 +931,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
 
     dims_detail = [
         (
-            "1. gold.dim_fecha (47.848 filas)", PASTEL_BLUE, PASTEL_BLUE_BD, ACCENT_NAVY,
+            "1. gold.dim_fecha (47.847 filas)", PASTEL_BLUE, PASTEL_BLUE_BD, ACCENT_NAVY,
             [
                 "• PK: fecha_key (INTEGER YYYYMMDD, 0 = 'Sin Fecha').",
                 "• Atributos: fecha_completa (DATE), anio (INT), trimestre (INT), nombre_trimestre ('Q1'..'Q4'), mes (INT), nombre_mes ('Enero'..), nombre_mes_corto ('Ene'..), dia (INT), dia_semana (1..7), nombre_dia ('Lunes'..), es_fin_de_semana (BOOL), decada ('1970s'..), siglo ('Siglo XX' / 'Siglo XXI').",
@@ -939,7 +939,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
             ]
         ),
         (
-            "2. gold.dim_artista (3.010.452 filas)", PASTEL_MINT, PASTEL_MINT_BD, ACCENT_TEAL,
+            "2. gold.dim_artista (3.015.713 filas)", PASTEL_MINT, PASTEL_MINT_BD, ACCENT_TEAL,
             [
                 "• PK: artista_key (SERIAL)  |  BK: artista_id (INTEGER UK).",
                 "• Atributos: artista_gid (UUID), nombre_artista (TEXT), nombre_orden (TEXT), tipo_artista ('Persona / Solista', 'Grupo / Banda', 'Orquesta', 'Coro'), genero ('Masculino', 'Femenino', 'No Binario'), area_id (INT), nombre_area (TEXT), nombre_pais (TEXT), anio_inicio, anio_fin, finalizado (BOOL), creado_en.",
@@ -947,7 +947,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
             ]
         ),
         (
-            "3. gold.dim_lanzamiento (~150 perfiles)", PASTEL_LAVENDER, PASTEL_LAV_BD, ACCENT_PURPLE,
+            "3. gold.dim_lanzamiento (313 perfiles)", PASTEL_LAVENDER, PASTEL_LAV_BD, ACCENT_PURPLE,
             [
                 "• PK: lanzamiento_key (SERIAL)  |  UK: (estado_id, empaque_id, calidad_id).",
                 "• Atributos: estado_lanzamiento ('Oficial', 'Promocional', 'Bootleg / No Oficial', 'Pseudo-Release'), tipo_empaque ('Jewel Case', 'Digipak', 'Gatefold Cover (Vinilo)', 'Sin Embalaje (Digital)'), calidad_datos ('Alta', 'Normal', 'Baja'), creado_en.",
@@ -955,7 +955,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
             ]
         ),
         (
-            "4. gold.dim_geografia (120.108 filas)", PASTEL_PEACH, PASTEL_PEACH_BD, ACCENT_AMBER,
+            "4. gold.dim_geografia (120.109 filas)", PASTEL_PEACH, PASTEL_PEACH_BD, ACCENT_AMBER,
             [
                 "• PK: geografia_key (SERIAL)  |  BK: area_id (INTEGER UK).",
                 "• Atributos: area_gid (UUID), nombre_area (TEXT), tipo_area ('País', 'Subdivisión', 'Condado', 'Municipio', 'Ciudad', 'Distrito', 'Isla'), nombre_pais (TEXT), creado_en.",
@@ -963,7 +963,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
             ]
         ),
         (
-            "5. gold.dim_formato (114 filas)", PASTEL_ROSE, PASTEL_ROSE_BD, ACCENT_ROSE,
+            "5. gold.dim_formato (115 filas)", PASTEL_ROSE, PASTEL_ROSE_BD, ACCENT_ROSE,
             [
                 "• PK: formato_key (SERIAL)  |  BK: formato_id (INTEGER UK).",
                 "• Atributos: nombre_formato ('CD', 'Vinilo 12\"', 'Digital Media', 'Cassette', 'FLAC', 'MP3', 'Blu-ray'), categoria_formato ('Digital / Streaming', 'Físico / Vinilo', 'Físico / Óptico', 'Físico / Magnético', 'Otros Formatos').",
@@ -974,8 +974,8 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
             "6. gold.dim_idioma (354 filas)", PASTEL_LEMON, PASTEL_LEMON_BD, ACCENT_AMBER,
             [
                 "• PK: idioma_key (SERIAL)  |  BK: idioma_id (INTEGER UK).",
-                "• Atributos: nombre_idioma ('Inglés', 'Español', 'Japonés', 'Alemán', 'Francés', 'Sin Contenido Lingüístico / Instrumental', 'Múltiples Idiomas'), codigo_iso ('eng', 'spa', 'jpn', 'zxx', 'mul', 'und').",
-                "• Rol: Clasificación lingüística oficial ISO 639-3 de los lanzamientos."
+                "• Atributos: nombre_idioma (nombre oficial del catálogo silver.language: 'English', 'Spanish', 'Japanese', 'German', 'French', '[No linguistic content]', '[Multiple languages]'; clave 0 = 'Idioma No Especificado'), codigo_iso ISO 639-3 ('eng', 'spa', 'jpn', 'zxx', 'mul', 'und').",
+                "• Rol: Clasificación lingüística ISO 639-3, resuelta con JOIN al catálogo oficial silver.language (7.846 idiomas)."
             ]
         ),
     ]
@@ -1048,12 +1048,12 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
             "ETAPA 1 · Inicialización DDL", "scripts/setup_database.py", PASTEL_BLUE, PASTEL_BLUE_BD, ACCENT_NAVY,
             [
                 "• Conecta a PostgreSQL 16 (puerto 5435).",
-                "• Ejecuta en orden los 5 archivos DDL:",
+                "• Ejecuta en orden los 6 archivos DDL:",
                 "  1. 01_schema_meta.sql",
-                "  2. 02_create_silver_tables.sql (10 tablas)",
+                "  2. 02_create_silver_tables.sql (11 tablas)",
                 "  3. 03_dimensions_facts.sql (Estrella Español)",
-                "  4. 04_indexes_partitions.sql (14 particiones)",
-                "  5. 05_aggregations.sql (4 Vistas Mat.)"
+                "  4. 04_indexes_partitions.sql (15 particiones)",
+                "  5. 05/06: vistas mat. y distribución"
             ]
         ),
         (
@@ -1076,9 +1076,9 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
         (
             "ETAPA 4 · Agregación Gold & DQ", "etl/gold/run_gold_pipeline.py", PASTEL_LAVENDER, PASTEL_LAV_BD, ACCENT_PURPLE,
             [
-                "• Puebla en orden las 6 dimensiones conformadas en español (populate_dim_*.sql).",
-                "• Ejecuta populate_fact_tracks.sql: resuelve fechas reales, artista principal y hace GROUP BY diario con las 11 métricas aditivas.",
-                "• Refresca las 4 MVs y valida calidad en meta.data_quality_log."
+                "• Puebla las 7 dimensiones (populate_dim_*.sql).",
+                "• populate_fact_tracks.sql agrega por día 11 métricas aditivas; cada lanzamiento cuenta una sola vez.",
+                "• Puebla el hecho de distribución, refresca las MVs y concilia contra Silver."
             ]
         ),
     ]
@@ -1104,7 +1104,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
     eda_rows = [
         ["ID", "Regla de Calidad EDA", "Acción Técnica Implementada en SQL / Python", "Justificación Arquitectónica en el DWH"],
         ["E01", "Duraciones nulas o en cero", "GREATEST(COALESCE(NULLIF(t.length,0), NULLIF(rec.length,0), 0), 0).", "Rescata la duración del recording master y suma en pistas_completas_total."],
-        ["E02", "Fechas históricas reales", "Prioridad: release_country → release_unknown_country → artist.begin_date_year → 0.", "Garantiza que dim_fecha refleje el año/mes/día real de publicación (1900–2030)."],
+        ["E02", "Fechas históricas reales", "Prioridad: release_country → release_unknown_country → 0 (Sin Fecha). No se imputa con el año del artista.", "Garantiza que dim_fecha refleje el año/mes/día real de publicación (1900–2030)."],
         ["E03", "Resolución de artist_credit", "LEFT JOIN silver.artist_credit_name con filtro position = 0.", "Vincula el lanzamiento y la pista con el artist.id principal real."],
         ["E04", "Deduplicación de ISRC", "Subconsulta SELECT DISTINCT recording FROM silver.isrc.", "Evita multiplicar filas por múltiples códigos ISRC y suma en pistas_con_isrc_total."],
         ["E05", "Cero booleanos en Hechos", "Conversión de flags a SUM(CASE WHEN ... THEN 1 ELSE 0 END).", "Reemplaza booleanos por métricas enteras aditivas (pistas_largas_total, video)."],
@@ -1112,7 +1112,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
         ["E07", "Claves foráneas huérfanas", "Imputación al registro surrogate 0 mediante COALESCE(dim_key, 0).", "Garantiza Cero Huérfanos en las 6 dimensiones sin descartar hechos."],
         ["E08", "Saneamiento UTF-8 BOM", "Decodificación con encoding='utf-8-sig' y errors='replace'.", "Elimina caracteres Byte Order Mark (\\ufeff) en entornos Windows."],
         ["E09", "JOIN geográfico por ID", "Unión exacta por clave entera area_id hacia gold.dim_geografia.", "Elimina el Fan Trap causado por ciudades o regiones con nombres homónimos."],
-        ["E10", "Auditoría automatizada DQ", "Ejecución de 7 reglas críticas al cierre de run_gold_pipeline.py.", "Persiste evidencia auditable de 0 violaciones en meta.data_quality_log."],
+        ["E10", "Auditoría automatizada DQ", "Ejecución de 10 reglas críticas al cierre de run_gold_pipeline.py.", "Persiste evidencia auditable de 0 violaciones en meta.data_quality_log."],
     ]
 
     t_s14 = s14.shapes.add_table(len(eda_rows), 4, Inches(0.55), Inches(1.42), Inches(12.2), Inches(5.52))
@@ -1135,7 +1135,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
     add_pastel_card(
         s15, 0.55, 1.45, 3.9, 5.45, PASTEL_BLUE, PASTEL_BLUE_BD,
         header_badge="1 · PARTICIONAMIENTO DECLARATIVO",
-        title="14 Particiones por fecha_key",
+        title="15 Particiones por fecha_key",
         bullets=[
             "• gold.fact_produccion_musical está particionada por RANGE (fecha_key):",
             "  - fact_produccion_unknown (0)",
@@ -1175,7 +1175,7 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
             "  DIVIDE(SUM([duracion_total_segundos]), SUM([pistas_completas_total]), 0)",
             "• Cobertura ISRC % =",
             "  DIVIDE(SUM([pistas_con_isrc_total]), [Total Pistas], 0)",
-            "• Demuestra el acortamiento musical en la era del streaming y la transición Vinilo → CD → Digital."
+            "• Evidencia la transición Vinilo → CD → Digital (el digital supera al CD en 2012) y una duración que crece a largo plazo (r = 0,89) y se acorta desde 2013 (r = -0,57)."
         ],
         title_color=ACCENT_AMBER, font_size=9.2
     )
@@ -1204,21 +1204,21 @@ def build_presentation(output_path="docs/DWMusicBrainz_Sustentacion.pptx"):
             "2 · Fidelidad Histórica con Datos 100% Reales", PASTEL_BLUE, PASTEL_BLUE_BD, ACCENT_NAVY,
             [
                 "• La incorporación de silver.release_country, silver.release_unknown_country y silver.artist_credit_name desde el dump oficial mbdump.tar.bz2 (Schema Sequence 31) dotó al Data Warehouse de fechas de publicación y autorías 100% verídicas.",
-                "• Se procesaron ~89,3 millones de registros en Silver y se superaron los 14,5 GB en disco, cumpliendo con creces los requisitos no funcionales de estrés."
+                "• Se procesaron ~98,6 millones de registros en Silver y se alcanzaron 16 GB en disco, cumpliendo con creces los requisitos no funcionales de estrés."
             ]
         ),
         (
             "3 · Calidad de Datos y Cero Huérfanos", PASTEL_MINT, PASTEL_MINT_BD, ACCENT_TEAL,
             [
                 "• La aplicación sistemática del catálogo de reglas EDA (E01 a E10), el cruce geográfico por clave entera (area_id) y el patrón de Fila Cero (Key 0) garantizaron 0 registros huérfanos y la erradicación de Fan Traps.",
-                "• La auditoría automatizada en meta.etl_audit y meta.data_quality_log asegura trazabilidad de grado empresarial."
+                "• La auditoría automatizada en meta.etl_audit y meta.data_quality_log asegura trazabilidad. Una auditoría posterior detectó y corrigió conteos no aditivos, fechas imputadas con el año del artista y un mapeo de idiomas erróneo."
             ]
         ),
         (
             "4 · Valor Analítico para la Industria Musical", PASTEL_PEACH, PASTEL_PEACH_BD, ACCENT_AMBER,
             [
-                "• La combinación de particionamiento declarativo por rango en fecha_key (14 particiones) y 4 vistas materializadas permite responder en milisegundos a los requerimientos RF01–RF08.",
-                "• En Power BI se comprueban con evidencia empírica la reducción de la duración musical en la era del streaming, la sustitución tecnológica de formatos físicos por digitales y las brechas regionales de formalización ISRC."
+                "• La combinación de particionamiento declarativo por rango en fecha_key (15 particiones) y 4 vistas materializadas permite responder en milisegundos a los requerimientos RF01–RF08.",
+                "• En Power BI (3 páginas, 26 medidas DAX) se evidencian la sustitución de formatos físicos por digitales (cruce en 2012), una duración que crece a largo plazo y se acorta levemente desde 2013, y las brechas regionales de formalización ISRC."
             ]
         ),
     ]

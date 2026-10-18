@@ -144,7 +144,7 @@ def build_pdf(filename="docs/Documento_Sustentacion_DWH_MusicBrainz.pdf"):
     story.append(Paragraph(
         "<b>PostgreSQL 16 en Docker</b> &nbsp;|&nbsp; <b>Arquitectura Medallón (Silver &rarr; Gold)</b><br/>"
         "<b>Modelo en Estrella Puro en Español (Ralph Kimball Star Schema)</b><br/>"
-        "100% Datos Reales MusicBrainz (~89.3M Filas Silver, Hechos Históricos Diarios Aditivos) &nbsp;|&nbsp; Power BI",
+        "100% Datos Reales MusicBrainz (~98.6M Filas Silver, Hechos Históricos Diarios Aditivos) &nbsp;|&nbsp; Power BI",
         style_cover_sub
     ))
     
@@ -157,7 +157,7 @@ def build_pdf(filename="docs/Documento_Sustentacion_DWH_MusicBrainz.pdf"):
         "(<code>gold.fact_produccion_musical</code>) diseñada exclusivamente con claves foráneas y 11 métricas numéricas "
         "100% aditivas (cero textos y cero booleanos). Alimentado con el volcado oficial de la <b>MetaBrainz Foundation "
         "(Schema Sequence 31)</b>, incorpora las fechas reales de publicación (<code>release_country</code>) y créditos "
-        "autorales (<code>artist_credit_name</code>), superando los <b>14.5 GB</b> en disco y garantizando <b>cero huérfanos</b>."
+        "autorales (<code>artist_credit_name</code>), superando los <b>16 GB</b> en disco y garantizando <b>cero huérfanos</b>."
     )
     story.append(callout_box(callout_portada, bg="#EFF6FF", border="#93C5FD"))
     
@@ -189,13 +189,13 @@ def build_pdf(filename="docs/Documento_Sustentacion_DWH_MusicBrainz.pdf"):
         [Paragraph("<b>Capítulo</b>", style_th), Paragraph("<b>Título del Capítulo y Alcance Temático</b>", style_th), Paragraph("<b>Pág.</b>", style_th)],
         [Paragraph("1", style_td_center), Paragraph("<b>Resumen ejecutivo y contexto:</b> Problema OLTP, solución OLAP de grano histórico diario y arquitectura general.", style_td), Paragraph("3", style_td_center)],
         [Paragraph("2", style_td_center), Paragraph("<b>Objetivos y requerimientos:</b> Matriz de requerimientos funcionales RF01–RF08 y no funcionales RNF01–RNF09.", style_td), Paragraph("4", style_td_center)],
-        [Paragraph("3", style_td_center), Paragraph("<b>Volumetría y dimensionamiento físico:</b> Las 10 tablas Silver (~89.3M filas) y el Modelo Estrella Gold en español.", style_td), Paragraph("6", style_td_center)],
+        [Paragraph("3", style_td_center), Paragraph("<b>Volumetría y dimensionamiento físico:</b> Las 10 tablas Silver (~98.6M filas) y el Modelo Estrella Gold en español.", style_td), Paragraph("6", style_td_center)],
         [Paragraph("4", style_td_center), Paragraph("<b>La base de datos de origen:</b> MusicBrainz Sequence 31, resolución de fechas reales y créditos de artistas.", style_td), Paragraph("7", style_td_center)],
         [Paragraph("5", style_td_center), Paragraph("<b>Diseño del Modelo en Estrella Puro en Español:</b> Grano histórico diario, atributos exactos de dimensiones y hechos.", style_td), Paragraph("8", style_td_center)],
         [Paragraph("6", style_td_center), Paragraph("<b>Arquitectura Medallón y Stack Tecnológico:</b> Capas Silver, Gold y Meta; justificación de herramientas elegidas.", style_td), Paragraph("11", style_td_center)],
         [Paragraph("7", style_td_center), Paragraph("<b>Reglas del proceso EDA:</b> Catálogo E01–E10, eliminación de booleanos en hechos y fechas reales.", style_td), Paragraph("13", style_td_center)],
         [Paragraph("8", style_td_center), Paragraph("<b>Proceso ETL de alto rendimiento:</b> Extracción bajo demanda, MaxLineReader y agregación histórica set-based.", style_td), Paragraph("14", style_td_center)],
-        [Paragraph("9", style_td_center), Paragraph("<b>Capa Oro: agregaciones, índices y particiones:</b> 14 particiones por fecha_key, índices B-tree y 4 vistas materializadas.", style_td), Paragraph("16", style_td_center)],
+        [Paragraph("9", style_td_center), Paragraph("<b>Capa Oro: agregaciones, índices y particiones:</b> 15 particiones por fecha_key, índices B-tree y 4 vistas materializadas.", style_td), Paragraph("16", style_td_center)],
         [Paragraph("10", style_td_center), Paragraph("<b>Dashboard Power BI y Storytelling:</b> Medidas DAX 100% aditivas (SUM) y hallazgos de negocio.", style_td), Paragraph("17", style_td_center)],
         [Paragraph("11", style_td_center), Paragraph("<b>Guía por diapositiva para la defensa oral:</b> Resumen técnico y discurso de defensa para 13 diapositivas.", style_td), Paragraph("19", style_td_center)],
         [Paragraph("12", style_td_center), Paragraph("<b>Banco de preguntas técnicas para la sustentación:</b> 15 preguntas de rigor con respuestas de Senior Architect.", style_td), Paragraph("22", style_td_center)],
@@ -257,7 +257,7 @@ def build_pdf(filename="docs/Documento_Sustentacion_DWH_MusicBrainz.pdf"):
     hitos_data = [
         [Paragraph("<b>Hito</b>", style_th), Paragraph("<b>Fase Arquitectónica</b>", style_th), Paragraph("<b>Alcance Técnico Verificado</b>", style_th), Paragraph("<b>Estado</b>", style_th)],
         [Paragraph("H0", style_td_center), Paragraph("Fase 0: Infraestructura", style_td), Paragraph("Docker Compose (PG16 en 5435), tuning 1GB buffers y shm_size=1gb, esquemas meta/silver/gold.", style_td), Paragraph("100% OK", style_td_center)],
-        [Paragraph("H1", style_td_center), Paragraph("Fase 1: Ingesta Silver (10 Tablas)", style_td), Paragraph("Extracción quirúrgica y COPY de ~89.3M filas (incluyendo release_country y artist_credit_name).", style_td), Paragraph("100% OK", style_td_center)],
+        [Paragraph("H1", style_td_center), Paragraph("Fase 1: Ingesta Silver (10 Tablas)", style_td), Paragraph("Extracción quirúrgica y COPY de ~98.6M filas (incluyendo release_country y artist_credit_name).", style_td), Paragraph("100% OK", style_td_center)],
         [Paragraph("H2", style_td_center), Paragraph("Fase 2: Dimensiones Gold (Español)", style_td), Paragraph("Poblado de 6 dimensiones conformadas en español con Surrogate Keys y Patrón Fila Cero (Key 0).", style_td), Paragraph("100% OK", style_td_center)],
         [Paragraph("H3", style_td_center), Paragraph("Fase 3: Hechos Históricos y MVs", style_td), Paragraph("Consolidación diaria en fact_produccion_musical (11 métricas aditivas) y 4 vistas materializadas.", style_td), Paragraph("100% OK", style_td_center)],
         [Paragraph("H4", style_td_center), Paragraph("Fase 4: Auditoría y Power BI", style_td), Paragraph("Registro en meta.data_quality_log (0 huérfanos) y medidas DAX basadas 100% en SUM.", style_td), Paragraph("100% OK", style_td_center)],
@@ -291,7 +291,7 @@ def build_pdf(filename="docs/Documento_Sustentacion_DWH_MusicBrainz.pdf"):
     ))
 
     story.append(Paragraph("2.2. Objetivos Específicos", style_sec_title))
-    story.append(Paragraph("&bull; <b>OE1:</b> Ingestar en la capa <code>silver</code> las 10 tablas relacionales clave de MusicBrainz (~89.3 millones de filas totales), incluyendo fechas históricas reales y créditos de artistas.", style_bullet))
+    story.append(Paragraph("&bull; <b>OE1:</b> Ingestar en la capa <code>silver</code> las 10 tablas relacionales clave de MusicBrainz (~98.6 millones de filas totales), incluyendo fechas históricas reales y créditos de artistas.", style_bullet))
     story.append(Paragraph("&bull; <b>OE2:</b> Modelar en la capa <code>gold</code> 6 dimensiones conformadas en español con claves subrogadas y el patrón de Fila Cero (Key 0) garantizando cero huérfanos.", style_bullet))
     story.append(Paragraph("&bull; <b>OE3:</b> Consolidar la tabla de hechos histórica <code>gold.fact_produccion_musical</code> por día y dimensiones, libre de atributos textuales y booleanos, con particionamiento físico por rangos en <code>fecha_key</code>.", style_bullet))
     story.append(Paragraph("&bull; <b>OE4:</b> Construir 4 vistas materializadas analíticas indexadas en español para responder consultas OLAP y tableros de Power BI en menos de 0.1 segundos.", style_bullet))
@@ -305,7 +305,7 @@ def build_pdf(filename="docs/Documento_Sustentacion_DWH_MusicBrainz.pdf"):
         [Paragraph("RF02", style_td_center), Paragraph("<b>Métricas por Formato e Idioma:</b> Duración promedio ponderada y volumen según formato (Vinilo, CD, Digital) e idioma.", style_td), Paragraph("fact_produccion_musical, dim_formato, dim_idioma", style_td), Paragraph("SUM(duracion_total_segundos) / SUM(pistas_completas_total)", style_td)],
         [Paragraph("RF03", style_td_center), Paragraph("<b>Drill-Down Geográfico y Temporal:</b> Navegación País &gt; Tipo de Área y Siglo &gt; Década &gt; Año &gt; Mes &gt; Día.", style_td), Paragraph("fact_produccion_musical, dim_geografia, dim_fecha", style_td), Paragraph("SUM(lanzamientos_total), SUM(duracion_total_minutos)", style_td)],
         [Paragraph("RF04", style_td_center), Paragraph("<b>Comparativa Físico vs Digital y Canciones Largas:</b> Volumen de pistas largas (&gt;300s) frente al total por categoría de soporte.", style_td), Paragraph("fact_produccion_musical, dim_formato", style_td), Paragraph("SUM(pistas_largas_total) / SUM(pistas_total)", style_td)],
-        [Paragraph("RF05", style_td_center), Paragraph("<b>Correlación Estadística Streaming vs Vinilo:</b> Demostración matemática del acortamiento musical por año histórico.", style_td), Paragraph("fact_produccion_musical, dim_fecha", style_td), Paragraph("corr(anio, duracion_promedio_seg)", style_td)],
+        [Paragraph("RF05", style_td_center), Paragraph("<b>Correlación Estadística Año vs Duración:</b> Pearson positivo a largo plazo (r = 0,89, 1950-2025) y negativo desde 2013 (r = -0,57).", style_td), Paragraph("fact_produccion_musical, dim_fecha", style_td), Paragraph("corr(anio, duracion_promedio_seg)", style_td)],
         [Paragraph("RF06", style_td_center), Paragraph("<b>Formalización Discográfica (ISRC):</b> Tasa de pistas con código internacional ISRC según país y tipo de artista.", style_td), Paragraph("fact_produccion_musical, dim_geografia, dim_artista", style_td), Paragraph("SUM(pistas_con_isrc_total) * 100.0 / SUM(pistas_total)", style_td)],
         [Paragraph("RF07", style_td_center), Paragraph("<b>Densidad de Pistas y Soportes por Lanzamiento:</b> Promedio de pistas por álbum y por soporte físico/digital.", style_td), Paragraph("fact_produccion_musical, dim_lanzamiento, dim_formato", style_td), Paragraph("SUM(pistas_total) / SUM(lanzamientos_total)", style_td)],
         [Paragraph("RF08", style_td_center), Paragraph("<b>Catálogo Emergente y Nuevos Talentos:</b> Artistas debutantes en la última década con mayor volumen y cobertura ISRC.", style_td), Paragraph("fact_produccion_musical, dim_artista, dim_fecha", style_td), Paragraph("anio_inicio &gt;= 2015, SUM(pistas_con_isrc_total)", style_td)],
@@ -326,8 +326,8 @@ def build_pdf(filename="docs/Documento_Sustentacion_DWH_MusicBrainz.pdf"):
     rnf_data = [
         [Paragraph("<b>RNF</b>", style_th), Paragraph("<b>Criterio / Dimensión</b>", style_th), Paragraph("<b>Meta Exigida</b>", style_th), Paragraph("<b>Implementación en DWMusicBrainz</b>", style_th), Paragraph("<b>Estado</b>", style_th)],
         [Paragraph("RNF01", style_td_center), Paragraph("Procesamiento por Chunks", style_td), Paragraph("Streaming sin saturar RAM", style_td), Paragraph("MaxLineReader con buffer de 128 KB en Python", style_td), Paragraph("100% OK", style_td_center)],
-        [Paragraph("RNF02", style_td_center), Paragraph("Almacenamiento en Disco", style_td), Paragraph("&gt; 3.0 GB físico en PostgreSQL", style_td), Paragraph("<b>&gt; 14.5 GB reales</b> entre Silver (10 tablas) y Gold", style_td), Paragraph("SUPERADO", style_td_center)],
-        [Paragraph("RNF03", style_td_center), Paragraph("Volumetría Real Procesada", style_td), Paragraph("&gt; 10.000.000 registros base", style_td), Paragraph("<b>~89.3M filas en Silver</b> y 15M pistas consolidadas en hechos", style_td), Paragraph("SUPERADO", style_td_center)],
+        [Paragraph("RNF02", style_td_center), Paragraph("Almacenamiento en Disco", style_td), Paragraph("&gt; 3.0 GB físico en PostgreSQL", style_td), Paragraph("<b>~16 GB reales</b> entre Silver (10 tablas) y Gold", style_td), Paragraph("SUPERADO", style_td_center)],
+        [Paragraph("RNF03", style_td_center), Paragraph("Volumetría Real Procesada", style_td), Paragraph("&gt; 10.000.000 registros base", style_td), Paragraph("<b>~98.6M filas en Silver</b> y 15M pistas consolidadas en hechos", style_td), Paragraph("SUPERADO", style_td_center)],
         [Paragraph("RNF04", style_td_center), Paragraph("Garantía Cero Sintéticos", style_td), Paragraph("100% datos reales auditables", style_td), Paragraph("Volcado oficial MusicBrainz Sequence 31 (mbdump.tar.bz2)", style_td), Paragraph("100% OK", style_td_center)],
         [Paragraph("RNF05", style_td_center), Paragraph("Idempotencia del Pipeline", style_td), Paragraph("Re-ejecuciones sin duplicados", style_td), Paragraph("TRUNCATE RESTART IDENTITY y ON CONFLICT DO UPDATE", style_td), Paragraph("100% OK", style_td_center)],
         [Paragraph("RNF06", style_td_center), Paragraph("Auditoría y Calidad", style_td), Paragraph("Trazabilidad E2E y reglas DQ", style_td), Paragraph("meta.etl_audit + meta.data_quality_log automatizados", style_td), Paragraph("100% OK", style_td_center)],
@@ -356,21 +356,21 @@ def build_pdf(filename="docs/Documento_Sustentacion_DWH_MusicBrainz.pdf"):
     story.append(Paragraph("3.1. Consolidado de Tablas por Capa (Silver 3NF y Gold Estrella)", style_sec_title))
     vol_data = [
         [Paragraph("<b>Esquema</b>", style_th), Paragraph("<b>Tabla / Objeto</b>", style_th), Paragraph("<b>Filas Reales / Est.</b>", style_th), Paragraph("<b>Grano y Rol en el Data Warehouse</b>", style_th), Paragraph("<b>Disco Est.</b>", style_th)],
-        [Paragraph("silver", style_td_center), Paragraph("recording", style_td_bold), Paragraph("40.532.448", style_td_center), Paragraph("Grabación maestra de estudio (duración master y flag video)", style_td), Paragraph("4.998 MB", style_td_center)],
-        [Paragraph("silver", style_td_center), Paragraph("track", style_td_bold), Paragraph("15.000.000", style_td_center), Paragraph("Pista musical en un soporte (base atómica de conteo)", style_td), Paragraph("1.967 MB", style_td_center)],
-        [Paragraph("silver", style_td_center), Paragraph("isrc", style_td_bold), Paragraph("6.478.709", style_td_center), Paragraph("Códigos internacionales ISRC por grabación", style_td), Paragraph("795 MB", style_td_center)],
-        [Paragraph("silver", style_td_center), Paragraph("medium", style_td_bold), Paragraph("6.411.799", style_td_center), Paragraph("Soporte físico o digital que compone un lanzamiento", style_td), Paragraph("986 MB", style_td_center)],
-        [Paragraph("silver", style_td_center), Paragraph("artist_credit_name", style_td_bold), Paragraph("~6.210.000", style_td_center), Paragraph("Vínculo exacto entre artist_credit y artist.id (position=0)", style_td), Paragraph("420 MB", style_td_center)],
-        [Paragraph("silver", style_td_center), Paragraph("release", style_td_bold), Paragraph("5.844.569", style_td_center), Paragraph("Lanzamiento discográfico (estado, empaque, idioma, calidad)", style_td), Paragraph("1.108 MB", style_td_center)],
-        [Paragraph("silver", style_td_center), Paragraph("release_country", style_td_bold), Paragraph("~5.480.000", style_td_center), Paragraph("Fecha histórica real (año/mes/día) y país de lanzamiento", style_td), Paragraph("385 MB", style_td_center)],
-        [Paragraph("silver", style_td_center), Paragraph("artist", style_td_bold), Paragraph("3.010.451", style_td_center), Paragraph("Catálogo de músicos solistas, grupos, coros y orquestas", style_td), Paragraph("498 MB", style_td_center)],
-        [Paragraph("silver", style_td_center), Paragraph("release_unknown_country", style_td_bold), Paragraph("~215.000", style_td_center), Paragraph("Fecha histórica real de publicación sin país asignado", style_td), Paragraph("18 MB", style_td_center)],
-        [Paragraph("silver", style_td_center), Paragraph("area", style_td_bold), Paragraph("120.107", style_td_center), Paragraph("Países, regiones, subdivisiones y ciudades", style_td), Paragraph("14 MB", style_td_center)],
-        [Paragraph("gold", style_td_center), Paragraph("fact_produccion_musical", style_td_bold), Paragraph("~4.5M – 5.8M", style_td_center), Paragraph("Hecho histórico diario (consolida las 15M de pistas en SUMs)", style_td), Paragraph("~2.450 MB", style_td_center)],
-        [Paragraph("gold", style_td_center), Paragraph("dim_artista", style_td_bold), Paragraph("3.010.452", style_td_center), Paragraph("Dimensión conformada de artistas con área y país", style_td), Paragraph("758 MB", style_td_center)],
-        [Paragraph("gold", style_td_center), Paragraph("dim_geografia", style_td_bold), Paragraph("120.108", style_td_center), Paragraph("Dimensión conformada geográfica (país y tipo de área)", style_td), Paragraph("15 MB", style_td_center)],
-        [Paragraph("gold", style_td_center), Paragraph("dim_fecha", style_td_bold), Paragraph("47.848", style_td_center), Paragraph("Calendario diario continuo (1900 a 2030) + Clave 0", style_td), Paragraph("4 MB", style_td_center)],
-        [Paragraph("gold", style_td_center), Paragraph("dim_idioma / formato / lanz.", style_td_bold), Paragraph("~620", style_td_center), Paragraph("Dimensiones conformadas de idioma (354), perfil lanz. (~150) y formato (114)", style_td), Paragraph("&lt; 3 MB", style_td_center)],
+        [Paragraph("silver", style_td_center), Paragraph("recording", style_td_bold), Paragraph("40.595.893", style_td_center), Paragraph("Grabación maestra de estudio (duración master y flag video)", style_td), Paragraph("5.854 MB", style_td_center)],
+        [Paragraph("silver", style_td_center), Paragraph("track", style_td_bold), Paragraph("15.000.000", style_td_center), Paragraph("Pista musical en un soporte (base atómica de conteo)", style_td), Paragraph("2.865 MB", style_td_center)],
+        [Paragraph("silver", style_td_center), Paragraph("isrc", style_td_bold), Paragraph("6.502.252", style_td_center), Paragraph("Códigos internacionales ISRC por grabación", style_td), Paragraph("798 MB", style_td_center)],
+        [Paragraph("silver", style_td_center), Paragraph("medium", style_td_bold), Paragraph("6.426.136", style_td_center), Paragraph("Soporte físico o digital que compone un lanzamiento", style_td), Paragraph("988 MB", style_td_center)],
+        [Paragraph("silver", style_td_center), Paragraph("artist_credit_name", style_td_bold), Paragraph("7.301.698", style_td_center), Paragraph("Vínculo exacto entre artist_credit y artist.id (position=0)", style_td), Paragraph("741 MB", style_td_center)],
+        [Paragraph("silver", style_td_center), Paragraph("release", style_td_bold), Paragraph("5.858.206", style_td_center), Paragraph("Lanzamiento discográfico (estado, empaque, idioma, calidad)", style_td), Paragraph("1.110 MB", style_td_center)],
+        [Paragraph("silver", style_td_center), Paragraph("release_country", style_td_bold), Paragraph("13.337.269", style_td_center), Paragraph("Fecha histórica real (año/mes/día) y país de lanzamiento", style_td), Paragraph("1.299 MB", style_td_center)],
+        [Paragraph("silver", style_td_center), Paragraph("artist", style_td_bold), Paragraph("3.015.712", style_td_center), Paragraph("Catálogo de músicos solistas, grupos, coros y orquestas", style_td), Paragraph("499 MB", style_td_center)],
+        [Paragraph("silver", style_td_center), Paragraph("release_unknown_country", style_td_bold), Paragraph("484.343", style_td_center), Paragraph("Fecha histórica real de publicación sin país asignado", style_td), Paragraph("36 MB", style_td_center)],
+        [Paragraph("silver", style_td_center), Paragraph("area", style_td_bold), Paragraph("120.108", style_td_center), Paragraph("Países, regiones, subdivisiones y ciudades", style_td), Paragraph("16 MB", style_td_center)],
+        [Paragraph("gold", style_td_center), Paragraph("fact_produccion_musical", style_td_bold), Paragraph("2.967.681", style_td_center), Paragraph("Hecho histórico diario (consolida las 15M de pistas en SUMs)", style_td), Paragraph("570 MB", style_td_center)],
+        [Paragraph("gold", style_td_center), Paragraph("dim_artista", style_td_bold), Paragraph("3.015.713", style_td_center), Paragraph("Dimensión conformada de artistas con área y país", style_td), Paragraph("1.476 MB", style_td_center)],
+        [Paragraph("gold", style_td_center), Paragraph("dim_geografia", style_td_bold), Paragraph("120.109", style_td_center), Paragraph("Dimensión conformada geográfica (país y tipo de área)", style_td), Paragraph("19 MB", style_td_center)],
+        [Paragraph("gold", style_td_center), Paragraph("dim_fecha", style_td_bold), Paragraph("47.847", style_td_center), Paragraph("Calendario diario continuo (1900 a 2030) + Clave 0", style_td), Paragraph("6 MB", style_td_center)],
+        [Paragraph("gold", style_td_center), Paragraph("dim_idioma / formato / lanz.", style_td_bold), Paragraph("782", style_td_center), Paragraph("Dimensiones conformadas de idioma (354), perfil lanz. (313) y formato (115)", style_td), Paragraph("&lt; 3 MB", style_td_center)],
     ]
     t_vol = Table(vol_data, colWidths=[38, 115, 72, 238, 60.28])
     t_vol.setStyle(TableStyle([
@@ -400,7 +400,7 @@ def build_pdf(filename="docs/Documento_Sustentacion_DWH_MusicBrainz.pdf"):
         "<b>1. La fecha real de lanzamiento NO vive en la tabla release:</b> En <code>silver.release</code> solo existe "
         "la columna <code>last_updated</code> (cuándo un editor modificó la fila). Las fechas históricas reales de publicación "
         "(año, mes y día en que salió el disco a la venta, junto con el país del evento) residen en <code>release_country</code> "
-        "(275 MB) y <code>release_unknown_country</code> (8.4 MB). Al incorporarlas en Silver, nuestra dimensión "
+        "(1.299 MB) y <code>release_unknown_country</code> (36 MB). Al incorporarlas en Silver, nuestra dimensión "
         "<code>gold.dim_fecha</code> refleja la historia real de la música desde 1900 hasta 2026.",
         style_bullet
     ))
@@ -461,11 +461,11 @@ def build_pdf(filename="docs/Documento_Sustentacion_DWH_MusicBrainz.pdf"):
     dict_data = [
         [Paragraph("<b>Tabla en Esquema Gold</b>", style_th), Paragraph("<b>Clave Primaria (PK)</b>", style_th), Paragraph("<b>Listado Exacto de Columnas / Atributos</b>", style_th), Paragraph("<b>Rol y Naturaleza</b>", style_th)],
         [Paragraph("gold.fact_produccion_musical", style_td_bold), Paragraph("PK Compuesta:<br/>(hecho_key, fecha_key)", style_td_center), Paragraph("<b>FKs:</b> fecha_key, artista_key, lanzamiento_key, geografia_key, formato_key, idioma_key.<br/><b>Métricas Aditivas (11):</b> lanzamientos_total, soportes_total, pistas_total, grabaciones_unicas_total, duracion_total_ms, duracion_total_segundos, duracion_total_minutos, pistas_con_isrc_total, pistas_largas_total, pistas_video_total, pistas_completas_total.", style_td), Paragraph("Tabla de Hechos Histórica Diaria Particionada. Cero textos, cero booleanos.", style_td)],
-        [Paragraph("gold.dim_fecha", style_td_bold), Paragraph("fecha_key<br/>(INTEGER YYYYMMDD)", style_td_center), Paragraph("fecha_key, fecha_completa, anio, trimestre, nombre_trimestre, mes, nombre_mes, nombre_mes_corto, dia, dia_semana, nombre_dia, es_fin_de_semana, decada, siglo.", style_td), Paragraph("Dimensión Calendario (1900–2030, 47.848 filas + Key 0).", style_td)],
-        [Paragraph("gold.dim_artista", style_td_bold), Paragraph("artista_key<br/>(SERIAL)", style_td_center), Paragraph("artista_key, artista_id (UK), artista_gid, nombre_artista, nombre_orden, tipo_artista, genero, area_id, nombre_area, nombre_pais, anio_inicio, anio_fin, finalizado, creado_en.", style_td), Paragraph("Dimensión Artistas (3.010.452 filas + Key 0).", style_td)],
-        [Paragraph("gold.dim_lanzamiento", style_td_bold), Paragraph("lanzamiento_key<br/>(SERIAL)", style_td_center), Paragraph("lanzamiento_key, estado_id, empaque_id, calidad_id, estado_lanzamiento, tipo_empaque, calidad_datos, creado_en.", style_td), Paragraph("Dimensión Perfil de Lanzamiento (~150 combinaciones + Key 0).", style_td)],
-        [Paragraph("gold.dim_geografia", style_td_bold), Paragraph("geografia_key<br/>(SERIAL)", style_td_center), Paragraph("geografia_key, area_id (UK), area_gid, nombre_area, tipo_area, nombre_pais, creado_en.", style_td), Paragraph("Dimensión Geográfica (120.108 áreas + Key 0).", style_td)],
-        [Paragraph("gold.dim_formato", style_td_bold), Paragraph("formato_key<br/>(SERIAL)", style_td_center), Paragraph("formato_key, formato_id (UK), nombre_formato, categoria_formato.", style_td), Paragraph("Dimensión Formatos Físicos/Digitales (114 filas + Key 0).", style_td)],
+        [Paragraph("gold.dim_fecha", style_td_bold), Paragraph("fecha_key<br/>(INTEGER YYYYMMDD)", style_td_center), Paragraph("fecha_key, fecha_completa, anio, trimestre, nombre_trimestre, mes, nombre_mes, nombre_mes_corto, dia, dia_semana, nombre_dia, es_fin_de_semana, decada, siglo.", style_td), Paragraph("Dimensión Calendario (1900–2030, 47.847 filas + Key 0).", style_td)],
+        [Paragraph("gold.dim_artista", style_td_bold), Paragraph("artista_key<br/>(SERIAL)", style_td_center), Paragraph("artista_key, artista_id (UK), artista_gid, nombre_artista, nombre_orden, tipo_artista, genero, area_id, nombre_area, nombre_pais, anio_inicio, anio_fin, finalizado, creado_en.", style_td), Paragraph("Dimensión Artistas (3.015.713 filas + Key 0).", style_td)],
+        [Paragraph("gold.dim_lanzamiento", style_td_bold), Paragraph("lanzamiento_key<br/>(SERIAL)", style_td_center), Paragraph("lanzamiento_key, estado_id, empaque_id, calidad_id, estado_lanzamiento, tipo_empaque, calidad_datos, creado_en.", style_td), Paragraph("Dimensión Perfil de Lanzamiento (313 combinaciones + Key 0).", style_td)],
+        [Paragraph("gold.dim_geografia", style_td_bold), Paragraph("geografia_key<br/>(SERIAL)", style_td_center), Paragraph("geografia_key, area_id (UK), area_gid, nombre_area, tipo_area, nombre_pais, creado_en.", style_td), Paragraph("Dimensión Geográfica (120.109 áreas + Key 0).", style_td)],
+        [Paragraph("gold.dim_formato", style_td_bold), Paragraph("formato_key<br/>(SERIAL)", style_td_center), Paragraph("formato_key, formato_id (UK), nombre_formato, categoria_formato.", style_td), Paragraph("Dimensión Formatos Físicos/Digitales (115 filas + Key 0).", style_td)],
         [Paragraph("gold.dim_idioma", style_td_bold), Paragraph("idioma_key<br/>(SERIAL)", style_td_center), Paragraph("idioma_key, idioma_id (UK), nombre_idioma, codigo_iso.", style_td), Paragraph("Dimensión Idiomas ISO 639-3 (354 filas + Key 0).", style_td)],
     ]
     t_dict = Table(dict_data, colWidths=[95, 72, 240, 116.28])
@@ -572,7 +572,7 @@ def build_pdf(filename="docs/Documento_Sustentacion_DWH_MusicBrainz.pdf"):
     eda_data = [
         [Paragraph("<b>ID</b>", style_th), Paragraph("<b>Regla de Calidad</b>", style_th), Paragraph("<b>Acción Técnica Implementada</b>", style_th), Paragraph("<b>Impacto en el Modelo Estrella</b>", style_th)],
         [Paragraph("E01", style_td_center), Paragraph("Duraciones nulas o en 0", style_td), Paragraph("GREATEST(COALESCE(NULLIF(t.length,0), NULLIF(rec.length,0), 0), 0).", style_td), Paragraph("Rescata la duración del recording master y suma en pistas_completas_total.", style_td)],
-        [Paragraph("E02", style_td_center), Paragraph("Fechas reales de publicación", style_td), Paragraph("Prioridad: release_country -> release_unknown_country -> artist.begin_date_year -> 0.", style_td), Paragraph("Asigna la fecha histórica real (YYYYMMDD) en dim_fecha.", style_td)],
+        [Paragraph("E02", style_td_center), Paragraph("Fechas reales de publicación", style_td), Paragraph("Prioridad: release_country -> release_unknown_country -> 0 (Sin Fecha). No se imputa con el año del artista.", style_td), Paragraph("Asigna la fecha histórica real (YYYYMMDD) en dim_fecha.", style_td)],
         [Paragraph("E03", style_td_center), Paragraph("Resolución de artist_credit", style_td), Paragraph("JOIN con silver.artist_credit_name (position = 0).", style_td), Paragraph("Vincula el lanzamiento y la pista con el artist_id principal real.", style_td)],
         [Paragraph("E04", style_td_center), Paragraph("Deduplicación de ISRC", style_td), Paragraph("Subconsulta SELECT DISTINCT recording FROM silver.isrc.", style_td), Paragraph("Evita duplicar filas por múltiples ISRCs y suma en pistas_con_isrc_total.", style_td)],
         [Paragraph("E05", style_td_center), Paragraph("Cero booleanos en Hechos", style_td), Paragraph("Conversión de flags a SUM(CASE WHEN ... THEN 1 ELSE 0 END).", style_td), Paragraph("Genera métricas enteras 100% aditivas (pistas_largas_total, pistas_video_total).", style_td)],
@@ -603,7 +603,8 @@ def build_pdf(filename="docs/Documento_Sustentacion_DWH_MusicBrainz.pdf"):
     story.append(Paragraph("8.1. SQL de Consolidación Histórica Diaria (etl/gold/populate_fact_tracks.sql)", style_sec_title))
     story.append(Paragraph(
         "La carga de <code>gold.fact_produccion_musical</code> resuelve fechas reales, artista principal, perfil de "
-        "lanzamiento y agrupa (<code>GROUP BY</code>) por día y dimensiones conformadas:",
+        "lanzamiento y agrupa (<code>GROUP BY</code>) por día y dimensiones conformadas. Cada lanzamiento, soporte y grabación "
+        "se cuenta una sola vez, en la fila de su primera pista (<code>ROW_NUMBER()</code>), para que la suma sea exacta:",
         style_body
     ))
 
@@ -617,10 +618,10 @@ def build_pdf(filename="docs/Documento_Sustentacion_DWH_MusicBrainz.pdf"):
         "SELECT\n"
         "    COALESCE(d.fecha_key, 0), COALESCE(da.artista_key, 0), COALESCE(dl.lanzamiento_key, 0),\n"
         "    COALESCE(dg.geografia_key, 0), COALESCE(df.formato_key, 0), COALESCE(di.idioma_key, 0),\n"
-        "    COUNT(DISTINCT dp.release_id)::INTEGER AS lanzamientos_total,\n"
-        "    COUNT(DISTINCT dp.medium_id)::INTEGER  AS soportes_total,\n"
+        "    SUM(dp.es_primera_pista_lanzamiento)::INTEGER AS lanzamientos_total, -- 1 por lanzamiento\n"
+        "    SUM(dp.es_primera_pista_soporte)::INTEGER AS soportes_total,         -- 1 por soporte\n"
         "    COUNT(dp.track_id)::INTEGER            AS pistas_total,\n"
-        "    COUNT(DISTINCT dp.recording_id)::INTEGER AS grabaciones_unicas_total,\n"
+        "    SUM(dp.es_primera_aparicion_grabacion)::INTEGER AS grabaciones_unicas_total,\n"
         "    SUM(dp.duracion_ms)::BIGINT            AS duracion_total_ms,\n"
         "    ROUND(SUM(dp.duracion_ms) / 1000.0, 2) AS duracion_total_segundos,\n"
         "    ROUND(SUM(dp.duracion_ms) / 60000.0, 2) AS duracion_total_minutos,\n"
@@ -670,20 +671,20 @@ def build_pdf(filename="docs/Documento_Sustentacion_DWH_MusicBrainz.pdf"):
     story.append(Paragraph("10.1. Catálogo de Medidas DAX 100% Aditivas en Power BI", style_sec_title))
     dax_code = (
         "-- 1. VOLUMETRÍA HISTÓRICA ADITIVA\n"
-        "Total Lanzamientos = SUM(gold_fact_produccion_musical[lanzamientos_total])\n"
-        "Total Soportes     = SUM(gold_fact_produccion_musical[soportes_total])\n"
-        "Total Pistas       = SUM(gold_fact_produccion_musical[pistas_total])\n\n"
+        "Total Lanzamientos = SUM('gold fact_produccion_musical'[lanzamientos_total])\n"
+        "Total Soportes     = SUM('gold fact_produccion_musical'[soportes_total])\n"
+        "Total Pistas       = SUM('gold fact_produccion_musical'[pistas_total])\n\n"
         "-- 2. DURACIÓN PROMEDIO PONDERADA (SIN DISTORSIÓN POR CEROS)\n"
         "Duracion Promedio por Pista (Segundos) = \n"
         "DIVIDE(\n"
-        "    SUM(gold_fact_produccion_musical[duracion_total_segundos]),\n"
-        "    SUM(gold_fact_produccion_musical[pistas_completas_total]),\n"
+        "    SUM('gold fact_produccion_musical'[duracion_total_segundos]),\n"
+        "    SUM('gold fact_produccion_musical'[pistas_completas_total]),\n"
         "    0\n"
         ")\n\n"
         "-- 3. TASA DE FORMALIZACIÓN ISRC Y CANCIONES LARGAS (> 5 MIN)\n"
-        "Total Pistas con ISRC = SUM(gold_fact_produccion_musical[pistas_con_isrc_total])\n"
+        "Total Pistas con ISRC = SUM('gold fact_produccion_musical'[pistas_con_isrc_total])\n"
         "Tasa Cobertura ISRC % = DIVIDE([Total Pistas con ISRC], [Total Pistas], 0)\n"
-        "Total Pistas Largas   = SUM(gold_fact_produccion_musical[pistas_largas_total])\n"
+        "Total Pistas Largas   = SUM('gold fact_produccion_musical'[pistas_largas_total])\n"
         "Proporcion Largas %   = DIVIDE([Total Pistas Largas], [Total Pistas], 0)"
     )
     story.append(code_box(dax_code))
