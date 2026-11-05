@@ -3465,6 +3465,189 @@
             "width": 6,
             "height": 8
           }
+        },
+        {
+          "widget": {
+            "name": "g_drill_tiempo",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_calidad",
+                  "fields": [
+                    {
+                      "name": "siglo",
+                      "expression": "`siglo`"
+                    },
+                    {
+                      "name": "decada",
+                      "expression": "`decada`"
+                    },
+                    {
+                      "name": "anio_txt",
+                      "expression": "`anio_txt`"
+                    },
+                    {
+                      "name": "nombre_trimestre",
+                      "expression": "`nombre_trimestre`"
+                    },
+                    {
+                      "name": "mes_txt",
+                      "expression": "`mes_txt`"
+                    },
+                    {
+                      "name": "lanzamientos_v",
+                      "expression": "SUM(`lanzamientos`)"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "filters": [
+                    {
+                      "expression": "`anio` BETWEEN 1900 AND 2025"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "pivot",
+              "encodings": {
+                "rows": [
+                  {
+                    "fieldName": "siglo",
+                    "displayName": "Siglo"
+                  },
+                  {
+                    "fieldName": "decada",
+                    "displayName": "Década"
+                  },
+                  {
+                    "fieldName": "anio_txt",
+                    "displayName": "Año"
+                  },
+                  {
+                    "fieldName": "nombre_trimestre",
+                    "displayName": "Trimestre"
+                  },
+                  {
+                    "fieldName": "mes_txt",
+                    "displayName": "Mes"
+                  }
+                ],
+                "cell": {
+                  "type": "multi-cell",
+                  "fields": [
+                    {
+                      "fieldName": "lanzamientos_v",
+                      "cellType": "text",
+                      "format": {
+                        "type": "number-plain",
+                        "decimalPlaces": {
+                          "type": "exact",
+                          "places": 0
+                        }
+                      },
+                      "displayName": "Total"
+                    }
+                  ]
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Drill-down temporal: siglo, década, año, trimestre y mes",
+                "showDescription": true,
+                "description": "Clic derecho sobre un valor y luego Drill down. Para volver, Drill up en el encabezado."
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 27,
+            "width": 6,
+            "height": 9
+          }
+        },
+        {
+          "widget": {
+            "name": "g_drill_geo",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_calidad",
+                  "fields": [
+                    {
+                      "name": "nombre_pais",
+                      "expression": "`nombre_pais`"
+                    },
+                    {
+                      "name": "tipo_area",
+                      "expression": "`tipo_area`"
+                    },
+                    {
+                      "name": "nombre_area",
+                      "expression": "`nombre_area`"
+                    },
+                    {
+                      "name": "lanzamientos_v",
+                      "expression": "SUM(`lanzamientos`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "pivot",
+              "encodings": {
+                "rows": [
+                  {
+                    "fieldName": "nombre_pais",
+                    "displayName": "País"
+                  },
+                  {
+                    "fieldName": "tipo_area",
+                    "displayName": "Tipo"
+                  },
+                  {
+                    "fieldName": "nombre_area",
+                    "displayName": "Área"
+                  }
+                ],
+                "cell": {
+                  "type": "multi-cell",
+                  "fields": [
+                    {
+                      "fieldName": "lanzamientos_v",
+                      "cellType": "text",
+                      "format": {
+                        "type": "number-plain",
+                        "decimalPlaces": {
+                          "type": "exact",
+                          "places": 0
+                        }
+                      },
+                      "displayName": "Total"
+                    }
+                  ]
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Drill-down geográfico: país, tipo de área y área",
+                "showDescription": true,
+                "description": "Clic derecho sobre un valor y luego Drill down. Para volver, Drill up en el encabezado."
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 27,
+            "width": 6,
+            "height": 9
+          }
         }
       ]
     }
