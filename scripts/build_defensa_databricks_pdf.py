@@ -377,8 +377,8 @@ def historia(m):
         "<b>Fechas:</b> las anteriores a 1900 van a «sin fecha» y hay fechas futuras en el dato.",
         "<b>Top de artistas:</b> está dominado por compositores clásicos por las muchas reediciones; no mide popularidad.",
         "<b>Sin medir:</b> beneficio del clustering, concurrencia del warehouse y consumo de cuota.",
-        "<b>Power BI:</b> el reporte ya apunta a Databricks, pero falta probar la importación de 11,5 M de filas.",
-        "<b>Trabajo futuro:</b> validar la carga en Power BI, agregar drill-down y medir rendimiento comparado.",
+        "<b>Power BI:</b> el reporte queda como entrega anterior, con la carga de 15 M. El dashboard vigente es AI/BI.",
+        "<b>Trabajo futuro:</b> agregar drill-down al dashboard y medir rendimiento comparado.",
     ])
 
     seccion(h, "Sección 15", "Preguntas probables del profesor")

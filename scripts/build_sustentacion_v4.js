@@ -209,7 +209,7 @@ async function construir() {
     ["Almacenamiento", "Tablas PostgreSQL", "Delta Lake con Unity Catalog"],
     ["Orquestación", "Script de Python", "Lakeflow Jobs"],
     ["Rendimiento", "Particiones e índices", "Liquid clustering y agregados"],
-    ["Visualización", "Power BI", "Dashboard AI/BI; Power BI se conserva"],
+    ["Visualización", "Power BI", "Dashboard AI/BI en Databricks"],
   ], 0.6, 1.7, 12.13, [2.9, 3.9, 5.33], { alto: 0.52, nombre: "Comparación de tecnologías" });
   tarjeta(s4, 0.6, 6.05, 12.13, 0.72, C.accent3, "Lo que se mantiene");
   texto(s4, [{ text: "Se mantiene: ", options: { bold: true } }, { text: "arquitectura Medallón, estrella de Kimball y los requerimientos RF01 a RF08." }], 0.85, 6.05, 11.6, 0.72, { valign: "middle", fontSize: 17 });
@@ -224,7 +224,7 @@ async function construir() {
     [fa.FaDatabase, C.accent4, "Bronze", `${mill(SILVER_TOTAL, 2)}\ncopia en texto`],
     [fa.FaFilter, C.accent1, "Silver", "Tipos, escapes\ny calidad"],
     [fa.FaStar, C.accent3, "Gold", `3 hechos\n7 dimensiones`],
-    [fa.FaChartBar, C.accent2, "Consumo", "AI/BI\ny Power BI"],
+    [fa.FaChartBar, C.accent2, "Consumo", "Dashboard\nAI/BI"],
   ];
   const ancho5 = 1.76, salto5 = 2.074;
   for (let i = 0; i < pasos.length; i++) {
@@ -250,7 +250,7 @@ async function construir() {
     [fa.FaHistory, C.accent3, "Delta Lake", "ACID e historial: comparamos versiones con time travel."],
     [fa.FaShieldAlt, C.accent4, "Unity Catalog", "Gobierno de tablas y Volumes; DBFS está deprecado."],
     [fa.FaProjectDiagram, C.accent5, "Lakeflow Jobs", "Tareas con dependencias, sin servidor de orquestación."],
-    [fa.FaChartPie, C.accent1, "AI/BI y Power BI", "Dashboard en la nube; Power BI como respaldo."],
+    [fa.FaChartPie, C.accent1, "Dashboard AI/BI", "En la nube, sin importar datos al equipo."],
   ];
   for (let i = 0; i < techs.length; i++) {
     const x = 0.6 + (i % 3) * 4.12, y = 1.75 + Math.floor(i / 3) * 2.52;
@@ -504,22 +504,22 @@ async function construir() {
   // ---------------------------------------------------------------- Cierre
   seccion("Cierre");
   const s23 = diapositiva("Límites", "Lo que este trabajo no resuelve",
-    "Preferimos declarar los límites antes de que nos los pregunten. El dashboard no tiene el drill-down de Power BI y los Top no se recalculan con filtros. El reporte de Power BI ya apunta a Databricks, pero falta comprobar la carga completa. Las fechas anteriores a 1900 pasan a sin fecha, y no medimos el beneficio del liquid clustering ni el consumo de cuota.");
+    "Preferimos declarar los límites antes de que nos los pregunten. El dashboard no tiene el drill-down de Power BI y los Top no se recalculan con filtros. El reporte de Power BI queda como parte de la entrega anterior. Las fechas anteriores a 1900 pasan a sin fecha, y no medimos el beneficio del liquid clustering ni el consumo de cuota.");
   [
     ["Datos", C.accent2, ["Fechas anteriores a 1900 van a «sin fecha»", `${num(m.especiales.pistas_fecha_futura)} pistas con años futuros`, "Niveles de calidad y categorías: criterio propio"]],
     ["Dashboard", C.accent1, ["Sin drill-down ni filtrado por clic", "Top N no se recalcula con filtros", "Tablas sin separador de miles"]],
-    ["Sin medir", C.accent4, ["PostgreSQL contra Spark", "Beneficio del liquid clustering", "Cuota usada y Power BI con 11,5 M"]],
+    ["Sin medir", C.accent4, ["PostgreSQL contra Spark", "Beneficio del liquid clustering", "Cuota usada de Free Edition"]],
   ].forEach(([t, c, items], i) => {
     const x = 0.6 + i * 4.12;
     tarjeta(s23, x, 1.75, 3.89, 3.95, c, t);
     texto(s23, t, x + 0.28, 1.95, 3.3, 0.5, { fontSize: 22, bold: true, fontFace: "Cambria" });
     texto(s23, lista(items), x + 0.28, 2.55, 3.35, 3.0, { fontSize: 18 });
   });
-  tarjeta(s23, 0.6, 5.9, 12.13, 0.8, C.accent5, "Estado de Power BI");
-  texto(s23, [{ text: "Power BI ya apunta a Databricks, sin carga completa comprobada. ", options: { bold: true } }, { text: "El dashboard vigente con datos completos es AI/BI." }], 0.88, 5.9, 11.6, 0.8, { fontSize: 18, valign: "middle" });
+  tarjeta(s23, 0.6, 5.9, 12.13, 0.8, C.accent5, "Dashboard vigente");
+  texto(s23, [{ text: "El dashboard oficial es AI/BI en Databricks. ", options: { bold: true } }, { text: "Power BI queda en la entrega anterior." }], 0.88, 5.9, 11.6, 0.8, { fontSize: 18, valign: "middle" });
 
   const s24 = diapositiva("Conclusiones", "Conclusiones y próximos pasos",
-    "Cerramos con lo esencial. El requisito está cumplido con datos reales y validados. Las nuevas cifras corrigen conclusiones anteriores. Y el proceso mostró que la validación de integridad no basta: hay que revisar el significado de los datos. Como siguiente paso, falta comprobar la carga completa en Power BI y medir lo que quedó pendiente.");
+    "Cerramos con lo esencial. El requisito está cumplido con datos reales y validados. Las nuevas cifras corrigen conclusiones anteriores. Y el proceso mostró que la validación de integridad no basta: hay que revisar el significado de los datos. Como siguiente paso, falta agregar drill-down al dashboard y medir lo que quedó pendiente.");
   texto(s24, "Conclusiones", 0.6, 1.72, 7.2, 0.45, { fontSize: 22, bold: true, fontFace: "Cambria" });
   const concl = [
     [fa.FaCheckCircle, C.accent3, `Requisito cumplido: ${num(T.pistas)} pistas reales`],
@@ -533,7 +533,7 @@ async function construir() {
   }
   tarjeta(s24, 8.15, 1.75, 4.58, 4.9, C.accent5, "Próximos pasos");
   texto(s24, "Próximos pasos", 8.45, 2.0, 4, 0.45, { fontSize: 22, bold: true, fontFace: "Cambria" });
-  texto(s24, lista(["Validar la carga en Power BI", "Medir PostgreSQL contra Spark", "Medir el liquid clustering", "Agregar drill-down al dashboard"], { paraSpaceAfter: 16 }), 8.45, 2.75, 4.0, 3.6, { fontSize: 20 });
+  texto(s24, lista(["Agregar drill-down al dashboard", "Medir PostgreSQL contra Spark", "Medir el liquid clustering", "Medir la cuota de Free Edition"], { paraSpaceAfter: 16 }), 8.45, 2.75, 4.0, 3.6, { fontSize: 20 });
 
   await pres.writeFile({ fileName: SALIDA });
   if (process.env.PPTX_APPLY_THEME) {

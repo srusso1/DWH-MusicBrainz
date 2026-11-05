@@ -12,7 +12,7 @@ Pipeline Medallón sobre Spark y Delta Lake para el volcado completo de MusicBra
 | `pipeline/02b_catalogos.py` | Catálogos oficiales para las etiquetas |
 | `pipeline/03_gold_dimensiones.py` | 7 dimensiones con fila cero |
 | `pipeline/04_gold_fact_pista.py` | Hecho a nivel de pista |
-| `pipeline/05_gold_agregados.py` | Hechos agregados y tablas `mv_*` para Power BI |
+| `pipeline/05_gold_agregados.py` | Hechos agregados y tablas `mv_*` para el dashboard |
 | `pipeline/06_validacion.py` | Integridad, aditividad y reconciliación |
 | `pipeline/lib/` | Contrato de datos, reglas, etiquetas y auditoría |
 | `pipeline/job.json` | Definición del job de Lakeflow |
