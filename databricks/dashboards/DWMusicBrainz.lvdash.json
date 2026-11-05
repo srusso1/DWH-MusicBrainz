@@ -1,0 +1,3501 @@
+{
+  "datasets": [
+    {
+      "name": "ds_resumen",
+      "displayName": "Resumen ejecutivo",
+      "queryLines": [
+        "WITH base AS (\n",
+        "  SELECT CASE WHEN d.anio BETWEEN 1 AND YEAR(CURRENT_DATE) THEN d.anio END AS anio, x.categoria_formato, l.estado_lanzamiento, g.nombre_pais, g.tipo_area, a.tipo_artista,\n",
+        "         i.idioma_id, i.nombre_idioma,\n",
+        "         SUM(f.lanzamientos_total) AS lanzamientos,\n",
+        "         SUM(f.pistas_total) AS pistas,\n",
+        "         SUM(f.pistas_con_isrc_total) AS pistas_isrc,\n",
+        "         SUM(CASE WHEN x.categoria_formato = 'Digital / Streaming' THEN f.lanzamientos_total ELSE 0 END) AS lanzamientos_digitales,\n",
+        "         SUM(CASE WHEN x.categoria_formato = 'Físico / Óptico' THEN f.lanzamientos_total ELSE 0 END) AS lanzamientos_cd\n",
+        "  FROM workspace.gold.fact_produccion_musical f\n",
+        "JOIN workspace.gold.dim_fecha d ON f.fecha_key = d.fecha_key\n",
+        "JOIN workspace.gold.dim_formato x ON f.formato_key = x.formato_key\n",
+        "JOIN workspace.gold.dim_lanzamiento l ON f.lanzamiento_key = l.lanzamiento_key\n",
+        "JOIN workspace.gold.dim_geografia g ON f.geografia_key = g.geografia_key\n",
+        "JOIN workspace.gold.dim_artista a ON f.artista_key = a.artista_key\n",
+        "JOIN workspace.gold.dim_idioma i ON f.idioma_key = i.idioma_key\n",
+        "  GROUP BY ALL\n",
+        "),\n",
+        "top_paises AS (\n",
+        "  SELECT nombre_pais FROM (\n",
+        "    SELECT nombre_pais, RANK() OVER (ORDER BY SUM(lanzamientos) DESC) AS r\n",
+        "    FROM base WHERE tipo_area = 'País' GROUP BY nombre_pais\n",
+        "  ) WHERE r <= 10\n",
+        "),\n",
+        "top_idiomas AS (\n",
+        "  SELECT nombre_idioma FROM (\n",
+        "    SELECT nombre_idioma, RANK() OVER (ORDER BY SUM(lanzamientos) DESC) AS r\n",
+        "    FROM base WHERE idioma_id <> 0 GROUP BY nombre_idioma\n",
+        "  ) WHERE r <= 8\n",
+        ")\n",
+        "SELECT b.*, tp.nombre_pais IS NOT NULL AS es_top10_pais, ti.nombre_idioma IS NOT NULL AS es_top8_idioma\n",
+        "FROM base b\n",
+        "LEFT JOIN top_paises tp ON b.nombre_pais = tp.nombre_pais\n",
+        "LEFT JOIN top_idiomas ti ON b.nombre_idioma = ti.nombre_idioma\n"
+      ]
+    },
+    {
+      "name": "ds_resumen_artistas",
+      "displayName": "Resumen ejecutivo: artistas",
+      "queryLines": [
+        "SELECT CASE WHEN d.anio BETWEEN 1 AND YEAR(CURRENT_DATE) THEN d.anio END AS anio, x.categoria_formato, l.estado_lanzamiento, f.artista_key\n",
+        "FROM workspace.gold.fact_produccion_musical f\n",
+        "JOIN workspace.gold.dim_fecha d ON f.fecha_key = d.fecha_key\n",
+        "JOIN workspace.gold.dim_formato x ON f.formato_key = x.formato_key\n",
+        "JOIN workspace.gold.dim_lanzamiento l ON f.lanzamiento_key = l.lanzamiento_key\n",
+        "GROUP BY ALL\n"
+      ]
+    },
+    {
+      "name": "ds_detallado",
+      "displayName": "Análisis detallado",
+      "queryLines": [
+        "WITH base AS (\n",
+        "  SELECT g.nombre_pais, g.tipo_area, i.nombre_idioma, a.tipo_artista, d.decada, d.anio, x.categoria_formato,\n",
+        "         SUM(f.lanzamientos_total) AS lanzamientos,\n",
+        "         SUM(f.pistas_total) AS pistas,\n",
+        "         SUM(f.duracion_total_segundos) AS duracion_segundos,\n",
+        "         SUM(f.duracion_total_minutos) AS duracion_minutos,\n",
+        "         SUM(f.pistas_completas_total) AS pistas_completas,\n",
+        "         SUM(f.pistas_largas_total) AS pistas_largas,\n",
+        "         SUM(CASE WHEN x.categoria_formato = 'Digital / Streaming' THEN f.lanzamientos_total ELSE 0 END) AS lanzamientos_digitales\n",
+        "  FROM workspace.gold.fact_produccion_musical f\n",
+        "JOIN workspace.gold.dim_fecha d ON f.fecha_key = d.fecha_key\n",
+        "JOIN workspace.gold.dim_formato x ON f.formato_key = x.formato_key\n",
+        "JOIN workspace.gold.dim_lanzamiento l ON f.lanzamiento_key = l.lanzamiento_key\n",
+        "JOIN workspace.gold.dim_geografia g ON f.geografia_key = g.geografia_key\n",
+        "JOIN workspace.gold.dim_artista a ON f.artista_key = a.artista_key\n",
+        "JOIN workspace.gold.dim_idioma i ON f.idioma_key = i.idioma_key\n",
+        "  GROUP BY ALL\n",
+        "),\n",
+        "top_paises AS (\n",
+        "  SELECT nombre_pais FROM (\n",
+        "    SELECT nombre_pais, RANK() OVER (ORDER BY SUM(lanzamientos) DESC) AS r\n",
+        "    FROM base WHERE tipo_area = 'País' GROUP BY nombre_pais\n",
+        "  ) WHERE r <= 30\n",
+        ")\n",
+        "SELECT b.*, tp.nombre_pais IS NOT NULL AS es_top30_pais\n",
+        "FROM base b LEFT JOIN top_paises tp ON b.nombre_pais = tp.nombre_pais\n"
+      ]
+    },
+    {
+      "name": "ds_dispersion_pais",
+      "displayName": "Dispersión por país",
+      "queryLines": [
+        "WITH paises AS (\n",
+        "  SELECT g.nombre_pais,\n",
+        "         SUM(f.lanzamientos_total) AS lanzamientos,\n",
+        "         SUM(CASE WHEN x.categoria_formato = 'Digital / Streaming' THEN f.lanzamientos_total ELSE 0 END) AS lanzamientos_digitales\n",
+        "  FROM workspace.gold.fact_produccion_musical f\n",
+        "  JOIN workspace.gold.dim_formato x ON f.formato_key = x.formato_key\n",
+        "  JOIN workspace.gold.dim_geografia g ON f.geografia_key = g.geografia_key\n",
+        "  WHERE g.tipo_area = 'País'\n",
+        "  GROUP BY g.nombre_pais\n",
+        "),\n",
+        "top_paises AS (\n",
+        "  SELECT *, RANK() OVER (ORDER BY lanzamientos DESC) AS r FROM paises\n",
+        ")\n",
+        "SELECT nombre_pais, lanzamientos,\n",
+        "       LOG10(lanzamientos) AS lanzamientos_log10,\n",
+        "       lanzamientos_digitales / lanzamientos AS participacion_digital\n",
+        "FROM top_paises\n",
+        "WHERE r <= 30 AND lanzamientos > 0\n"
+      ]
+    },
+    {
+      "name": "ds_distribucion",
+      "displayName": "Distribución de duración",
+      "queryLines": [
+        "SELECT\n",
+        "  g.nombre_pais, i.nombre_idioma, d.decada,\n",
+        "  r.orden,\n",
+        "  CASE WHEN r.limite_superior_seg IS NULL THEN '10:00+'\n",
+        "       ELSE concat(lpad(CAST(r.limite_inferior_seg DIV 60 AS STRING), 2, '0'), ':', lpad(CAST(r.limite_inferior_seg % 60 AS STRING), 2, '0'), '–',\n",
+        "                   lpad(CAST(r.limite_superior_seg DIV 60 AS STRING), 2, '0'), ':', lpad(CAST(r.limite_superior_seg % 60 AS STRING), 2, '0'))\n",
+        "  END AS rango_duracion,\n",
+        "  SUM(f.pistas_total) AS pistas\n",
+        "FROM workspace.gold.fact_distribucion_duracion f\n",
+        "JOIN workspace.gold.dim_rango_duracion r ON f.rango_duracion_key = r.rango_duracion_key\n",
+        "JOIN workspace.gold.dim_geografia g ON f.geografia_key = g.geografia_key\n",
+        "JOIN workspace.gold.dim_idioma i ON f.idioma_key = i.idioma_key\n",
+        "JOIN workspace.gold.dim_fecha d ON f.fecha_key = d.fecha_key\n",
+        "WHERE r.limite_inferior_seg >= 0\n",
+        "GROUP BY ALL\n"
+      ]
+    },
+    {
+      "name": "ds_artistas_top",
+      "displayName": "Top 20 artistas",
+      "queryLines": [
+        "WITH top_artistas AS (\n",
+        "  SELECT artista_key FROM (\n",
+        "    SELECT f.artista_key, RANK() OVER (ORDER BY SUM(f.lanzamientos_total) DESC) AS r\n",
+        "    FROM workspace.gold.fact_produccion_musical f\n",
+        "    JOIN workspace.gold.dim_artista a ON f.artista_key = a.artista_key\n",
+        "    WHERE NOT startswith(a.nombre_artista, '[')\n",
+        "    GROUP BY f.artista_key\n",
+        "  ) WHERE r <= 20\n",
+        ")\n",
+        "SELECT a.artista_key, a.nombre_artista, a.tipo_artista, g.nombre_pais, i.nombre_idioma, d.decada,\n",
+        "       SUM(f.lanzamientos_total) AS lanzamientos,\n",
+        "       SUM(f.pistas_total) AS pistas,\n",
+        "       SUM(f.duracion_total_segundos) AS duracion_segundos,\n",
+        "       SUM(f.pistas_completas_total) AS pistas_completas,\n",
+        "       SUM(f.pistas_con_isrc_total) AS pistas_isrc\n",
+        "FROM workspace.gold.fact_produccion_musical f\n",
+        "JOIN top_artistas t ON f.artista_key = t.artista_key\n",
+        "JOIN workspace.gold.dim_artista a ON f.artista_key = a.artista_key\n",
+        "JOIN workspace.gold.dim_geografia g ON f.geografia_key = g.geografia_key\n",
+        "JOIN workspace.gold.dim_idioma i ON f.idioma_key = i.idioma_key\n",
+        "JOIN workspace.gold.dim_fecha d ON f.fecha_key = d.fecha_key\n",
+        "GROUP BY ALL\n"
+      ]
+    },
+    {
+      "name": "ds_calidad",
+      "displayName": "Calidad y catálogo",
+      "queryLines": [
+        "WITH base AS (\n",
+        "  SELECT d.siglo, d.decada, d.anio, d.nombre_trimestre, d.mes, a.tipo_artista, l.tipo_empaque,\n",
+        "         g.nombre_pais, g.tipo_area, g.nombre_area, g.geografia_key,\n",
+        "         SUM(f.lanzamientos_total) AS lanzamientos,\n",
+        "         SUM(f.soportes_total) AS soportes,\n",
+        "         SUM(f.pistas_total) AS pistas,\n",
+        "         SUM(f.pistas_con_isrc_total) AS pistas_isrc\n",
+        "  FROM workspace.gold.fact_produccion_musical f\n",
+        "JOIN workspace.gold.dim_fecha d ON f.fecha_key = d.fecha_key\n",
+        "JOIN workspace.gold.dim_formato x ON f.formato_key = x.formato_key\n",
+        "JOIN workspace.gold.dim_lanzamiento l ON f.lanzamiento_key = l.lanzamiento_key\n",
+        "JOIN workspace.gold.dim_geografia g ON f.geografia_key = g.geografia_key\n",
+        "JOIN workspace.gold.dim_artista a ON f.artista_key = a.artista_key\n",
+        "JOIN workspace.gold.dim_idioma i ON f.idioma_key = i.idioma_key\n",
+        "  GROUP BY ALL\n",
+        "),\n",
+        "top_paises AS (\n",
+        "  SELECT nombre_pais FROM (\n",
+        "    SELECT nombre_pais, RANK() OVER (ORDER BY SUM(lanzamientos) DESC) AS r\n",
+        "    FROM base WHERE nombre_pais NOT IN ('No Aplica', 'Sin País Registrado') GROUP BY nombre_pais\n",
+        "  ) WHERE r <= 10\n",
+        "),\n",
+        "top_empaques AS (\n",
+        "  SELECT tipo_empaque FROM (\n",
+        "    SELECT tipo_empaque, RANK() OVER (ORDER BY SUM(lanzamientos) DESC) AS r\n",
+        "    FROM base WHERE tipo_empaque <> 'Estándar / Desconocido' GROUP BY tipo_empaque\n",
+        "  ) WHERE r <= 8\n",
+        "),\n",
+        "top_areas AS (\n",
+        "  SELECT geografia_key FROM (\n",
+        "    SELECT geografia_key, RANK() OVER (ORDER BY SUM(lanzamientos) DESC) AS r\n",
+        "    FROM base WHERE geografia_key <> 0 GROUP BY geografia_key\n",
+        "  ) WHERE r <= 15\n",
+        ")\n",
+        "SELECT b.*, CAST(b.anio AS STRING) AS anio_txt, lpad(CAST(b.mes AS STRING), 2, '0') AS mes_txt,\n",
+        "       tp.nombre_pais IS NOT NULL AS es_top10_pais, ta.geografia_key IS NOT NULL AS es_top15_area,\n",
+        "       te.tipo_empaque IS NOT NULL AS es_top8_empaque\n",
+        "FROM base b\n",
+        "LEFT JOIN top_paises tp ON b.nombre_pais = tp.nombre_pais\n",
+        "LEFT JOIN top_areas ta ON b.geografia_key = ta.geografia_key\n",
+        "LEFT JOIN top_empaques te ON b.tipo_empaque = te.tipo_empaque\n"
+      ]
+    },
+    {
+      "name": "ds_emergentes",
+      "displayName": "Artistas emergentes",
+      "queryLines": [
+        "SELECT d.decada, a.tipo_artista, l.tipo_empaque, g.nombre_pais, f.artista_key\n",
+        "FROM workspace.gold.fact_produccion_musical f\n",
+        "JOIN workspace.gold.dim_artista a ON f.artista_key = a.artista_key\n",
+        "JOIN workspace.gold.dim_fecha d ON f.fecha_key = d.fecha_key\n",
+        "JOIN workspace.gold.dim_lanzamiento l ON f.lanzamiento_key = l.lanzamiento_key\n",
+        "JOIN workspace.gold.dim_geografia g ON f.geografia_key = g.geografia_key\n",
+        "WHERE a.anio_inicio >= 2015\n",
+        "GROUP BY ALL\n"
+      ]
+    },
+    {
+      "name": "ds_emergentes_top",
+      "displayName": "Top 15 emergentes con 100 % ISRC",
+      "queryLines": [
+        "WITH candidatos AS (\n",
+        "  SELECT artista_key FROM (\n",
+        "    SELECT f.artista_key, RANK() OVER (ORDER BY SUM(f.lanzamientos_total) DESC) AS r\n",
+        "    FROM workspace.gold.fact_produccion_musical f\n",
+        "    JOIN workspace.gold.dim_artista a ON f.artista_key = a.artista_key\n",
+        "    WHERE a.anio_inicio >= 2015 AND NOT startswith(a.nombre_artista, '[')\n",
+        "    GROUP BY f.artista_key\n",
+        "    HAVING SUM(f.pistas_con_isrc_total) = SUM(f.pistas_total)\n",
+        "  ) WHERE r <= 15\n",
+        ")\n",
+        "SELECT a.artista_key, a.nombre_artista, a.nombre_pais AS pais_artista, a.anio_inicio, a.tipo_artista,\n",
+        "       l.tipo_empaque, g.nombre_pais, d.decada,\n",
+        "       SUM(f.lanzamientos_total) AS lanzamientos,\n",
+        "       SUM(f.pistas_total) AS pistas,\n",
+        "       SUM(f.pistas_con_isrc_total) AS pistas_isrc\n",
+        "FROM workspace.gold.fact_produccion_musical f\n",
+        "JOIN candidatos c ON f.artista_key = c.artista_key\n",
+        "JOIN workspace.gold.dim_artista a ON f.artista_key = a.artista_key\n",
+        "JOIN workspace.gold.dim_lanzamiento l ON f.lanzamiento_key = l.lanzamiento_key\n",
+        "JOIN workspace.gold.dim_geografia g ON f.geografia_key = g.geografia_key\n",
+        "JOIN workspace.gold.dim_fecha d ON f.fecha_key = d.fecha_key\n",
+        "GROUP BY ALL\n"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "p_resumen",
+      "displayName": "Resumen ejecutivo",
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1",
+      "layout": [
+        {
+          "widget": {
+            "name": "t_resumen",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## DWMusicBrainz · Resumen ejecutivo de la producción musical"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "f_anio",
+            "queries": [
+              {
+                "name": "f_f_anio_ds_resumen",
+                "query": {
+                  "datasetName": "ds_resumen",
+                  "fields": [
+                    {
+                      "name": "min(anio)",
+                      "expression": "MIN(`anio`)"
+                    },
+                    {
+                      "name": "max(anio)",
+                      "expression": "MAX(`anio`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_anio_ds_resumen_artistas",
+                "query": {
+                  "datasetName": "ds_resumen_artistas",
+                  "fields": [
+                    {
+                      "name": "min(anio)",
+                      "expression": "MIN(`anio`)"
+                    },
+                    {
+                      "name": "max(anio)",
+                      "expression": "MAX(`anio`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "range-slider",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "anio",
+                    "queryName": "f_f_anio_ds_resumen"
+                  },
+                  {
+                    "fieldName": "anio",
+                    "queryName": "f_f_anio_ds_resumen_artistas"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Año"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "f_categoria",
+            "queries": [
+              {
+                "name": "f_f_categoria_ds_resumen",
+                "query": {
+                  "datasetName": "ds_resumen",
+                  "fields": [
+                    {
+                      "name": "categoria_formato",
+                      "expression": "`categoria_formato`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_categoria_ds_resumen_artistas",
+                "query": {
+                  "datasetName": "ds_resumen_artistas",
+                  "fields": [
+                    {
+                      "name": "categoria_formato",
+                      "expression": "`categoria_formato`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "categoria_formato",
+                    "displayName": "Categoría de formato",
+                    "queryName": "f_f_categoria_ds_resumen"
+                  },
+                  {
+                    "fieldName": "categoria_formato",
+                    "displayName": "Categoría de formato",
+                    "queryName": "f_f_categoria_ds_resumen_artistas"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Categoría de formato"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 1,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "f_estado",
+            "queries": [
+              {
+                "name": "f_f_estado_ds_resumen",
+                "query": {
+                  "datasetName": "ds_resumen",
+                  "fields": [
+                    {
+                      "name": "estado_lanzamiento",
+                      "expression": "`estado_lanzamiento`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_estado_ds_resumen_artistas",
+                "query": {
+                  "datasetName": "ds_resumen_artistas",
+                  "fields": [
+                    {
+                      "name": "estado_lanzamiento",
+                      "expression": "`estado_lanzamiento`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "estado_lanzamiento",
+                    "displayName": "Estado del lanzamiento",
+                    "queryName": "f_f_estado_ds_resumen"
+                  },
+                  {
+                    "fieldName": "estado_lanzamiento",
+                    "displayName": "Estado del lanzamiento",
+                    "queryName": "f_f_estado_ds_resumen_artistas"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Estado del lanzamiento"
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 1,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "k_lanzamientos",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_resumen",
+                  "fields": [
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`lanzamientos`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "valor",
+                  "displayName": "Lanzamientos",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Lanzamientos"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "k_pistas",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_resumen",
+                  "fields": [
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`pistas`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "valor",
+                  "displayName": "Pistas",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Pistas"
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 3,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "k_artistas",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_resumen_artistas",
+                  "fields": [
+                    {
+                      "name": "valor",
+                      "expression": "COUNT(DISTINCT `artista_key`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "valor",
+                  "displayName": "Artistas activos",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Artistas activos"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 3,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "k_cobertura",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_resumen",
+                  "fields": [
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`pistas_isrc`) / NULLIF(SUM(`pistas`), 0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "valor",
+                  "displayName": "Cobertura ISRC",
+                  "format": {
+                    "type": "number-percent",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Cobertura ISRC"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "k_digital",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_resumen",
+                  "fields": [
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`lanzamientos_digitales`) / NULLIF(SUM(`lanzamientos`), 0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "valor",
+                  "displayName": "Participación digital",
+                  "format": {
+                    "type": "number-percent",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Participación digital"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 3,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "g_area_formato",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_resumen",
+                  "fields": [
+                    {
+                      "name": "anio",
+                      "expression": "`anio`"
+                    },
+                    {
+                      "name": "categoria_formato",
+                      "expression": "`categoria_formato`"
+                    },
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`lanzamientos`)"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "filters": [
+                    {
+                      "expression": "`anio` BETWEEN 1950 AND 2025"
+                    }
+                  ],
+                  "orders": [
+                    {
+                      "direction": "ASC",
+                      "expression": "`anio`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "area",
+              "encodings": {
+                "x": {
+                  "fieldName": "anio",
+                  "displayName": "Año",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "format": {
+                    "type": "number-plain",
+                    "hideGroupSeparator": true
+                  }
+                },
+                "y": {
+                  "fieldName": "valor",
+                  "displayName": "Lanzamientos",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "categoria_formato",
+                  "displayName": "Categoría",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Digital / Streaming",
+                        "color": "#1F5FA8"
+                      },
+                      {
+                        "value": "Físico / Óptico",
+                        "color": "#C2691A"
+                      },
+                      {
+                        "value": "Físico / Vinilo",
+                        "color": "#08A08C"
+                      },
+                      {
+                        "value": "Físico / Magnético",
+                        "color": "#8064B5"
+                      },
+                      {
+                        "value": "Otros Formatos",
+                        "color": "#9AA5B1"
+                      },
+                      {
+                        "value": "Desconocido",
+                        "color": "#D5DAE1"
+                      }
+                    ]
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Lanzamientos por año y categoría de formato (1950–2025)"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 8,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "g_cuota",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_resumen",
+                  "fields": [
+                    {
+                      "name": "anio",
+                      "expression": "`anio`"
+                    },
+                    {
+                      "name": "digital",
+                      "expression": "SUM(`lanzamientos_digitales`) / NULLIF(SUM(`lanzamientos`), 0)"
+                    },
+                    {
+                      "name": "cd",
+                      "expression": "SUM(`lanzamientos_cd`) / NULLIF(SUM(`lanzamientos`), 0)"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "filters": [
+                    {
+                      "expression": "`anio` BETWEEN 1990 AND 2025"
+                    }
+                  ],
+                  "orders": [
+                    {
+                      "direction": "ASC",
+                      "expression": "`anio`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "anio",
+                  "displayName": "Año",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "format": {
+                    "type": "number-plain",
+                    "hideGroupSeparator": true
+                  }
+                },
+                "y": {
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "format": {
+                    "type": "number-percent",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    }
+                  },
+                  "fields": [
+                    {
+                      "fieldName": "digital",
+                      "displayName": "Digital"
+                    },
+                    {
+                      "fieldName": "cd",
+                      "displayName": "Óptico (CD/DVD)"
+                    }
+                  ],
+                  "axis": {
+                    "title": "Cuota de lanzamientos"
+                  }
+                }
+              },
+              "mark": {
+                "colors": [
+                  "#1F5FA8",
+                  "#C2691A"
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Cuota de lanzamientos: digital vs. óptico (1990–2025)",
+                "showDescription": true,
+                "description": "En el catálogo completo, digital supera a óptico desde 2011."
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 6,
+            "width": 4,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "g_paises",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_resumen",
+                  "fields": [
+                    {
+                      "name": "nombre_pais",
+                      "expression": "`nombre_pais`"
+                    },
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`lanzamientos`)"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "filters": [
+                    {
+                      "expression": "`tipo_area` = 'País'"
+                    },
+                    {
+                      "expression": "`es_top10_pais` = TRUE"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "valor",
+                  "displayName": "Lanzamientos",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "nombre_pais",
+                  "displayName": "País",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "nombre_pais",
+                  "displayName": "País",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "United States",
+                        "color": "#1F5FA8"
+                      },
+                      {
+                        "value": "United Kingdom",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Japan",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Germany",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "France",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Netherlands",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Canada",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Italy",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Australia",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Spain",
+                        "color": "#A9BDD3"
+                      }
+                    ]
+                  },
+                  "legend": {
+                    "hide": true
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Top 10 países por lanzamientos"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 13,
+            "width": 4,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "g_tipo_artista",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_resumen",
+                  "fields": [
+                    {
+                      "name": "tipo_artista",
+                      "expression": "`tipo_artista`"
+                    },
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`lanzamientos`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "valor",
+                  "displayName": "Lanzamientos",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "tipo_artista",
+                  "displayName": "Tipo de artista",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "tipo_artista",
+                  "displayName": "Tipo de artista",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Persona / Solista",
+                        "color": "#1F5FA8"
+                      },
+                      {
+                        "value": "Grupo / Banda",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "No Clasificado",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Otro",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Personaje Ficticio",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Orquesta",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Coro",
+                        "color": "#A9BDD3"
+                      }
+                    ]
+                  },
+                  "legend": {
+                    "hide": true
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Lanzamientos por tipo de artista"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 13,
+            "width": 4,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "g_idiomas",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_resumen",
+                  "fields": [
+                    {
+                      "name": "nombre_idioma",
+                      "expression": "`nombre_idioma`"
+                    },
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`lanzamientos`)"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "filters": [
+                    {
+                      "expression": "`idioma_id` <> 0"
+                    },
+                    {
+                      "expression": "`es_top8_idioma` = TRUE"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "valor",
+                  "displayName": "Lanzamientos",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "nombre_idioma",
+                  "displayName": "Idioma",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "nombre_idioma",
+                  "displayName": "Idioma",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "English",
+                        "color": "#1F5FA8"
+                      },
+                      {
+                        "value": "Japanese",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "[Multiple languages]",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Spanish",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "German",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "French",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Russian",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Italian",
+                        "color": "#A9BDD3"
+                      }
+                    ]
+                  },
+                  "legend": {
+                    "hide": true
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Top 8 idiomas por lanzamientos"
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 13,
+            "width": 4,
+            "height": 7
+          }
+        }
+      ]
+    },
+    {
+      "name": "p_detallado",
+      "displayName": "Análisis detallado",
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1",
+      "layout": [
+        {
+          "widget": {
+            "name": "t_detallado",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## DWMusicBrainz · Análisis detallado por época, formato y artista"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "f_pais2",
+            "queries": [
+              {
+                "name": "f_f_pais2_ds_detallado",
+                "query": {
+                  "datasetName": "ds_detallado",
+                  "fields": [
+                    {
+                      "name": "nombre_pais",
+                      "expression": "`nombre_pais`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_pais2_ds_distribucion",
+                "query": {
+                  "datasetName": "ds_distribucion",
+                  "fields": [
+                    {
+                      "name": "nombre_pais",
+                      "expression": "`nombre_pais`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_pais2_ds_artistas_top",
+                "query": {
+                  "datasetName": "ds_artistas_top",
+                  "fields": [
+                    {
+                      "name": "nombre_pais",
+                      "expression": "`nombre_pais`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "nombre_pais",
+                    "displayName": "País",
+                    "queryName": "f_f_pais2_ds_detallado"
+                  },
+                  {
+                    "fieldName": "nombre_pais",
+                    "displayName": "País",
+                    "queryName": "f_f_pais2_ds_distribucion"
+                  },
+                  {
+                    "fieldName": "nombre_pais",
+                    "displayName": "País",
+                    "queryName": "f_f_pais2_ds_artistas_top"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "País"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "f_idioma2",
+            "queries": [
+              {
+                "name": "f_f_idioma2_ds_detallado",
+                "query": {
+                  "datasetName": "ds_detallado",
+                  "fields": [
+                    {
+                      "name": "nombre_idioma",
+                      "expression": "`nombre_idioma`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_idioma2_ds_distribucion",
+                "query": {
+                  "datasetName": "ds_distribucion",
+                  "fields": [
+                    {
+                      "name": "nombre_idioma",
+                      "expression": "`nombre_idioma`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_idioma2_ds_artistas_top",
+                "query": {
+                  "datasetName": "ds_artistas_top",
+                  "fields": [
+                    {
+                      "name": "nombre_idioma",
+                      "expression": "`nombre_idioma`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "nombre_idioma",
+                    "displayName": "Idioma",
+                    "queryName": "f_f_idioma2_ds_detallado"
+                  },
+                  {
+                    "fieldName": "nombre_idioma",
+                    "displayName": "Idioma",
+                    "queryName": "f_f_idioma2_ds_distribucion"
+                  },
+                  {
+                    "fieldName": "nombre_idioma",
+                    "displayName": "Idioma",
+                    "queryName": "f_f_idioma2_ds_artistas_top"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Idioma"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "f_tipo2",
+            "queries": [
+              {
+                "name": "f_f_tipo2_ds_detallado",
+                "query": {
+                  "datasetName": "ds_detallado",
+                  "fields": [
+                    {
+                      "name": "tipo_artista",
+                      "expression": "`tipo_artista`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_tipo2_ds_artistas_top",
+                "query": {
+                  "datasetName": "ds_artistas_top",
+                  "fields": [
+                    {
+                      "name": "tipo_artista",
+                      "expression": "`tipo_artista`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "tipo_artista",
+                    "displayName": "Tipo de artista",
+                    "queryName": "f_f_tipo2_ds_detallado"
+                  },
+                  {
+                    "fieldName": "tipo_artista",
+                    "displayName": "Tipo de artista",
+                    "queryName": "f_f_tipo2_ds_artistas_top"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Tipo de artista"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "f_decada2",
+            "queries": [
+              {
+                "name": "f_f_decada2_ds_detallado",
+                "query": {
+                  "datasetName": "ds_detallado",
+                  "fields": [
+                    {
+                      "name": "decada",
+                      "expression": "`decada`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_decada2_ds_distribucion",
+                "query": {
+                  "datasetName": "ds_distribucion",
+                  "fields": [
+                    {
+                      "name": "decada",
+                      "expression": "`decada`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_decada2_ds_artistas_top",
+                "query": {
+                  "datasetName": "ds_artistas_top",
+                  "fields": [
+                    {
+                      "name": "decada",
+                      "expression": "`decada`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "decada",
+                    "displayName": "Década",
+                    "queryName": "f_f_decada2_ds_detallado"
+                  },
+                  {
+                    "fieldName": "decada",
+                    "displayName": "Década",
+                    "queryName": "f_f_decada2_ds_distribucion"
+                  },
+                  {
+                    "fieldName": "decada",
+                    "displayName": "Década",
+                    "queryName": "f_f_decada2_ds_artistas_top"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Década"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "k_pistas_lanz2",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_detallado",
+                  "fields": [
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`pistas`) / NULLIF(SUM(`lanzamientos`), 0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "valor",
+                  "displayName": "Pistas por lanzamiento",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Pistas por lanzamiento"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "k_duracion",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_detallado",
+                  "fields": [
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`duracion_segundos`) / NULLIF(SUM(`pistas_completas`), 0) / 60"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "valor",
+                  "displayName": "Duración promedio por pista (min)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Duración promedio por pista (min)"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 3,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "k_largas",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_detallado",
+                  "fields": [
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`pistas_largas`) / NULLIF(SUM(`pistas`), 0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "valor",
+                  "displayName": "Pistas de más de 5 minutos",
+                  "format": {
+                    "type": "number-percent",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Pistas de más de 5 minutos"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "k_horas",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_detallado",
+                  "fields": [
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`duracion_minutos`) / 60"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "valor",
+                  "displayName": "Horas totales de audio",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Horas totales de audio"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 3,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "g_histograma",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_distribucion",
+                  "fields": [
+                    {
+                      "name": "rango_duracion",
+                      "expression": "`rango_duracion`"
+                    },
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`pistas`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "rango_duracion",
+                  "displayName": "Banda de duración",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "valor",
+                  "displayName": "Pistas",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "rango_duracion",
+                  "displayName": "Duración",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "00:00–00:30",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "00:30–01:00",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "01:00–01:30",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "01:30–02:00",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "02:00–02:30",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "02:30–03:00",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "03:00–03:30",
+                        "color": "#1F5FA8"
+                      },
+                      {
+                        "value": "03:30–04:00",
+                        "color": "#1F5FA8"
+                      },
+                      {
+                        "value": "04:00–04:30",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "04:30–05:00",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "05:00–05:30",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "05:30–06:00",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "06:00–06:30",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "06:30–07:00",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "07:00–07:30",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "07:30–08:00",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "08:00–08:30",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "08:30–09:00",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "09:00–09:30",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "09:30–10:00",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "10:00+",
+                        "color": "#A9BDD3"
+                      }
+                    ]
+                  },
+                  "legend": {
+                    "hide": true
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Distribución de la duración de las pistas (histograma, bandas de 30 s)",
+                "showDescription": true,
+                "description": "Resaltado: 03:00–04:00, las dos bandas más frecuentes (28,6 % de las pistas sin filtros)."
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 6,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "g_mezcla",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_detallado",
+                  "fields": [
+                    {
+                      "name": "decada",
+                      "expression": "`decada`"
+                    },
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`lanzamientos`)"
+                    },
+                    {
+                      "name": "categoria_formato",
+                      "expression": "`categoria_formato`"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "filters": [
+                    {
+                      "expression": "`anio` BETWEEN 1950 AND 2025"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "decada",
+                  "displayName": "Década",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "valor",
+                  "displayName": "Lanzamientos",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "axis": {
+                    "title": "% de lanzamientos"
+                  }
+                },
+                "color": {
+                  "fieldName": "categoria_formato",
+                  "displayName": "Categoría",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Digital / Streaming",
+                        "color": "#6E97C8"
+                      },
+                      {
+                        "value": "Físico / Óptico",
+                        "color": "#DDA56F"
+                      },
+                      {
+                        "value": "Físico / Vinilo",
+                        "color": "#6FC2B6"
+                      },
+                      {
+                        "value": "Físico / Magnético",
+                        "color": "#AC9AD2"
+                      },
+                      {
+                        "value": "Otros Formatos",
+                        "color": "#BCC4CD"
+                      },
+                      {
+                        "value": "Desconocido",
+                        "color": "#E3E7EC"
+                      }
+                    ]
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Mezcla de formatos por década, % de lanzamientos (1950–2025)"
+              },
+              "mark": {
+                "layout": "percent-stack"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 6,
+            "width": 6,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "g_top_artistas",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_artistas_top",
+                  "fields": [
+                    {
+                      "name": "artista_key",
+                      "expression": "`artista_key`"
+                    },
+                    {
+                      "name": "nombre_artista",
+                      "expression": "`nombre_artista`"
+                    },
+                    {
+                      "name": "tipo_artista",
+                      "expression": "`tipo_artista`"
+                    },
+                    {
+                      "name": "lanzamientos_v",
+                      "expression": "SUM(`lanzamientos`)"
+                    },
+                    {
+                      "name": "pistas_v",
+                      "expression": "SUM(`pistas`)"
+                    },
+                    {
+                      "name": "duracion_v",
+                      "expression": "SUM(`duracion_segundos`) / NULLIF(SUM(`pistas_completas`), 0) / 60"
+                    },
+                    {
+                      "name": "cobertura_v",
+                      "expression": "SUM(`pistas_isrc`) / NULLIF(SUM(`pistas`), 0)"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "DESC",
+                      "expression": "SUM(`lanzamientos`)"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "nombre_artista",
+                    "displayName": "Artista"
+                  },
+                  {
+                    "fieldName": "lanzamientos_v",
+                    "displayName": "Lanzamientos",
+                    "format": {
+                      "type": "number-plain",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 0
+                      }
+                    }
+                  },
+                  {
+                    "fieldName": "pistas_v",
+                    "displayName": "Pistas",
+                    "format": {
+                      "type": "number-plain",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 0
+                      }
+                    }
+                  },
+                  {
+                    "fieldName": "duracion_v",
+                    "displayName": "Duración (min)",
+                    "format": {
+                      "type": "number-plain",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 2
+                      }
+                    }
+                  },
+                  {
+                    "fieldName": "cobertura_v",
+                    "displayName": "Cobertura ISRC",
+                    "format": {
+                      "type": "number-percent",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Top 20 artistas por lanzamientos"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 14,
+            "width": 6,
+            "height": 9
+          }
+        },
+        {
+          "widget": {
+            "name": "g_dispersion",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_dispersion_pais",
+                  "fields": [
+                    {
+                      "name": "nombre_pais",
+                      "expression": "`nombre_pais`"
+                    },
+                    {
+                      "name": "lanzamientos_log10",
+                      "expression": "`lanzamientos_log10`"
+                    },
+                    {
+                      "name": "participacion_digital",
+                      "expression": "`participacion_digital`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "lanzamientos_log10",
+                  "displayName": "Lanzamientos (log₁₀)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "participacion_digital",
+                  "displayName": "Participación digital",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "format": {
+                    "type": "number-percent",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "nombre_pais",
+                  "displayName": "País",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "United States",
+                        "color": "#1F5FA8"
+                      },
+                      {
+                        "value": "United Kingdom",
+                        "color": "#1F5FA8"
+                      },
+                      {
+                        "value": "Japan",
+                        "color": "#1F5FA8"
+                      },
+                      {
+                        "value": "Germany",
+                        "color": "#1F5FA8"
+                      },
+                      {
+                        "value": "France",
+                        "color": "#1F5FA8"
+                      },
+                      {
+                        "value": "Netherlands",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Canada",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Italy",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Australia",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Spain",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Sweden",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Brazil",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Russia",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Finland",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Belgium",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "South Korea",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Poland",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Mexico",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Austria",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Norway",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Denmark",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Argentina",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "India",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Switzerland",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Greece",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Israel",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Türkiye",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Czechia",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Portugal",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Hungary",
+                        "color": "#A9BDD3"
+                      }
+                    ]
+                  },
+                  "legend": {
+                    "hide": true
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Volumen vs. digitalización por país (Top 30, escala log₁₀)",
+                "showDescription": true,
+                "description": "Azul, de mayor a menor volumen: United States, United Kingdom, Japan, Germany y France. El cursor muestra el país de cada punto."
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 14,
+            "width": 6,
+            "height": 9
+          }
+        }
+      ]
+    },
+    {
+      "name": "p_calidad",
+      "displayName": "Calidad y catálogo",
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1",
+      "layout": [
+        {
+          "widget": {
+            "name": "t_calidad",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## DWMusicBrainz · Calidad, densidad del catálogo y talento emergente"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "f_decada3",
+            "queries": [
+              {
+                "name": "f_f_decada3_ds_calidad",
+                "query": {
+                  "datasetName": "ds_calidad",
+                  "fields": [
+                    {
+                      "name": "decada",
+                      "expression": "`decada`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_decada3_ds_emergentes",
+                "query": {
+                  "datasetName": "ds_emergentes",
+                  "fields": [
+                    {
+                      "name": "decada",
+                      "expression": "`decada`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_decada3_ds_emergentes_top",
+                "query": {
+                  "datasetName": "ds_emergentes_top",
+                  "fields": [
+                    {
+                      "name": "decada",
+                      "expression": "`decada`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "decada",
+                    "displayName": "Década",
+                    "queryName": "f_f_decada3_ds_calidad"
+                  },
+                  {
+                    "fieldName": "decada",
+                    "displayName": "Década",
+                    "queryName": "f_f_decada3_ds_emergentes"
+                  },
+                  {
+                    "fieldName": "decada",
+                    "displayName": "Década",
+                    "queryName": "f_f_decada3_ds_emergentes_top"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Década"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "f_tipo3",
+            "queries": [
+              {
+                "name": "f_f_tipo3_ds_calidad",
+                "query": {
+                  "datasetName": "ds_calidad",
+                  "fields": [
+                    {
+                      "name": "tipo_artista",
+                      "expression": "`tipo_artista`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_tipo3_ds_emergentes",
+                "query": {
+                  "datasetName": "ds_emergentes",
+                  "fields": [
+                    {
+                      "name": "tipo_artista",
+                      "expression": "`tipo_artista`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_tipo3_ds_emergentes_top",
+                "query": {
+                  "datasetName": "ds_emergentes_top",
+                  "fields": [
+                    {
+                      "name": "tipo_artista",
+                      "expression": "`tipo_artista`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "tipo_artista",
+                    "displayName": "Tipo de artista",
+                    "queryName": "f_f_tipo3_ds_calidad"
+                  },
+                  {
+                    "fieldName": "tipo_artista",
+                    "displayName": "Tipo de artista",
+                    "queryName": "f_f_tipo3_ds_emergentes"
+                  },
+                  {
+                    "fieldName": "tipo_artista",
+                    "displayName": "Tipo de artista",
+                    "queryName": "f_f_tipo3_ds_emergentes_top"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Tipo de artista"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "f_empaque3",
+            "queries": [
+              {
+                "name": "f_f_empaque3_ds_calidad",
+                "query": {
+                  "datasetName": "ds_calidad",
+                  "fields": [
+                    {
+                      "name": "tipo_empaque",
+                      "expression": "`tipo_empaque`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_empaque3_ds_emergentes",
+                "query": {
+                  "datasetName": "ds_emergentes",
+                  "fields": [
+                    {
+                      "name": "tipo_empaque",
+                      "expression": "`tipo_empaque`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_empaque3_ds_emergentes_top",
+                "query": {
+                  "datasetName": "ds_emergentes_top",
+                  "fields": [
+                    {
+                      "name": "tipo_empaque",
+                      "expression": "`tipo_empaque`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "tipo_empaque",
+                    "displayName": "Tipo de empaque",
+                    "queryName": "f_f_empaque3_ds_calidad"
+                  },
+                  {
+                    "fieldName": "tipo_empaque",
+                    "displayName": "Tipo de empaque",
+                    "queryName": "f_f_empaque3_ds_emergentes"
+                  },
+                  {
+                    "fieldName": "tipo_empaque",
+                    "displayName": "Tipo de empaque",
+                    "queryName": "f_f_empaque3_ds_emergentes_top"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Tipo de empaque"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "f_pais3",
+            "queries": [
+              {
+                "name": "f_f_pais3_ds_calidad",
+                "query": {
+                  "datasetName": "ds_calidad",
+                  "fields": [
+                    {
+                      "name": "nombre_pais",
+                      "expression": "`nombre_pais`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_pais3_ds_emergentes",
+                "query": {
+                  "datasetName": "ds_emergentes",
+                  "fields": [
+                    {
+                      "name": "nombre_pais",
+                      "expression": "`nombre_pais`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "f_f_pais3_ds_emergentes_top",
+                "query": {
+                  "datasetName": "ds_emergentes_top",
+                  "fields": [
+                    {
+                      "name": "nombre_pais",
+                      "expression": "`nombre_pais`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "nombre_pais",
+                    "displayName": "País",
+                    "queryName": "f_f_pais3_ds_calidad"
+                  },
+                  {
+                    "fieldName": "nombre_pais",
+                    "displayName": "País",
+                    "queryName": "f_f_pais3_ds_emergentes"
+                  },
+                  {
+                    "fieldName": "nombre_pais",
+                    "displayName": "País",
+                    "queryName": "f_f_pais3_ds_emergentes_top"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "País"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "k_cobertura3",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_calidad",
+                  "fields": [
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`pistas_isrc`) / NULLIF(SUM(`pistas`), 0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "valor",
+                  "displayName": "Cobertura ISRC",
+                  "format": {
+                    "type": "number-percent",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Cobertura ISRC"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "k_pistas_lanz3",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_calidad",
+                  "fields": [
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`pistas`) / NULLIF(SUM(`lanzamientos`), 0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "valor",
+                  "displayName": "Pistas por lanzamiento",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Pistas por lanzamiento"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 3,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "k_pistas_sop3",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_calidad",
+                  "fields": [
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`pistas`) / NULLIF(SUM(`soportes`), 0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "valor",
+                  "displayName": "Pistas por soporte",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Pistas por soporte"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "k_emergentes",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_emergentes",
+                  "fields": [
+                    {
+                      "name": "valor",
+                      "expression": "COUNT(DISTINCT `artista_key`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "valor",
+                  "displayName": "Artistas emergentes (inicio desde 2015)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Artistas emergentes (inicio desde 2015)"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 3,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "g_decada",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_calidad",
+                  "fields": [
+                    {
+                      "name": "decada",
+                      "expression": "`decada`"
+                    },
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`lanzamientos`)"
+                    },
+                    {
+                      "name": "siglo",
+                      "expression": "`siglo`"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "filters": [
+                    {
+                      "expression": "`anio` BETWEEN 1900 AND 2025"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "decada",
+                  "displayName": "Década",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "valor",
+                  "displayName": "Lanzamientos",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "siglo",
+                  "displayName": "Siglo",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Siglo XX",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Siglo XXI",
+                        "color": "#1F5FA8"
+                      }
+                    ]
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Lanzamientos por siglo y década (1900–2025)"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 4,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "g_anio",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_calidad",
+                  "fields": [
+                    {
+                      "name": "anio_txt",
+                      "expression": "`anio_txt`"
+                    },
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`lanzamientos`)"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "filters": [
+                    {
+                      "expression": "`anio` BETWEEN 1900 AND 2025"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "anio_txt",
+                  "displayName": "Año",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "valor",
+                  "displayName": "Lanzamientos",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Lanzamientos por año (1900–2025)",
+                "showDescription": true,
+                "description": "El filtro de década acota este gráfico."
+              },
+              "mark": {
+                "colors": [
+                  "#1F5FA8"
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 6,
+            "width": 4,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "g_mes",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_calidad",
+                  "fields": [
+                    {
+                      "name": "mes_txt",
+                      "expression": "`mes_txt`"
+                    },
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`lanzamientos`)"
+                    },
+                    {
+                      "name": "nombre_trimestre",
+                      "expression": "`nombre_trimestre`"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "filters": [
+                    {
+                      "expression": "`anio` BETWEEN 1900 AND 2025"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "mes_txt",
+                  "displayName": "Mes",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "valor",
+                  "displayName": "Lanzamientos",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "nombre_trimestre",
+                  "displayName": "Trimestre",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Q1",
+                        "color": "#1F5FA8"
+                      },
+                      {
+                        "value": "Q2",
+                        "color": "#A9BDD3"
+                      },
+                      {
+                        "value": "Q3",
+                        "color": "#1F5FA8"
+                      },
+                      {
+                        "value": "Q4",
+                        "color": "#A9BDD3"
+                      }
+                    ]
+                  },
+                  "legend": {
+                    "hide": true
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Lanzamientos por mes",
+                "showDescription": true,
+                "description": "Los tonos alternos separan trimestres. Enero incluye las fechas que solo tienen año."
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 6,
+            "width": 4,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "g_areas",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_calidad",
+                  "fields": [
+                    {
+                      "name": "nombre_area",
+                      "expression": "`nombre_area`"
+                    },
+                    {
+                      "name": "valor",
+                      "expression": "SUM(`lanzamientos`)"
+                    },
+                    {
+                      "name": "tipo_area",
+                      "expression": "`tipo_area`"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "filters": [
+                    {
+                      "expression": "`es_top15_area` = TRUE"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "valor",
+                  "displayName": "Lanzamientos",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "nombre_area",
+                  "displayName": "Área",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "tipo_area",
+                  "displayName": "Tipo de área",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "País",
+                        "color": "#1F5FA8"
+                      },
+                      {
+                        "value": "Otro / No Clasificado",
+                        "color": "#9AA5B1"
+                      }
+                    ]
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Top 15 áreas: detalle geográfico por tipo de área"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 12,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "g_empaque",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_calidad",
+                  "fields": [
+                    {
+                      "name": "tipo_empaque",
+                      "expression": "`tipo_empaque`"
+                    },
+                    {
+                      "name": "pistas_lanz",
+                      "expression": "SUM(`pistas`) / NULLIF(SUM(`lanzamientos`), 0)"
+                    },
+                    {
+                      "name": "pistas_sop",
+                      "expression": "SUM(`pistas`) / NULLIF(SUM(`soportes`), 0)"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "filters": [
+                    {
+                      "expression": "`tipo_empaque` <> 'Estándar / Desconocido'"
+                    },
+                    {
+                      "expression": "`es_top8_empaque` = TRUE"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "fields": [
+                    {
+                      "fieldName": "pistas_lanz",
+                      "displayName": "Pistas por lanzamiento"
+                    },
+                    {
+                      "fieldName": "pistas_sop",
+                      "displayName": "Pistas por soporte"
+                    }
+                  ],
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    }
+                  },
+                  "axis": {
+                    "title": "Pistas"
+                  }
+                },
+                "y": {
+                  "fieldName": "tipo_empaque",
+                  "displayName": "Tipo de empaque",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Densidad por tipo de empaque (Top 8 por lanzamientos)",
+                "showDescription": true,
+                "description": "Pistas por lanzamiento y por soporte. Excluye empaque desconocido."
+              },
+              "mark": {
+                "layout": "group",
+                "colors": [
+                  "#1F5FA8",
+                  "#C2691A"
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 12,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "g_pivot",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_calidad",
+                  "fields": [
+                    {
+                      "name": "nombre_pais",
+                      "expression": "`nombre_pais`"
+                    },
+                    {
+                      "name": "tipo_artista",
+                      "expression": "`tipo_artista`"
+                    },
+                    {
+                      "name": "cobertura",
+                      "expression": "SUM(`pistas_isrc`) / NULLIF(SUM(`pistas`), 0)"
+                    }
+                  ],
+                  "cubeGroupingSets": {
+                    "sets": [
+                      {
+                        "fieldNames": [
+                          "nombre_pais"
+                        ]
+                      },
+                      {
+                        "fieldNames": [
+                          "tipo_artista"
+                        ]
+                      }
+                    ]
+                  },
+                  "disaggregated": false,
+                  "filters": [
+                    {
+                      "expression": "`es_top10_pais` = TRUE"
+                    }
+                  ],
+                  "orders": [
+                    {
+                      "direction": "ASC",
+                      "expression": "`nombre_pais`"
+                    },
+                    {
+                      "direction": "ASC",
+                      "expression": "`tipo_artista`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "heatmap",
+              "encodings": {
+                "x": {
+                  "fieldName": "tipo_artista",
+                  "displayName": "Tipo de artista",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "nombre_pais",
+                  "displayName": "País",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "color": {
+                  "fieldName": "cobertura",
+                  "displayName": "Cobertura ISRC",
+                  "scale": {
+                    "type": "quantitative",
+                    "colorRamp": {
+                      "mode": "custom",
+                      "colors": [
+                        "#E6EEF7",
+                        "#1F5FA8"
+                      ]
+                    }
+                  },
+                  "format": {
+                    "type": "number-percent",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Cobertura ISRC por país y tipo de artista (Top 10 países)"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 19,
+            "width": 6,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "g_emergentes",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_emergentes_top",
+                  "fields": [
+                    {
+                      "name": "artista_key",
+                      "expression": "`artista_key`"
+                    },
+                    {
+                      "name": "nombre_artista",
+                      "expression": "`nombre_artista`"
+                    },
+                    {
+                      "name": "pais_artista",
+                      "expression": "`pais_artista`"
+                    },
+                    {
+                      "name": "anio_inicio",
+                      "expression": "`anio_inicio`"
+                    },
+                    {
+                      "name": "lanzamientos_v",
+                      "expression": "SUM(`lanzamientos`)"
+                    },
+                    {
+                      "name": "pistas_v",
+                      "expression": "SUM(`pistas`)"
+                    },
+                    {
+                      "name": "cobertura_v",
+                      "expression": "SUM(`pistas_isrc`) / NULLIF(SUM(`pistas`), 0)"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "DESC",
+                      "expression": "SUM(`lanzamientos`)"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "nombre_artista",
+                    "displayName": "Artista"
+                  },
+                  {
+                    "fieldName": "pais_artista",
+                    "displayName": "País del artista"
+                  },
+                  {
+                    "fieldName": "anio_inicio",
+                    "displayName": "Año de inicio"
+                  },
+                  {
+                    "fieldName": "lanzamientos_v",
+                    "displayName": "Lanzamientos",
+                    "format": {
+                      "type": "number-plain",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 0
+                      }
+                    }
+                  },
+                  {
+                    "fieldName": "pistas_v",
+                    "displayName": "Pistas",
+                    "format": {
+                      "type": "number-plain",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 0
+                      }
+                    }
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Top 15 artistas emergentes con 100 % de pistas con ISRC"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 19,
+            "width": 6,
+            "height": 8
+          }
+        }
+      ]
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "LEFT",
+      "canvasBackgroundColor": {
+        "light": "#F4F6F8"
+      },
+      "widgetBackgroundColor": {
+        "light": "#FFFFFF"
+      },
+      "widgetBorderColor": {
+        "light": "#E3E7EC"
+      },
+      "fontColor": {
+        "light": "#1F2A37"
+      },
+      "selectionColor": {
+        "light": "#1F5FA8"
+      },
+      "visualizationColors": [
+        "#1F5FA8",
+        "#C2691A",
+        "#08A08C",
+        "#8064B5",
+        "#9AA5B1",
+        "#D5DAE1"
+      ]
+    },
+    "applyModeEnabled": false
+  }
+}
