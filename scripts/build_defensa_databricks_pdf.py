@@ -253,10 +253,11 @@ def historia(m):
     h.append(figura(BUILD / "dash_resumen.png", 13.4, "Figura 2. Página Resumen ejecutivo publicada en Databricks."))
     h.append(figura(BUILD / "dash_detallado.png", 13.4, "Figura 3. Página Análisis detallado."))
     h.append(figura(BUILD / "dash_calidad.png", 13.4, "Figura 4. Página Calidad y catálogo."))
+    h.append(figura(BUILD / "dash_drill.png", 15.0, "Figura 4b. Tablas dinámicas de drill-down temporal y geográfico."))
     h.append(P("Diferencias funcionales frente a Power BI", "h2"))
     h += vinetas([
-        "<b>Drill-down:</b> no existe. Lo reemplazan gráficos por siglo y década, año, mes y Top 15 áreas, con filtros.",
-        "<b>Clic para filtrar:</b> hacer clic en un gráfico no filtra los demás; actúan los filtros de página.",
+        "<b>Drill-down:</b> disponible con clic derecho en dos tablas dinámicas: de siglo a mes, y de país a área. Filtra además el resto de la página, y Drill up vuelve al nivel anterior.",
+        "<b>Clic para filtrar:</b> hacer clic en una barra filtra los gráficos del mismo dataset, no los de otros datasets.",
         "<b>Top N:</b> se calcula sobre todos los datos y no se recalcula al filtrar.",
         "<b>Histograma:</b> muestra pistas por banda, no porcentaje.",
         "<b>Dispersión:</b> el eje X es LOG10 calculado en SQL y no responde a filtros.",
@@ -307,8 +308,9 @@ def historia(m):
         ["Columnas al 100 %", "¿Qué dominó cada década?", "Composición relativa", "Compara proporciones aunque cambie el volumen."],
         ["Dispersión logarítmica", "¿Más volumen implica más digital?", "Relación", "Cada punto es un país y revela casos atípicos."],
         ["Tabla Top 20", "¿Qué valores exactos tienen?", "Consulta", "Da precisión en varias métricas."],
-        ["Columnas por década, año y mes", "¿Cómo se reparte en el tiempo?", "Comparación temporal", "Sustituyen el drill-down temporal."],
-        ["Top 15 áreas", "¿Qué áreas concentran la producción?", "Comparación", "Sustituye el drill-down geográfico."],
+        ["Columnas por década, año y mes", "¿Cómo se reparte en el tiempo?", "Comparación temporal", "Muestran cada nivel; el drill-down está en la tabla dinámica."],
+        ["Tablas dinámicas de drill-down", "¿Qué hay dentro de cada nivel?", "Consulta jerárquica", "Permiten bajar y subir de nivel sin salir de la página."],
+        ["Top 15 áreas", "¿Qué áreas concentran la producción?", "Comparación", "Compara las áreas principales de un vistazo."],
         ["Barras agrupadas por empaque", "¿Qué empaque es más denso?", "Comparación de dos medidas", "Ambas medidas comparten unidad; evita el doble eje."],
         ["Mapa de calor ISRC", "¿Qué países y tipos formalizan más?", "Magnitud en cuadrícula", "Un solo tono de claro a oscuro."],
         ["Tabla de emergentes", "¿Quiénes son los nuevos artistas?", "Consulta", "Lista exacta con inicio desde 2015."],
@@ -361,7 +363,7 @@ def historia(m):
         ["Requisito", "Dónde se responde", "Estado"],
         ["RF01 · Ranking Top N", "Top 20 artistas y Top 10 países, con filtros", "Cubierto; Top N fijo"],
         ["RF02 · Formato e idioma", "KPI de duración, Top idiomas y mezcla de formatos", "Cubierto"],
-        ["RF03 · Drill-down", "Gráficos por siglo, década, año, mes y Top 15 áreas", "Parcial: sin drill-down"],
+        ["RF03 · Drill-down", "Tablas dinámicas de siglo a mes y de país a área, más clic en barras", "Cubierto hasta mes; sin día"],
         ["RF04 · Digital vs. físico", "Líneas de cuota, área y KPI de pistas largas", "Cubierto"],
         ["RF05 · Correlación", "Sección 12 de este documento; histograma en el dashboard", "Cubierto en documento"],
         ["RF06 · Formalización ISRC", "Mapa de calor por país y tipo de artista", "Cubierto"],
@@ -378,7 +380,8 @@ def historia(m):
         "<b>Top de artistas:</b> está dominado por compositores clásicos por las muchas reediciones; no mide popularidad.",
         "<b>Sin medir:</b> beneficio del clustering, concurrencia del warehouse y consumo de cuota.",
         "<b>Power BI:</b> el reporte queda como entrega anterior, con la carga de 15 M. El dashboard vigente es AI/BI.",
-        "<b>Trabajo futuro:</b> agregar drill-down al dashboard y medir rendimiento comparado.",
+        "<b>Drill-down:</b> llega a mes, no a día. En geografía casi todos los países bajan a un solo nivel, porque el modelo no enlaza ciudades con su país.",
+        "<b>Trabajo futuro:</b> completar la jerarquía geográfica y medir rendimiento comparado.",
     ])
 
     seccion(h, "Sección 15", "Preguntas probables del profesor")

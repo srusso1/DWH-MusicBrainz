@@ -368,7 +368,7 @@ def historia(m):
                       ["Reconectar Power BI", "Riesgo de memoria sin comprobar: la conexión solo se probó con 12 filas. Se decidió no continuar."],
                       ["Mantener ambos", "Dos herramientas que mantener y dos versiones de las mismas cifras."],
                   ],
-                  "Se pierden el drill-down y el clic para filtrar de Power BI, por lo que RF03 queda parcial. Top N no se recalcula con filtros.",
+                  "El drill-down funciona dentro de tablas dinámicas, no en los gráficos, y llega a mes. Top N no se recalcula con filtros.",
                   "<b>Medido:</b> filtros iguales a SQL. <b>Sin medir:</b> Power BI con 11,5 M de filas, porque no se continuó por esa vía.")
     h += decision(10, "Cálculo de primeras pistas", f"{code('min(struct(...))')} con agregación",
                   "Encuentra la primera pista por lanzamiento, soporte y grabación sin ordenar particiones completas, como hacen las funciones de ventana.",
@@ -474,7 +474,9 @@ def historia(m):
     seccion(h, "Sección 11", "Limitaciones conocidas")
     h.append(tabla([
         ["Tema", "Limitación", "Impacto"],
-        ["Dashboard", "Sin drill-down ni clic para filtrar", "RF03 queda parcial en AI/BI"],
+        ["Dashboard", "Drill-down en tablas dinámicas, hasta mes y no hasta día", "RF03 queda cubierto sin el nivel día"],
+        ["Dashboard", "Clic para filtrar solo entre gráficos del mismo dataset", "Otros datasets no reaccionan"],
+        ["Modelo", "Las ciudades no están enlazadas con su país", "El drill geográfico tiene poca profundidad"],
         ["Dashboard", "Top N no se recalcula con filtros", "Los rankings no cambian de integrantes al filtrar"],
         ["Dashboard", "Tablas sin separador de miles", "Solo visual; se probaron tres formatos"],
         ["Dashboard", "Tintes de Mezcla de formatos fuera del umbral de la paleta", "Se distinguen por leyenda y posición"],
@@ -498,7 +500,7 @@ def historia(m):
         ("Preguntas difíciles", [
             ("¿Por qué Spark si 58 M de filas caben en una sola máquina?", "Porque el objetivo del proyecto era trabajar con procesamiento distribuido y arquitectura lakehouse. Es cierto que un motor de un nodo como DuckDB probablemente alcanzaría. Spark no se eligió por necesidad de volumen."),
             ("¿Por qué no hicieron un benchmark real?", "Porque la prioridad fue cumplir el requisito y validar los datos. Solo medimos que el proceso termina y cuánto tarda. No afirmamos que Spark sea más rápido que PostgreSQL. Es trabajo futuro."),
-            ("¿Por qué ya no usan Power BI?", f"AI/BI corre en la nube y evita importar {fmt_mill(G['fact_produccion_musical'])} de filas a un equipo limitado. El costo es perder el drill-down, que se reemplazó con gráficos por nivel y filtros. El reporte de Power BI queda como parte de la entrega anterior."),
+            ("¿Por qué ya no usan Power BI?", f"AI/BI corre en la nube y evita importar {fmt_mill(G['fact_produccion_musical'])} de filas a un equipo limitado. El drill-down se conserva con tablas dinámicas, y un clic en una barra filtra los gráficos del mismo dataset. El reporte de Power BI queda como parte de la entrega anterior."),
             ("Si Python no era lento, ¿qué ganaron?", "Dejamos un motor de un nodo con disco limitado y pasamos a uno distribuido administrado, con historial, catálogo y orquestación. La ganancia demostrada es funcional, no de velocidad comparada."),
             ("¿Cuánto cuesta esto en producción?", "No lo sabemos. Free Edition no sirve para uso comercial y no medimos la cuota consumida."),
             ("¿Sus reglas garantizan que los datos están bien?", "No. Garantizan lo que comprueban. Dos errores pasaron las primeras reglas; por eso también revisamos resultados."),
