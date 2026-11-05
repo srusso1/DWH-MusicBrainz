@@ -19,3 +19,4 @@ powerbi_backup_*/
 .atl/
 .codegraph/
 .playwright-mcp/
+node_modules/
