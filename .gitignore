@@ -17,3 +17,5 @@ powerbi_backup_*/
 
 # Herramientas locales de agentes
 .atl/
+.codegraph/
+.playwright-mcp/
