@@ -1,0 +1,1689 @@
+{
+  "generado_utc": "2026-11-05 12:22",
+  "version_volcado": "20261104-002222",
+  "schema_sequence": 31,
+  "totales": {
+    "lanzamientos": 5890921,
+    "soportes": 6463097,
+    "pistas": 58809976,
+    "grabaciones": 40669195,
+    "artistas": 1633826,
+    "pistas_isrc": 17116279,
+    "pistas_largas": 11520342,
+    "pistas_completas": 54468610,
+    "pistas_video": 469422,
+    "filas_hecho": 11519884,
+    "horas": 3841809.0906666666,
+    "dur_media_min": 4.231950471250015,
+    "isrc_pct": 0.2910438018202898,
+    "largas_pct": 0.19589094884174071,
+    "pistas_por_lanzamiento": 9.983154756276651,
+    "pistas_por_soporte": 9.099349120089022
+  },
+  "conteos": {
+    "bronze": {
+      "area": 120120,
+      "artist": 3032671,
+      "artist_credit_name": 7364652,
+      "isrc": 6579238,
+      "language": 7846,
+      "medium": 6474432,
+      "recording": 40826836,
+      "release": 5903902,
+      "release_country": 13360406,
+      "release_unknown_country": 489710,
+      "track": 58809976
+    },
+    "silver": {
+      "area": 120120,
+      "artist": 3032671,
+      "artist_credit_name": 7364652,
+      "catalogo_area_type": 9,
+      "catalogo_artist_type": 6,
+      "catalogo_gender": 5,
+      "catalogo_medium_format": 115,
+      "catalogo_release_packaging": 24,
+      "catalogo_release_status": 7,
+      "isrc": 6579238,
+      "language": 7846,
+      "medium": 6474432,
+      "recording": 40826836,
+      "release": 5903902,
+      "release_country": 13360406,
+      "release_unknown_country": 489710,
+      "track": 58809976
+    },
+    "silver_principales_total": 142969789,
+    "gold": {
+      "dim_artista": 3032672,
+      "dim_fecha": 47848,
+      "dim_formato": 115,
+      "dim_geografia": 120121,
+      "dim_idioma": 355,
+      "dim_lanzamiento": 314,
+      "dim_rango_duracion": 22,
+      "fact_distribucion_duracion": 1352433,
+      "fact_pista": 58809976,
+      "fact_produccion_musical": 11519884,
+      "mv_analitica_artistas": 1633826,
+      "mv_distribucion_geografica": 6241,
+      "mv_evolucion_formatos": 2714,
+      "mv_tendencias_produccion_anual": 77
+    }
+  },
+  "detalle": {
+    "silver": {
+      "area": {
+        "bytes": 4050529,
+        "archivos": 1,
+        "clustering": "[]"
+      },
+      "artist": {
+        "bytes": 151444709,
+        "archivos": 3,
+        "clustering": "[]"
+      },
+      "artist_credit_name": {
+        "bytes": 82320266,
+        "archivos": 2,
+        "clustering": "[]"
+      },
+      "catalogo_area_type": {
+        "bytes": 1401,
+        "archivos": 1,
+        "clustering": "[]"
+      },
+      "catalogo_artist_type": {
+        "bytes": 1374,
+        "archivos": 1,
+        "clustering": "[]"
+      },
+      "catalogo_gender": {
+        "bytes": 1334,
+        "archivos": 1,
+        "clustering": "[]"
+      },
+      "catalogo_medium_format": {
+        "bytes": 2400,
+        "archivos": 1,
+        "clustering": "[]"
+      },
+      "catalogo_release_packaging": {
+        "bytes": 1524,
+        "archivos": 1,
+        "clustering": "[]"
+      },
+      "catalogo_release_status": {
+        "bytes": 1373,
+        "archivos": 1,
+        "clustering": "[]"
+      },
+      "isrc": {
+        "bytes": 44867415,
+        "archivos": 1,
+        "clustering": "[]"
+      },
+      "language": {
+        "bytes": 68019,
+        "archivos": 1,
+        "clustering": "[]"
+      },
+      "medium": {
+        "bytes": 208252576,
+        "archivos": 4,
+        "clustering": "[]"
+      },
+      "recording": {
+        "bytes": 1574741630,
+        "archivos": 17,
+        "clustering": "[]"
+      },
+      "release": {
+        "bytes": 290703485,
+        "archivos": 8,
+        "clustering": "[]"
+      },
+      "release_country": {
+        "bytes": 27897973,
+        "archivos": 1,
+        "clustering": "[]"
+      },
+      "release_unknown_country": {
+        "bytes": 1932437,
+        "archivos": 1,
+        "clustering": "[]"
+      },
+      "track": {
+        "bytes": 2368332364,
+        "archivos": 22,
+        "clustering": "[]"
+      }
+    },
+    "gold": {
+      "dim_artista": {
+        "bytes": 117427203,
+        "archivos": 2,
+        "clustering": "[]"
+      },
+      "dim_fecha": {
+        "bytes": 13086,
+        "archivos": 2,
+        "clustering": "[]"
+      },
+      "dim_formato": {
+        "bytes": 4338,
+        "archivos": 2,
+        "clustering": "[]"
+      },
+      "dim_geografia": {
+        "bytes": 3000818,
+        "archivos": 2,
+        "clustering": "[]"
+      },
+      "dim_idioma": {
+        "bytes": 6299,
+        "archivos": 2,
+        "clustering": "[]"
+      },
+      "dim_lanzamiento": {
+        "bytes": 6495,
+        "archivos": 2,
+        "clustering": "[]"
+      },
+      "dim_rango_duracion": {
+        "bytes": 2045,
+        "archivos": 1,
+        "clustering": "[]"
+      },
+      "fact_distribucion_duracion": {
+        "bytes": 10562451,
+        "archivos": 1,
+        "clustering": "[\"fecha_key\",\"rango_duracion_key\"]"
+      },
+      "fact_pista": {
+        "bytes": 773085790,
+        "archivos": 16,
+        "clustering": "[\"fecha_key\",\"artista_key\"]"
+      },
+      "fact_produccion_musical": {
+        "bytes": 224741130,
+        "archivos": 4,
+        "clustering": "[\"fecha_key\",\"artista_key\"]"
+      },
+      "mv_analitica_artistas": {
+        "bytes": 39098289,
+        "archivos": 1,
+        "clustering": "[\"artista_key\"]"
+      },
+      "mv_distribucion_geografica": {
+        "bytes": 101620,
+        "archivos": 1,
+        "clustering": "[\"geografia_key\"]"
+      },
+      "mv_evolucion_formatos": {
+        "bytes": 44200,
+        "archivos": 1,
+        "clustering": "[\"anio\"]"
+      },
+      "mv_tendencias_produccion_anual": {
+        "bytes": 6546,
+        "archivos": 1,
+        "clustering": "[\"anio\"]"
+      }
+    }
+  },
+  "formatos": [
+    {
+      "categoria": "Digital / Streaming",
+      "lanzamientos": 2917569,
+      "pistas": 20664398
+    },
+    {
+      "categoria": "Físico / Óptico",
+      "lanzamientos": 1996519,
+      "pistas": 30203017
+    },
+    {
+      "categoria": "Físico / Vinilo",
+      "lanzamientos": 621401,
+      "pistas": 4395900
+    },
+    {
+      "categoria": "Desconocido",
+      "lanzamientos": 233918,
+      "pistas": 2632923
+    },
+    {
+      "categoria": "Físico / Magnético",
+      "lanzamientos": 84687,
+      "pistas": 789483
+    },
+    {
+      "categoria": "Otros Formatos",
+      "lanzamientos": 36827,
+      "pistas": 124255
+    }
+  ],
+  "anual": [
+    {
+      "anio": 1950,
+      "digital": 0.006593406593406593,
+      "optico": 0.0,
+      "vinilo": 0.38534798534798537,
+      "magnetico": 0.0,
+      "lanzamientos": 1365
+    },
+    {
+      "anio": 1951,
+      "digital": 0.018853102906520033,
+      "optico": 0.0007855459544383347,
+      "vinilo": 0.4124116260801257,
+      "magnetico": 0.0,
+      "lanzamientos": 1273
+    },
+    {
+      "anio": 1952,
+      "digital": 0.012372634643377001,
+      "optico": 0.000727802037845706,
+      "vinilo": 0.46652110625909754,
+      "magnetico": 0.000727802037845706,
+      "lanzamientos": 1374
+    },
+    {
+      "anio": 1953,
+      "digital": 0.014035087719298246,
+      "optico": 0.0,
+      "vinilo": 0.5508771929824562,
+      "magnetico": 0.0014035087719298245,
+      "lanzamientos": 1425
+    },
+    {
+      "anio": 1954,
+      "digital": 0.027043269230769232,
+      "optico": 0.001201923076923077,
+      "vinilo": 0.6929086538461539,
+      "magnetico": 0.0006009615384615385,
+      "lanzamientos": 1664
+    },
+    {
+      "anio": 1955,
+      "digital": 0.020463847203274217,
+      "optico": 0.001364256480218281,
+      "vinilo": 0.7921782628467485,
+      "magnetico": 0.0,
+      "lanzamientos": 2199
+    },
+    {
+      "anio": 1956,
+      "digital": 0.016082916368834882,
+      "optico": 0.001072194424588992,
+      "vinilo": 0.8523945675482487,
+      "magnetico": 0.0007147962830593281,
+      "lanzamientos": 2798
+    },
+    {
+      "anio": 1957,
+      "digital": 0.019543973941368076,
+      "optico": 0.0013029315960912053,
+      "vinilo": 0.9039087947882736,
+      "magnetico": 0.0013029315960912053,
+      "lanzamientos": 3070
+    },
+    {
+      "anio": 1958,
+      "digital": 0.016138328530259365,
+      "optico": 0.0023054755043227667,
+      "vinilo": 0.9417867435158501,
+      "magnetico": 0.0011527377521613833,
+      "lanzamientos": 3470
+    },
+    {
+      "anio": 1959,
+      "digital": 0.016065314722149063,
+      "optico": 0.0007900974453515934,
+      "vinilo": 0.9510139583882012,
+      "magnetico": 0.0021069265209375824,
+      "lanzamientos": 3797
+    },
+    {
+      "anio": 1960,
+      "digital": 0.02123705866737457,
+      "optico": 0.0018582426333952748,
+      "vinilo": 0.9519511547650651,
+      "magnetico": 0.0015927794000530925,
+      "lanzamientos": 3767
+    },
+    {
+      "anio": 1961,
+      "digital": 0.01640625,
+      "optico": 0.0015625,
+      "vinilo": 0.9596354166666666,
+      "magnetico": 0.0013020833333333333,
+      "lanzamientos": 3840
+    },
+    {
+      "anio": 1962,
+      "digital": 0.018115942028985508,
+      "optico": 0.001585144927536232,
+      "vinilo": 0.9547101449275363,
+      "magnetico": 0.0033967391304347825,
+      "lanzamientos": 4416
+    },
+    {
+      "anio": 1963,
+      "digital": 0.01844306240617628,
+      "optico": 0.0006433626420759168,
+      "vinilo": 0.9596826077632425,
+      "magnetico": 0.001072271070126528,
+      "lanzamientos": 4663
+    },
+    {
+      "anio": 1964,
+      "digital": 0.015167548500881834,
+      "optico": 0.001763668430335097,
+      "vinilo": 0.9627865961199294,
+      "magnetico": 0.0024691358024691358,
+      "lanzamientos": 5670
+    },
+    {
+      "anio": 1965,
+      "digital": 0.016003589590188452,
+      "optico": 0.0013460963206700569,
+      "vinilo": 0.9635058330840562,
+      "magnetico": 0.0023930601256356566,
+      "lanzamientos": 6686
+    },
+    {
+      "anio": 1966,
+      "digital": 0.014298480786416443,
+      "optico": 0.002680965147453083,
+      "vinilo": 0.9654027830971531,
+      "magnetico": 0.0031916251755393847,
+      "lanzamientos": 7833
+    },
+    {
+      "anio": 1967,
+      "digital": 0.012009803921568628,
+      "optico": 0.00196078431372549,
+      "vinilo": 0.9656862745098039,
+      "magnetico": 0.004044117647058824,
+      "lanzamientos": 8160
+    },
+    {
+      "anio": 1968,
+      "digital": 0.015226586102719033,
+      "optico": 0.002175226586102719,
+      "vinilo": 0.9586706948640483,
+      "magnetico": 0.0056797583081571,
+      "lanzamientos": 8275
+    },
+    {
+      "anio": 1969,
+      "digital": 0.015219443133553563,
+      "optico": 0.0025955639452571967,
+      "vinilo": 0.9579990561585654,
+      "magnetico": 0.007196790939122228,
+      "lanzamientos": 8476
+    },
+    {
+      "anio": 1970,
+      "digital": 0.018130496145912497,
+      "optico": 0.0030398436651829334,
+      "vinilo": 0.9515796330474433,
+      "magnetico": 0.010096623602214744,
+      "lanzamientos": 9211
+    },
+    {
+      "anio": 1971,
+      "digital": 0.017555059048834983,
+      "optico": 0.0029790403234386635,
+      "vinilo": 0.9497818916906053,
+      "magnetico": 0.012448132780082987,
+      "lanzamientos": 9399
+    },
+    {
+      "anio": 1972,
+      "digital": 0.01918281220026856,
+      "optico": 0.0030692499520429697,
+      "vinilo": 0.9455208133512373,
+      "magnetico": 0.014866679455208134,
+      "lanzamientos": 10426
+    },
+    {
+      "anio": 1973,
+      "digital": 0.020948689553340717,
+      "optico": 0.0034145441122185307,
+      "vinilo": 0.9372462163159837,
+      "magnetico": 0.01891842008121078,
+      "lanzamientos": 10836
+    },
+    {
+      "anio": 1974,
+      "digital": 0.021077056946727256,
+      "optico": 0.0029971961713236004,
+      "vinilo": 0.9373489316445905,
+      "magnetico": 0.01972348448225853,
+      "lanzamientos": 10343
+    },
+    {
+      "anio": 1975,
+      "digital": 0.021955555555555555,
+      "optico": 0.0034666666666666665,
+      "vinilo": 0.9270222222222222,
+      "magnetico": 0.024888888888888887,
+      "lanzamientos": 11250
+    },
+    {
+      "anio": 1976,
+      "digital": 0.01937854994988306,
+      "optico": 0.0032576010691613764,
+      "vinilo": 0.9313397928499833,
+      "magnetico": 0.023220848646842634,
+      "lanzamientos": 11972
+    },
+    {
+      "anio": 1977,
+      "digital": 0.01724403387220939,
+      "optico": 0.005542725173210162,
+      "vinilo": 0.9265588914549654,
+      "magnetico": 0.02725173210161663,
+      "lanzamientos": 12990
+    },
+    {
+      "anio": 1978,
+      "digital": 0.019145907473309607,
+      "optico": 0.0051957295373665485,
+      "vinilo": 0.9223487544483986,
+      "magnetico": 0.031174377224199287,
+      "lanzamientos": 14050
+    },
+    {
+      "anio": 1979,
+      "digital": 0.020858323337331734,
+      "optico": 0.004931360789017726,
+      "vinilo": 0.9178995068639211,
+      "magnetico": 0.03385312541650007,
+      "lanzamientos": 15006
+    },
+    {
+      "anio": 1980,
+      "digital": 0.02114268255423159,
+      "optico": 0.008554842652001222,
+      "vinilo": 0.8993583868010999,
+      "magnetico": 0.046318362358692335,
+      "lanzamientos": 16365
+    },
+    {
+      "anio": 1981,
+      "digital": 0.01954877973812012,
+      "optico": 0.010266183070019056,
+      "vinilo": 0.8929735046412983,
+      "magnetico": 0.05354398475441077,
+      "lanzamientos": 16267
+    },
+    {
+      "anio": 1982,
+      "digital": 0.01984325496081374,
+      "optico": 0.0569729309098994,
+      "vinilo": 0.8296926240898227,
+      "magnetico": 0.06931243399477517,
+      "lanzamientos": 17991
+    },
+    {
+      "anio": 1983,
+      "digital": 0.020221548751175673,
+      "optico": 0.11077437558783572,
+      "vinilo": 0.7618350924861532,
+      "magnetico": 0.07973664959765911,
+      "lanzamientos": 19138
+    },
+    {
+      "anio": 1984,
+      "digital": 0.0205785284410794,
+      "optico": 0.186371578334304,
+      "vinilo": 0.6836051252184042,
+      "magnetico": 0.08318773053775966,
+      "lanzamientos": 20604
+    },
+    {
+      "anio": 1985,
+      "digital": 0.0180551294973487,
+      "optico": 0.2259958806257943,
+      "vinilo": 0.6394671107410491,
+      "magnetico": 0.08751479030632368,
+      "lanzamientos": 22819
+    },
+    {
+      "anio": 1986,
+      "digital": 0.017538862212094084,
+      "optico": 0.32221046634654515,
+      "vinilo": 0.5475706030764222,
+      "magnetico": 0.08732807031822251,
+      "lanzamientos": 24574
+    },
+    {
+      "anio": 1987,
+      "digital": 0.01656196459166191,
+      "optico": 0.44945745288406624,
+      "vinilo": 0.4279235394900393,
+      "magnetico": 0.07981993482715759,
+      "lanzamientos": 29767
+    },
+    {
+      "anio": 1988,
+      "digital": 0.015702695629416383,
+      "optico": 0.5387478554188839,
+      "vinilo": 0.3443542993399052,
+      "magnetico": 0.07444240890982581,
+      "lanzamientos": 34389
+    },
+    {
+      "anio": 1989,
+      "digital": 0.015949747371295918,
+      "optico": 0.6107879284446265,
+      "vinilo": 0.2665574218216578,
+      "magnetico": 0.07688105967499659,
+      "lanzamientos": 36615
+    },
+    {
+      "anio": 1990,
+      "digital": 0.01797521673115541,
+      "optico": 0.6842092374002057,
+      "vinilo": 0.20017632365185875,
+      "magnetico": 0.0675172650242445,
+      "lanzamientos": 40834
+    },
+    {
+      "anio": 1991,
+      "digital": 0.01801986981843097,
+      "optico": 0.7179627726390316,
+      "vinilo": 0.16297818887746945,
+      "magnetico": 0.06698641087130296,
+      "lanzamientos": 43785
+    },
+    {
+      "anio": 1992,
+      "digital": 0.01950809333613622,
+      "optico": 0.7490855581248687,
+      "vinilo": 0.12949337817952492,
+      "magnetico": 0.06691191927685516,
+      "lanzamientos": 47570
+    },
+    {
+      "anio": 1993,
+      "digital": 0.01956361016852761,
+      "optico": 0.770980644916684,
+      "vinilo": 0.11106898447422797,
+      "magnetico": 0.06049174423233683,
+      "lanzamientos": 52751
+    },
+    {
+      "anio": 1994,
+      "digital": 0.022156622666510122,
+      "optico": 0.7809999832273863,
+      "vinilo": 0.10591905536639774,
+      "magnetico": 0.052615689102832895,
+      "lanzamientos": 59621
+    },
+    {
+      "anio": 1995,
+      "digital": 0.025042581595543893,
+      "optico": 0.7848516932897543,
+      "vinilo": 0.10408322975647931,
+      "magnetico": 0.04611088094032439,
+      "lanzamientos": 65169
+    },
+    {
+      "anio": 1996,
+      "digital": 0.02532774067199626,
+      "optico": 0.7870599067565001,
+      "vinilo": 0.10812153807930082,
+      "magnetico": 0.03849582742645017,
+      "lanzamientos": 68423
+    },
+    {
+      "anio": 1997,
+      "digital": 0.027365971995630525,
+      "optico": 0.7977273049695697,
+      "vinilo": 0.09957582034076239,
+      "magnetico": 0.03173544808409823,
+      "lanzamientos": 70489
+    },
+    {
+      "anio": 1998,
+      "digital": 0.03174797911640017,
+      "optico": 0.7917501601712128,
+      "vinilo": 0.09723414986572881,
+      "magnetico": 0.029076186970923814,
+      "lanzamientos": 73359
+    },
+    {
+      "anio": 1999,
+      "digital": 0.0378014724549378,
+      "optico": 0.7943640517897944,
+      "vinilo": 0.09366590505204367,
+      "magnetico": 0.023076923076923078,
+      "lanzamientos": 78780
+    },
+    {
+      "anio": 2000,
+      "digital": 0.05185449270373603,
+      "optico": 0.7772641776182339,
+      "vinilo": 0.09853337103377058,
+      "magnetico": 0.0178872183224125,
+      "lanzamientos": 81343
+    },
+    {
+      "anio": 2001,
+      "digital": 0.0559507266175189,
+      "optico": 0.7692959935935182,
+      "vinilo": 0.10169112278305109,
+      "magnetico": 0.01509762818852015,
+      "lanzamientos": 84914
+    },
+    {
+      "anio": 2002,
+      "digital": 0.06744759840431665,
+      "optico": 0.7720501764014112,
+      "vinilo": 0.08531832960546037,
+      "magnetico": 0.010630202688680333,
+      "lanzamientos": 86734
+    },
+    {
+      "anio": 2003,
+      "digital": 0.0827755418289822,
+      "optico": 0.7619288466091299,
+      "vinilo": 0.08056948539698254,
+      "magnetico": 0.008189311925618234,
+      "lanzamientos": 92926
+    },
+    {
+      "anio": 2004,
+      "digital": 0.1037276488467364,
+      "optico": 0.7379057261646996,
+      "vinilo": 0.07840566008965875,
+      "magnetico": 0.006343203927907048,
+      "lanzamientos": 98373
+    },
+    {
+      "anio": 2005,
+      "digital": 0.1318096489581378,
+      "optico": 0.708766660409236,
+      "vinilo": 0.07390651398535761,
+      "magnetico": 0.005237469495025343,
+      "lanzamientos": 106540
+    },
+    {
+      "anio": 2006,
+      "digital": 0.16809525894147004,
+      "optico": 0.683430372543011,
+      "vinilo": 0.07414963008361423,
+      "magnetico": 0.004990587926279385,
+      "lanzamientos": 114215
+    },
+    {
+      "anio": 2007,
+      "digital": 0.21933782893069007,
+      "optico": 0.6646470280045293,
+      "vinilo": 0.07215771772380808,
+      "magnetico": 0.005036421098886241,
+      "lanzamientos": 118338
+    },
+    {
+      "anio": 2008,
+      "digital": 0.27811253912663686,
+      "optico": 0.6196769575450715,
+      "vinilo": 0.06397761187993885,
+      "magnetico": 0.005977175117481013,
+      "lanzamientos": 123637
+    },
+    {
+      "anio": 2009,
+      "digital": 0.34827513852514436,
+      "optico": 0.5532923521686082,
+      "vinilo": 0.06012729547627004,
+      "magnetico": 0.007172999059661012,
+      "lanzamientos": 128677
+    },
+    {
+      "anio": 2010,
+      "digital": 0.41140731463672825,
+      "optico": 0.49273903773613037,
+      "vinilo": 0.05620163707116339,
+      "magnetico": 0.009124658943507627,
+      "lanzamientos": 134142
+    },
+    {
+      "anio": 2011,
+      "digital": 0.4733491713252451,
+      "optico": 0.4357750629172453,
+      "vinilo": 0.053428549272838785,
+      "magnetico": 0.008790790466186827,
+      "lanzamientos": 141853
+    },
+    {
+      "anio": 2012,
+      "digital": 0.5225167780912264,
+      "optico": 0.39108088263709084,
+      "vinilo": 0.05231801728690858,
+      "magnetico": 0.008849557522123894,
+      "lanzamientos": 155262
+    },
+    {
+      "anio": 2013,
+      "digital": 0.5634749072686629,
+      "optico": 0.34973838708885013,
+      "vinilo": 0.05197253678547741,
+      "magnetico": 0.009985506890368223,
+      "lanzamientos": 162836
+    },
+    {
+      "anio": 2014,
+      "digital": 0.599215553962296,
+      "optico": 0.30860299921073403,
+      "vinilo": 0.05123601462853287,
+      "magnetico": 0.010609903781849292,
+      "lanzamientos": 165977
+    },
+    {
+      "anio": 2015,
+      "digital": 0.640397466441978,
+      "optico": 0.2743738741356267,
+      "vinilo": 0.049026672090185366,
+      "magnetico": 0.010715323377302573,
+      "lanzamientos": 172090
+    },
+    {
+      "anio": 2016,
+      "digital": 0.6770374479285629,
+      "optico": 0.24419464656682002,
+      "vinilo": 0.0472748828052773,
+      "magnetico": 0.011017935415103163,
+      "lanzamientos": 183882
+    },
+    {
+      "anio": 2017,
+      "digital": 0.7130605369651404,
+      "optico": 0.21369220024239435,
+      "vinilo": 0.04543867217189458,
+      "magnetico": 0.010127154331258601,
+      "lanzamientos": 194724
+    },
+    {
+      "anio": 2018,
+      "digital": 0.7589012494073815,
+      "optico": 0.18124787495390746,
+      "vinilo": 0.042055560078345364,
+      "magnetico": 0.009429218605586657,
+      "lanzamientos": 208819
+    },
+    {
+      "anio": 2019,
+      "digital": 0.8000788433939866,
+      "optico": 0.14706064740171151,
+      "vinilo": 0.03743732393118478,
+      "magnetico": 0.008225403518718663,
+      "lanzamientos": 225764
+    },
+    {
+      "anio": 2020,
+      "digital": 0.8589009164108384,
+      "optico": 0.09934259139350818,
+      "vinilo": 0.02904633854638806,
+      "magnetico": 0.006772146595263306,
+      "lanzamientos": 262546
+    },
+    {
+      "anio": 2021,
+      "digital": 0.8652151475107319,
+      "optico": 0.0954734183549797,
+      "vinilo": 0.027261922448373197,
+      "magnetico": 0.005747171375176911,
+      "lanzamientos": 255778
+    },
+    {
+      "anio": 2022,
+      "digital": 0.8759793168285804,
+      "optico": 0.08845581322469445,
+      "vinilo": 0.024024600438733938,
+      "magnetico": 0.004442181134440614,
+      "lanzamientos": 255280
+    },
+    {
+      "anio": 2023,
+      "digital": 0.8858974881370875,
+      "optico": 0.08013068651165547,
+      "vinilo": 0.0234665263984531,
+      "magnetico": 0.0038005771246744876,
+      "lanzamientos": 269959
+    },
+    {
+      "anio": 2024,
+      "digital": 0.8974453947100373,
+      "optico": 0.07244900604852898,
+      "vinilo": 0.019823470366652714,
+      "magnetico": 0.003385398339895475,
+      "lanzamientos": 269983
+    },
+    {
+      "anio": 2025,
+      "digital": 0.9074537444933921,
+      "optico": 0.06394126284875183,
+      "vinilo": 0.018220264317180615,
+      "magnetico": 0.0026784140969162997,
+      "lanzamientos": 255375
+    }
+  ],
+  "decadas": [
+    {
+      "decada": "1950s",
+      "vinilo": 0.7760641854245598,
+      "optico": 0.0011143302874972142,
+      "digital": 0.017026966792957433,
+      "magnetico": 0.0009806106529975484,
+      "isrc": 0.1459019064689588,
+      "dur_media_min": 3.358687653513,
+      "lanzamientos": 22435
+    },
+    {
+      "decada": "1960s",
+      "vinilo": 0.9607030718933092,
+      "optico": 0.0019260026543229858,
+      "digital": 0.01565079467840611,
+      "magnetico": 0.0036739714498430064,
+      "isrc": 0.18325795456354213,
+      "dur_media_min": 3.21995774477,
+      "lanzamientos": 61786
+    },
+    {
+      "decada": "1970s",
+      "vinilo": 0.9330291038507832,
+      "optico": 0.003922655282595707,
+      "digital": 0.01958729856342492,
+      "magnetico": 0.022791233341703975,
+      "isrc": 0.2291218550342619,
+      "dur_media_min": 3.84347382017,
+      "lanzamientos": 115483
+    },
+    {
+      "decada": "1980s",
+      "vinilo": 0.5669080069928604,
+      "optico": 0.3129053490351278,
+      "digital": 0.017993619224496812,
+      "magnetico": 0.0755044460002767,
+      "isrc": 0.285372113383397,
+      "dur_media_min": 4.070216538478,
+      "lanzamientos": 238529
+    },
+    {
+      "decada": "1990s",
+      "vinilo": 0.11544306494379816,
+      "optico": 0.7725560562001794,
+      "digital": 0.02564162315386139,
+      "magnetico": 0.04498810714719673,
+      "isrc": 0.23529701486692542,
+      "dur_media_min": 4.115413817298,
+      "lanzamientos": 600781
+    },
+    {
+      "decada": "2000s",
+      "vinilo": 0.07702928559221471,
+      "optico": 0.694159585284113,
+      "digital": 0.1652153091106762,
+      "magnetico": 0.00813944618937778,
+      "isrc": 0.24871207875283197,
+      "dur_media_min": 4.165733803567,
+      "lanzamientos": 1035697
+    },
+    {
+      "decada": "2010s",
+      "vinilo": 0.04779559847342852,
+      "optico": 0.2873832110368757,
+      "digital": 0.6344421660080591,
+      "magnetico": 0.009682877178146032,
+      "isrc": 0.31022664909544295,
+      "dur_media_min": 4.396695742156,
+      "lanzamientos": 1745349
+    },
+    {
+      "decada": "2020s",
+      "vinilo": 0.023628978132104805,
+      "optico": 0.08324447183765148,
+      "digital": 0.8818901652791951,
+      "magnetico": 0.004465489339488732,
+      "isrc": 0.4015136560927183,
+      "dur_media_min": 4.368923495111,
+      "lanzamientos": 1568921
+    }
+  ],
+  "paises": [
+    {
+      "pais": "United States",
+      "lanzamientos": 976129,
+      "digital": 0.24245975685590737
+    },
+    {
+      "pais": "United Kingdom",
+      "lanzamientos": 463871,
+      "digital": 0.19198440945866416
+    },
+    {
+      "pais": "Japan",
+      "lanzamientos": 381675,
+      "digital": 0.18380559376432828
+    },
+    {
+      "pais": "Germany",
+      "lanzamientos": 347497,
+      "digital": 0.14941711727007714
+    },
+    {
+      "pais": "France",
+      "lanzamientos": 171276,
+      "digital": 0.18889394894789696
+    },
+    {
+      "pais": "Netherlands",
+      "lanzamientos": 99315,
+      "digital": 0.2006343452650657
+    },
+    {
+      "pais": "Canada",
+      "lanzamientos": 88339,
+      "digital": 0.2092167672262534
+    },
+    {
+      "pais": "Italy",
+      "lanzamientos": 82015,
+      "digital": 0.1899896360421874
+    },
+    {
+      "pais": "Australia",
+      "lanzamientos": 72685,
+      "digital": 0.20830983008873907
+    },
+    {
+      "pais": "Spain",
+      "lanzamientos": 54655,
+      "digital": 0.19140060378739365
+    },
+    {
+      "pais": "Sweden",
+      "lanzamientos": 52836,
+      "digital": 0.19863350745703687
+    },
+    {
+      "pais": "Brazil",
+      "lanzamientos": 48235,
+      "digital": 0.3973877889499326
+    },
+    {
+      "pais": "Russia",
+      "lanzamientos": 48075,
+      "digital": 0.24796671866874676
+    },
+    {
+      "pais": "Finland",
+      "lanzamientos": 47730,
+      "digital": 0.22803268384663733
+    },
+    {
+      "pais": "Belgium",
+      "lanzamientos": 36436,
+      "digital": 0.16802063892853222
+    },
+    {
+      "pais": "South Korea",
+      "lanzamientos": 32739,
+      "digital": 0.5849598338373194
+    },
+    {
+      "pais": "Poland",
+      "lanzamientos": 27037,
+      "digital": 0.12812072345304581
+    },
+    {
+      "pais": "Mexico",
+      "lanzamientos": 25544,
+      "digital": 0.20450986533041027
+    },
+    {
+      "pais": "Austria",
+      "lanzamientos": 24645,
+      "digital": 0.13402312842361533
+    },
+    {
+      "pais": "Norway",
+      "lanzamientos": 21952,
+      "digital": 0.23264395043731778
+    },
+    {
+      "pais": "Denmark",
+      "lanzamientos": 19503,
+      "digital": 0.2188381274675691
+    },
+    {
+      "pais": "Argentina",
+      "lanzamientos": 19471,
+      "digital": 0.22967490113502131
+    },
+    {
+      "pais": "India",
+      "lanzamientos": 18308,
+      "digital": 0.444122787852305
+    },
+    {
+      "pais": "Switzerland",
+      "lanzamientos": 18290,
+      "digital": 0.17124111536358666
+    },
+    {
+      "pais": "Greece",
+      "lanzamientos": 16575,
+      "digital": 0.13049773755656108
+    },
+    {
+      "pais": "Israel",
+      "lanzamientos": 13119,
+      "digital": 0.26823690830093755
+    },
+    {
+      "pais": "Türkiye",
+      "lanzamientos": 12404,
+      "digital": 0.29272815220896486
+    },
+    {
+      "pais": "Czechia",
+      "lanzamientos": 12395,
+      "digital": 0.15619201290843082
+    },
+    {
+      "pais": "Portugal",
+      "lanzamientos": 10779,
+      "digital": 0.16467204749976808
+    },
+    {
+      "pais": "Hungary",
+      "lanzamientos": 10736,
+      "digital": 0.16942995529061103
+    }
+  ],
+  "idiomas": [
+    {
+      "idioma": "English",
+      "lanzamientos": 3718443
+    },
+    {
+      "idioma": "Japanese",
+      "lanzamientos": 259350
+    },
+    {
+      "idioma": "[Multiple languages]",
+      "lanzamientos": 163493
+    },
+    {
+      "idioma": "Spanish",
+      "lanzamientos": 158352
+    },
+    {
+      "idioma": "German",
+      "lanzamientos": 147775
+    },
+    {
+      "idioma": "French",
+      "lanzamientos": 128107
+    },
+    {
+      "idioma": "Russian",
+      "lanzamientos": 48474
+    },
+    {
+      "idioma": "Italian",
+      "lanzamientos": 45698
+    }
+  ],
+  "tipos_artista": [
+    {
+      "tipo": "Persona / Solista",
+      "lanzamientos": 3018354
+    },
+    {
+      "tipo": "Grupo / Banda",
+      "lanzamientos": 2359893
+    },
+    {
+      "tipo": "No Clasificado",
+      "lanzamientos": 421508
+    },
+    {
+      "tipo": "Otro",
+      "lanzamientos": 36693
+    },
+    {
+      "tipo": "Personaje Ficticio",
+      "lanzamientos": 27149
+    },
+    {
+      "tipo": "Orquesta",
+      "lanzamientos": 19244
+    },
+    {
+      "tipo": "Coro",
+      "lanzamientos": 8080
+    }
+  ],
+  "calidad": [
+    {
+      "calidad": "Sin calificar",
+      "lanzamientos": 5875755
+    },
+    {
+      "calidad": "Baja",
+      "lanzamientos": 6475
+    },
+    {
+      "calidad": "Alta",
+      "lanzamientos": 5946
+    },
+    {
+      "calidad": "Normal",
+      "lanzamientos": 2745
+    }
+  ],
+  "top_artistas": [
+    {
+      "artista": "Johann Sebastian Bach",
+      "lanzamientos": 9620,
+      "pistas": 321660
+    },
+    {
+      "artista": "Ludwig van Beethoven",
+      "lanzamientos": 9015,
+      "pistas": 176555
+    },
+    {
+      "artista": "Wolfgang Amadeus Mozart",
+      "lanzamientos": 8807,
+      "pistas": 204826
+    },
+    {
+      "artista": "Bruce Springsteen",
+      "lanzamientos": 8107,
+      "pistas": 147329
+    },
+    {
+      "artista": "Пётр Ильич Чайковский",
+      "lanzamientos": 3677,
+      "pistas": 63909
+    },
+    {
+      "artista": "Antonio Vivaldi",
+      "lanzamientos": 3450,
+      "pistas": 87577
+    },
+    {
+      "artista": "The Rolling Stones",
+      "lanzamientos": 3408,
+      "pistas": 67189
+    },
+    {
+      "artista": "The Beatles",
+      "lanzamientos": 3371,
+      "pistas": 76619
+    },
+    {
+      "artista": "Franz Schubert",
+      "lanzamientos": 3346,
+      "pistas": 64993
+    },
+    {
+      "artista": "Johannes Brahms",
+      "lanzamientos": 3335,
+      "pistas": 63618
+    }
+  ],
+  "histograma": {
+    "bandas": [
+      {
+        "orden": 1,
+        "banda": "0:00–0:30",
+        "pistas": 787302
+      },
+      {
+        "orden": 2,
+        "banda": "0:30–1:00",
+        "pistas": 1326857
+      },
+      {
+        "orden": 3,
+        "banda": "1:00–1:30",
+        "pistas": 1857909
+      },
+      {
+        "orden": 4,
+        "banda": "1:30–2:00",
+        "pistas": 2516287
+      },
+      {
+        "orden": 5,
+        "banda": "2:00–2:30",
+        "pistas": 4226938
+      },
+      {
+        "orden": 6,
+        "banda": "2:30–3:00",
+        "pistas": 6261282
+      },
+      {
+        "orden": 7,
+        "banda": "3:00–3:30",
+        "pistas": 7863331
+      },
+      {
+        "orden": 8,
+        "banda": "3:30–4:00",
+        "pistas": 7706742
+      },
+      {
+        "orden": 9,
+        "banda": "4:00–4:30",
+        "pistas": 6082591
+      },
+      {
+        "orden": 10,
+        "banda": "4:30–5:00",
+        "pistas": 4247436
+      },
+      {
+        "orden": 11,
+        "banda": "5:00–5:30",
+        "pistas": 2886543
+      },
+      {
+        "orden": 12,
+        "banda": "5:30–6:00",
+        "pistas": 1987973
+      },
+      {
+        "orden": 13,
+        "banda": "6:00–6:30",
+        "pistas": 1461583
+      },
+      {
+        "orden": 14,
+        "banda": "6:30–7:00",
+        "pistas": 1089042
+      },
+      {
+        "orden": 15,
+        "banda": "7:00–7:30",
+        "pistas": 825804
+      },
+      {
+        "orden": 16,
+        "banda": "7:30–8:00",
+        "pistas": 615990
+      },
+      {
+        "orden": 17,
+        "banda": "8:00–8:30",
+        "pistas": 461171
+      },
+      {
+        "orden": 18,
+        "banda": "8:30–9:00",
+        "pistas": 338904
+      },
+      {
+        "orden": 19,
+        "banda": "9:00–9:30",
+        "pistas": 259782
+      },
+      {
+        "orden": 20,
+        "banda": "9:30–10:00",
+        "pistas": 211975
+      },
+      {
+        "orden": 21,
+        "banda": "10:00+",
+        "pistas": 1453168
+      }
+    ],
+    "total": 54468610,
+    "mediana_banda": "3:30–4:00",
+    "moda_banda": "3:00–3:30",
+    "moda_pct": 0.14436445137850956,
+    "media_min": 4.231949605619641,
+    "mayor_10_pct": 0.026678999151988642,
+    "dos_mayores_pct": 0.28585405428925026
+  },
+  "pearson": [
+    {
+      "inicio": 1950,
+      "fin": 2025,
+      "r": 0.9171635212916168,
+      "pendiente_s": 1.0846972237984194,
+      "n": 76
+    },
+    {
+      "inicio": 1990,
+      "fin": 2025,
+      "r": 0.8581911627581679,
+      "pendiente_s": 0.6605884394724059,
+      "n": 36
+    },
+    {
+      "inicio": 2013,
+      "fin": 2025,
+      "r": -0.3432852055440878,
+      "pendiente_s": -0.30932717636934,
+      "n": 13
+    }
+  ],
+  "emergentes": {
+    "total": 47764,
+    "isrc_100": 5984
+  },
+  "especiales": {
+    "lanzamientos_sin_fecha": 311754,
+    "pistas_sin_fecha": 4475092,
+    "pistas_fecha_futura": 2716,
+    "pistas_sin_geografia": 1453024,
+    "lanzamientos_worldwide": 2098419,
+    "afganistan_lanzamientos": 104,
+    "afganistan_pistas": 879
+  },
+  "ejemplo_grano": {
+    "lanzamiento_id": 1438346,
+    "pistas": 33,
+    "duracion_ms": 7491000,
+    "cuenta_lanzamiento": 1,
+    "pistas_isrc": 28,
+    "fecha_key": 20061205,
+    "soportes": 3
+  },
+  "calidad_log": [
+    {
+      "severidad": "INFO",
+      "estado": "INFO",
+      "reglas": 10
+    },
+    {
+      "severidad": "ERROR",
+      "estado": "PASS",
+      "reglas": 116
+    }
+  ],
+  "reglas_grupos": [
+    {
+      "grupo": "I01",
+      "reglas": 1
+    },
+    {
+      "grupo": "I02",
+      "reglas": 1
+    },
+    {
+      "grupo": "I03",
+      "reglas": 1
+    },
+    {
+      "grupo": "I04",
+      "reglas": 1
+    },
+    {
+      "grupo": "I05",
+      "reglas": 1
+    },
+    {
+      "grupo": "I06",
+      "reglas": 5
+    },
+    {
+      "grupo": "S01",
+      "reglas": 11
+    },
+    {
+      "grupo": "S02",
+      "reglas": 11
+    },
+    {
+      "grupo": "V01",
+      "reglas": 22
+    },
+    {
+      "grupo": "V02",
+      "reglas": 3
+    },
+    {
+      "grupo": "V03",
+      "reglas": 14
+    },
+    {
+      "grupo": "V04",
+      "reglas": 17
+    },
+    {
+      "grupo": "V05",
+      "reglas": 6
+    },
+    {
+      "grupo": "V06",
+      "reglas": 2
+    },
+    {
+      "grupo": "V07",
+      "reglas": 1
+    },
+    {
+      "grupo": "V08",
+      "reglas": 8
+    },
+    {
+      "grupo": "V09",
+      "reglas": 6
+    },
+    {
+      "grupo": "V10",
+      "reglas": 6
+    },
+    {
+      "grupo": "V11",
+      "reglas": 6
+    },
+    {
+      "grupo": "V12",
+      "reglas": 3
+    }
+  ],
+  "prueba_capacidad": [
+    {
+      "etapa": "bronze.release_unknown_country",
+      "segundos": 20.262012243270874,
+      "filas": 489710
+    },
+    {
+      "etapa": "bronze.release_country",
+      "segundos": 6.892467260360718,
+      "filas": 13360406
+    },
+    {
+      "etapa": "bronze.artist_credit_name",
+      "segundos": 6.470816373825073,
+      "filas": 7364652
+    },
+    {
+      "etapa": "bronze.isrc",
+      "segundos": 5.766193151473999,
+      "filas": 6579238
+    },
+    {
+      "etapa": "bronze.artist",
+      "segundos": 5.8032543659210205,
+      "filas": 3032671
+    },
+    {
+      "etapa": "bronze.medium",
+      "segundos": 5.6024932861328125,
+      "filas": 6474432
+    },
+    {
+      "etapa": "bronze.release",
+      "segundos": 7.136085033416748,
+      "filas": 5903902
+    },
+    {
+      "etapa": "bronze.recording",
+      "segundos": 19.721162796020508,
+      "filas": 40826836
+    },
+    {
+      "etapa": "bronze.track",
+      "segundos": 32.002997398376465,
+      "filas": 58809976
+    },
+    {
+      "etapa": "gold.spike_fact_pista",
+      "segundos": 92.69515800476074,
+      "filas": 58809976
+    },
+    {
+      "etapa": "checks.fact",
+      "segundos": 4.657482147216797,
+      "filas": 58809976
+    },
+    {
+      "etapa": "query.year_format",
+      "segundos": 1.5520610809326172,
+      "filas": 3230
+    }
+  ],
+  "corridas": {
+    "completa": {
+      "run_id": "1040003573052070",
+      "segundos": 633,
+      "estado": "SUCCESS",
+      "tareas": [
+        {
+          "tarea": "bronze",
+          "segundos": 51,
+          "estado": "SUCCESS"
+        },
+        {
+          "tarea": "silver",
+          "segundos": 178,
+          "estado": "SUCCESS"
+        },
+        {
+          "tarea": "validacion",
+          "segundos": 153,
+          "estado": "SUCCESS"
+        },
+        {
+          "tarea": "gold_dimensiones",
+          "segundos": 47,
+          "estado": "SUCCESS"
+        },
+        {
+          "tarea": "gold_agregados",
+          "segundos": 54,
+          "estado": "SUCCESS"
+        },
+        {
+          "tarea": "gold_fact_pista",
+          "segundos": 112,
+          "estado": "SUCCESS"
+        },
+        {
+          "tarea": "pruebas",
+          "segundos": 16,
+          "estado": "SUCCESS"
+        }
+      ]
+    },
+    "final": {
+      "run_id": "853384881134750",
+      "segundos": 550,
+      "estado": "SUCCESS",
+      "tareas": [
+        {
+          "tarea": "validacion",
+          "segundos": 287,
+          "estado": "SUCCESS"
+        },
+        {
+          "tarea": "gold_agregados",
+          "segundos": 56,
+          "estado": "SUCCESS"
+        },
+        {
+          "tarea": "gold_fact_pista",
+          "segundos": 135,
+          "estado": "SUCCESS"
+        },
+        {
+          "tarea": "pruebas",
+          "segundos": 59,
+          "estado": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "cruce_digital": 2011,
+  "ultimo_anio": {
+    "anio": 2025,
+    "digital": 0.9074537444933921,
+    "optico": 0.06394126284875183,
+    "vinilo": 0.018220264317180615,
+    "magnetico": 0.0026784140969162997,
+    "lanzamientos": 255375
+  },
+  "carga_anterior": {
+    "pistas": 15000000,
+    "lanzamientos": 1728603,
+    "soportes": 1882045,
+    "filas_hecho": 2967681,
+    "silver_filas": 98641617,
+    "r_1950_2025": 0.89,
+    "r_2013_2025": -0.57,
+    "cruce_digital": 2012
+  },
+  "proceso": {
+    "pruebas_fixtures_verde": 26,
+    "caminos_evento": {
+      "pais_unico": 5148387,
+      "sin_pais": 487239,
+      "diez_o_mas": 45043,
+      "dos_a_nueve": 30706,
+      "worldwide_explicito": 3223
+    },
+    "afganistan_antes": {
+      "lanzamientos": 32206,
+      "pistas": 241780,
+      "artistas": 23640
+    },
+    "worldwide_antes": 2050347,
+    "pistas_movidas_area": 639777,
+    "filtros": {
+      "anio": {
+        "rango": "2000–2010",
+        "lanzamientos": 1169839,
+        "pistas": 15574369,
+        "artistas": 599256,
+        "isrc": "25,1 %"
+      },
+      "decada": {
+        "valor": "1980s",
+        "pistas_por_lanzamiento": "9,2",
+        "duracion_min": "4,07",
+        "largas": "17,0 %",
+        "horas": "132.202"
+      }
+    },
+    "almacen": {
+      "consulta_min_s": 1.3,
+      "consulta_max_s": 3.1
+    }
+  }
+}

@@ -7,3 +7,5 @@ requests
 tqdm
 reportlab
 python-pptx
+matplotlib
+Pillow
