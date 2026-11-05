@@ -504,7 +504,7 @@ async function construir() {
   // ---------------------------------------------------------------- Cierre
   seccion("Cierre");
   const s23 = diapositiva("Límites", "Lo que este trabajo no resuelve",
-    "Preferimos declarar los límites antes de que nos los pregunten. El dashboard no tiene el drill-down de Power BI y los Top no se recalculan con filtros. El reporte de Power BI todavía no está conectado a Databricks. Las fechas anteriores a 1900 pasan a sin fecha, y no medimos el beneficio del liquid clustering ni el consumo de cuota.");
+    "Preferimos declarar los límites antes de que nos los pregunten. El dashboard no tiene el drill-down de Power BI y los Top no se recalculan con filtros. El reporte de Power BI ya apunta a Databricks, pero falta comprobar la carga completa. Las fechas anteriores a 1900 pasan a sin fecha, y no medimos el beneficio del liquid clustering ni el consumo de cuota.");
   [
     ["Datos", C.accent2, ["Fechas anteriores a 1900 van a «sin fecha»", `${num(m.especiales.pistas_fecha_futura)} pistas con años futuros`, "Niveles de calidad y categorías: criterio propio"]],
     ["Dashboard", C.accent1, ["Sin drill-down ni filtrado por clic", "Top N no se recalcula con filtros", "Tablas sin separador de miles"]],
@@ -516,10 +516,10 @@ async function construir() {
     texto(s23, lista(items), x + 0.28, 2.55, 3.35, 3.0, { fontSize: 18 });
   });
   tarjeta(s23, 0.6, 5.9, 12.13, 0.8, C.accent5, "Estado de Power BI");
-  texto(s23, [{ text: "Power BI sigue conectado a PostgreSQL. ", options: { bold: true } }, { text: "El dashboard vigente con datos completos es AI/BI." }], 0.88, 5.9, 11.6, 0.8, { fontSize: 18, valign: "middle" });
+  texto(s23, [{ text: "Power BI ya apunta a Databricks, sin carga completa comprobada. ", options: { bold: true } }, { text: "El dashboard vigente con datos completos es AI/BI." }], 0.88, 5.9, 11.6, 0.8, { fontSize: 18, valign: "middle" });
 
   const s24 = diapositiva("Conclusiones", "Conclusiones y próximos pasos",
-    "Cerramos con lo esencial. El requisito está cumplido con datos reales y validados. Las nuevas cifras corrigen conclusiones anteriores. Y el proceso mostró que la validación de integridad no basta: hay que revisar el significado de los datos. Como siguiente paso, falta conectar Power BI a Databricks y medir lo que quedó pendiente.");
+    "Cerramos con lo esencial. El requisito está cumplido con datos reales y validados. Las nuevas cifras corrigen conclusiones anteriores. Y el proceso mostró que la validación de integridad no basta: hay que revisar el significado de los datos. Como siguiente paso, falta comprobar la carga completa en Power BI y medir lo que quedó pendiente.");
   texto(s24, "Conclusiones", 0.6, 1.72, 7.2, 0.45, { fontSize: 22, bold: true, fontFace: "Cambria" });
   const concl = [
     [fa.FaCheckCircle, C.accent3, `Requisito cumplido: ${num(T.pistas)} pistas reales`],
@@ -533,7 +533,7 @@ async function construir() {
   }
   tarjeta(s24, 8.15, 1.75, 4.58, 4.9, C.accent5, "Próximos pasos");
   texto(s24, "Próximos pasos", 8.45, 2.0, 4, 0.45, { fontSize: 22, bold: true, fontFace: "Cambria" });
-  texto(s24, lista(["Conectar Power BI a Databricks", "Medir PostgreSQL contra Spark", "Medir el liquid clustering", "Agregar drill-down al dashboard"], { paraSpaceAfter: 16 }), 8.45, 2.75, 4.0, 3.6, { fontSize: 20 });
+  texto(s24, lista(["Validar la carga en Power BI", "Medir PostgreSQL contra Spark", "Medir el liquid clustering", "Agregar drill-down al dashboard"], { paraSpaceAfter: 16 }), 8.45, 2.75, 4.0, 3.6, { fontSize: 20 });
 
   await pres.writeFile({ fileName: SALIDA });
   if (process.env.PPTX_APPLY_THEME) {

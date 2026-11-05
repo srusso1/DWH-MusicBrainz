@@ -365,7 +365,7 @@ def historia(m):
     h += decision(9, "Visualización", "Dashboard AI/BI, conservando Power BI",
                   f"AI/BI corre sobre el warehouse y evita importar {fmt_mill(G['fact_produccion_musical'])} de filas a un equipo con 13,8 GB de RAM. Power BI se conserva porque ofrece drill-down y clic para filtrar.",
                   [
-                      ["Solo Power BI", "Riesgo de memoria sin comprobar y el reporte aún apunta a PostgreSQL. Conexión comprobada solo con 12 filas."],
+                      ["Solo Power BI", "Riesgo de memoria sin comprobar. El reporte ya apunta a Databricks, pero la conexión solo se comprobó con 12 filas."],
                       ["Solo AI/BI", "Se pierde el drill-down exigido en RF03 y el trabajo DAX existente."],
                   ],
                   "Dos herramientas que mantener. AI/BI no tiene drill-down, y Top N no se recalcula con filtros.",
@@ -484,7 +484,7 @@ def historia(m):
         ["Datos", "Categoría de formato según criterio propio", "Afecta la lectura de digital frente a físico"],
         ["Datos", "Fila 0 de dim_lanzamiento con 770 lanzamientos reales", "No es un desconocido puro"],
         ["Datos", "Regla de 10 países definida por el proyecto", "Otro umbral movería lanzamientos"],
-        ["Power BI", "El reporte sigue conectado a PostgreSQL", "No muestra las cifras nuevas"],
+        ["Power BI", "El reporte ya apunta a Databricks, sin carga completa comprobada", "Mostrará las cifras nuevas solo tras actualizarlo"],
         ["Power BI", "Importar 11,5 M de filas no se probó", "Riesgo de memoria en el equipo"],
         ["Rendimiento", "Sin comparación entre motores", "No se puede afirmar que Spark sea más rápido aquí"],
         ["Rendimiento", "Beneficio del liquid clustering sin medir", "No se le pueden atribuir los tiempos"],
@@ -499,7 +499,7 @@ def historia(m):
         ("Preguntas difíciles", [
             ("¿Por qué Spark si 58 M de filas caben en una sola máquina?", "Porque el objetivo del proyecto era trabajar con procesamiento distribuido y arquitectura lakehouse. Es cierto que un motor de un nodo como DuckDB probablemente alcanzaría. Spark no se eligió por necesidad de volumen."),
             ("¿Por qué no hicieron un benchmark real?", "Porque la prioridad fue cumplir el requisito y validar los datos. Solo medimos que el proceso termina y cuánto tarda. No afirmamos que Spark sea más rápido que PostgreSQL. Es trabajo futuro."),
-            ("¿Por qué dos dashboards?", f"AI/BI corre en la nube y evita importar {fmt_mill(G['fact_produccion_musical'])} de filas a un equipo limitado. Power BI conserva el drill-down. Hoy el vigente es AI/BI; Power BI aún no está reconectado."),
+            ("¿Por qué dos dashboards?", f"AI/BI corre en la nube y evita importar {fmt_mill(G['fact_produccion_musical'])} de filas a un equipo limitado. Power BI conserva el drill-down. Hoy el vigente es AI/BI; Power BI ya apunta a Databricks, pero falta comprobar su carga completa."),
             ("Si Python no era lento, ¿qué ganaron?", "Dejamos un motor de un nodo con disco limitado y pasamos a uno distribuido administrado, con historial, catálogo y orquestación. La ganancia demostrada es funcional, no de velocidad comparada."),
             ("¿Cuánto cuesta esto en producción?", "No lo sabemos. Free Edition no sirve para uso comercial y no medimos la cuota consumida."),
             ("¿Sus reglas garantizan que los datos están bien?", "No. Garantizan lo que comprueban. Dos errores pasaron las primeras reglas; por eso también revisamos resultados."),
@@ -552,7 +552,8 @@ def historia(m):
         ["databricks/pipeline/", "Pipeline, pruebas, validación y definición del job"],
         ["databricks/dashboards/", "Definición del dashboard AI/BI"],
         ["databricks/spikes/", "Prueba de capacidad descartable"],
-        ["etl/, sql/, powerbi/", "Entrega anterior sobre PostgreSQL"],
+        ["etl/, sql/", "Entrega anterior sobre PostgreSQL"],
+        ["powerbi/", "Reporte de Power BI, ya apuntado a Databricks"],
         ["scripts/generar_metricas_databricks.py", "Consulta cifras y genera docs/build/metricas_databricks.json"],
         ["scripts/build_*.py y build_sustentacion_v4.js", "Generan la presentación y los PDF"],
     ], [7.5, 9.4], primera_negrita=True))
