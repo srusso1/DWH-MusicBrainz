@@ -763,7 +763,7 @@
                     "mappings": [
                       {
                         "value": "Digital / Streaming",
-                        "color": "#1F5FA8"
+                        "color": "#2A6BBF"
                       },
                       {
                         "value": "Físico / Óptico",
@@ -779,11 +779,11 @@
                       },
                       {
                         "value": "Otros Formatos",
-                        "color": "#9AA5B1"
+                        "color": "#A3ACB7"
                       },
                       {
                         "value": "Desconocido",
-                        "color": "#D5DAE1"
+                        "color": "#6F7A87"
                       }
                     ]
                   }
@@ -878,6 +878,21 @@
                   "axis": {
                     "title": "Cuota de lanzamientos"
                   }
+                },
+                "color": {
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Digital",
+                        "color": "#2A6BBF"
+                      },
+                      {
+                        "value": "Óptico (CD/DVD)",
+                        "color": "#C2691A"
+                      }
+                    ]
+                  }
                 }
               },
               "mark": {
@@ -960,43 +975,43 @@
                     "mappings": [
                       {
                         "value": "United States",
-                        "color": "#1F5FA8"
+                        "color": "#2A6BBF"
                       },
                       {
                         "value": "United Kingdom",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Japan",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Germany",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "France",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Netherlands",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Canada",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Italy",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Australia",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Spain",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       }
                     ]
                   },
@@ -1069,31 +1084,31 @@
                     "mappings": [
                       {
                         "value": "Persona / Solista",
-                        "color": "#1F5FA8"
+                        "color": "#2A6BBF"
                       },
                       {
                         "value": "Grupo / Banda",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "No Clasificado",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Otro",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Personaje Ficticio",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Orquesta",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Coro",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       }
                     ]
                   },
@@ -1174,35 +1189,35 @@
                     "mappings": [
                       {
                         "value": "English",
-                        "color": "#1F5FA8"
+                        "color": "#2A6BBF"
                       },
                       {
                         "value": "Japanese",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "[Multiple languages]",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Spanish",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "German",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "French",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Russian",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Italian",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       }
                     ]
                   },
@@ -1785,87 +1800,87 @@
                     "mappings": [
                       {
                         "value": "00:00–00:30",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "00:30–01:00",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "01:00–01:30",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "01:30–02:00",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "02:00–02:30",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "02:30–03:00",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "03:00–03:30",
-                        "color": "#1F5FA8"
+                        "color": "#2A6BBF"
                       },
                       {
                         "value": "03:30–04:00",
-                        "color": "#1F5FA8"
+                        "color": "#2A6BBF"
                       },
                       {
                         "value": "04:00–04:30",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "04:30–05:00",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "05:00–05:30",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "05:30–06:00",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "06:00–06:30",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "06:30–07:00",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "07:00–07:30",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "07:30–08:00",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "08:00–08:30",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "08:30–09:00",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "09:00–09:30",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "09:30–10:00",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "10:00+",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       }
                     ]
                   },
@@ -1949,27 +1964,27 @@
                     "mappings": [
                       {
                         "value": "Digital / Streaming",
-                        "color": "#6E97C8"
+                        "color": "#2A6BBF"
                       },
                       {
                         "value": "Físico / Óptico",
-                        "color": "#DDA56F"
+                        "color": "#C2691A"
                       },
                       {
                         "value": "Físico / Vinilo",
-                        "color": "#6FC2B6"
+                        "color": "#08A08C"
                       },
                       {
                         "value": "Físico / Magnético",
-                        "color": "#AC9AD2"
+                        "color": "#8064B5"
                       },
                       {
                         "value": "Otros Formatos",
-                        "color": "#BCC4CD"
+                        "color": "#A3ACB7"
                       },
                       {
                         "value": "Desconocido",
-                        "color": "#E3E7EC"
+                        "color": "#6F7A87"
                       }
                     ]
                   }
@@ -2166,123 +2181,123 @@
                     "mappings": [
                       {
                         "value": "United States",
-                        "color": "#1F5FA8"
+                        "color": "#2A6BBF"
                       },
                       {
                         "value": "United Kingdom",
-                        "color": "#1F5FA8"
+                        "color": "#2A6BBF"
                       },
                       {
                         "value": "Japan",
-                        "color": "#1F5FA8"
+                        "color": "#2A6BBF"
                       },
                       {
                         "value": "Germany",
-                        "color": "#1F5FA8"
+                        "color": "#2A6BBF"
                       },
                       {
                         "value": "France",
-                        "color": "#1F5FA8"
+                        "color": "#2A6BBF"
                       },
                       {
                         "value": "Netherlands",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Canada",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Italy",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Australia",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Spain",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Sweden",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Brazil",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Russia",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Finland",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Belgium",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "South Korea",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Poland",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Mexico",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Austria",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Norway",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Denmark",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Argentina",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "India",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Switzerland",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Greece",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Israel",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Türkiye",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Czechia",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Portugal",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Hungary",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       }
                     ]
                   },
@@ -2894,11 +2909,11 @@
                     "mappings": [
                       {
                         "value": "Siglo XX",
-                        "color": "#A9BDD3"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Siglo XXI",
-                        "color": "#1F5FA8"
+                        "color": "#2A6BBF"
                       }
                     ]
                   }
@@ -3040,19 +3055,19 @@
                     "mappings": [
                       {
                         "value": "Q1",
-                        "color": "#1F5FA8"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Q2",
-                        "color": "#A9BDD3"
+                        "color": "#6F8AA6"
                       },
                       {
                         "value": "Q3",
-                        "color": "#1F5FA8"
+                        "color": "#8EA3BA"
                       },
                       {
                         "value": "Q4",
-                        "color": "#A9BDD3"
+                        "color": "#6F8AA6"
                       }
                     ]
                   },
@@ -3136,11 +3151,11 @@
                     "mappings": [
                       {
                         "value": "País",
-                        "color": "#1F5FA8"
+                        "color": "#2A6BBF"
                       },
                       {
                         "value": "Otro / No Clasificado",
-                        "color": "#9AA5B1"
+                        "color": "#A3ACB7"
                       }
                     ]
                   }
@@ -3231,6 +3246,21 @@
                     "sort": {
                       "by": "x-reversed"
                     }
+                  }
+                },
+                "color": {
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Pistas por lanzamiento",
+                        "color": "#2A6BBF"
+                      },
+                      {
+                        "value": "Pistas por soporte",
+                        "color": "#8EA3BA"
+                      }
+                    ]
                   }
                 }
               },
@@ -3337,8 +3367,9 @@
                     "colorRamp": {
                       "mode": "custom",
                       "colors": [
-                        "#E6EEF7",
-                        "#1F5FA8"
+                        "#E3ECF7",
+                        "#7FA6D6",
+                        "#1F4F8F"
                       ]
                     }
                   },
