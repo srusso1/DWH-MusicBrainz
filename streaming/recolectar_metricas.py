@@ -14,6 +14,11 @@ import os
 import sys
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+# Same credentials Docker Compose reads for the postgres container.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+
 
 def offsets_topico(bootstrap: str, topico: str) -> dict:
     from confluent_kafka import Consumer, TopicPartition

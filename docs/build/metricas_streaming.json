@@ -1,12 +1,110 @@
 {
-  "ejecutado": false,
-  "timestamp": "2026-11-17T22:45:00Z",
-  "motivo": "Docker Desktop no pudo iniciar en esta maquina: el backend (com.docker.backend.exe 4.88.1) se cierra al arrancar con el error 'initializing Ingest server: remove C:/Users/JUAN/AppData/Local/Docker/run/sailor-ingest.sock: The file cannot be accessed by the system'. Sin daemon de Docker no fue posible levantar Kafka, Spark ni PostgreSQL, por lo que no hay metricas de la corrida extremo a extremo ni de la prueba de reinicio.",
-  "verificado_sin_docker": {
-    "pruebas_python_puro": "41 aprobadas (python -m pytest tests/streaming, Python 3.13; la prueba Spark se omite por falta de PySpark)",
-    "pruebas_con_spark_local": "46 aprobadas (incluye 5 pruebas con PySpark 3.5.3 en modo batch, Python 3.11 + Java 8) sobre el fixture real: 299 validos, 5 a la DLQ con sus motivos, suma de lanzamientos en ventanas = 299",
-    "fixture": "299 lanzamientos reales capturados de la API WS2 + 5 lineas de inyeccion de fallas",
-    "deduplicacion_en_captura_api": "1 MBID repetido entre paginas descartado"
+  "ejecutado": true,
+  "timestamp": "2026-11-17T23:30:33+00:00",
+  "fuente_eventos": "streaming/fixtures/lanzamientos_muestra.jsonl (299 lanzamientos reales de la API WS2 de MusicBrainz + 5 lineas de inyeccion de fallas)",
+  "productor": {
+    "corridas": [
+      {
+        "producidos": 304,
+        "entregados": 304,
+        "fallidos": 0,
+        "por_particion": {
+          "0": 111,
+          "1": 99,
+          "2": 94
+        },
+        "errores": {},
+        "topico": "musicbrainz.lanzamientos",
+        "fuente": "archivo",
+        "duplicados_descartados": 0,
+        "duracion_s": 31.45
+      }
+    ],
+    "eventos_producidos": 304,
+    "eventos_entregados": 304,
+    "entregas_fallidas": 0
   },
-  "como_generar": "bash streaming/demo.sh (sobrescribe este archivo con metricas reales)"
+  "kafka": {
+    "musicbrainz.lanzamientos": {
+      "particiones": 3,
+      "mensajes_por_particion": {
+        "0": 111,
+        "1": 99,
+        "2": 94
+      },
+      "mensajes_total": 304
+    },
+    "musicbrainz.lanzamientos.dlq": {
+      "particiones": 1,
+      "mensajes_por_particion": {
+        "0": 5
+      },
+      "mensajes_total": 5
+    }
+  },
+  "postgres": {
+    "filas_lanzamientos_evento": 299,
+    "mbid_distintos": 299,
+    "suma_versiones": 299,
+    "filas_lanzamientos_ventana": 71,
+    "suma_lanzamientos_en_ventanas": 299,
+    "suma_pistas_en_ventanas": 2641,
+    "lotes_aplicados_por_consulta": {
+      "eventos": 4,
+      "ventanas": 4
+    },
+    "latencia_extremo_a_extremo_s": {
+      "promedio": 38.19,
+      "p50": 39.8,
+      "maximo": 52.34
+    },
+    "top5_pais_formato": [
+      {
+        "pais": "XW",
+        "formato": "Digital Media",
+        "lanzamientos": 120
+      },
+      {
+        "pais": "US",
+        "formato": "CD",
+        "lanzamientos": 19
+      },
+      {
+        "pais": "XW",
+        "formato": "CD",
+        "lanzamientos": 18
+      },
+      {
+        "pais": "DE",
+        "formato": "CD",
+        "lanzamientos": 12
+      },
+      {
+        "pais": "RU",
+        "formato": "CD",
+        "lanzamientos": 7
+      }
+    ]
+  },
+  "bronze": {
+    "filas": 299,
+    "mbid_distintos": 299,
+    "particiones": [
+      "2026-11-17"
+    ]
+  },
+  "prueba_reinicio": {
+    "ejecutada": true,
+    "metodo": "docker kill (SIGKILL) del contenedor Spark a los 12 s de iniciado el productor",
+    "filas_postgres_al_matar": 29,
+    "filas_postgres_final": 299,
+    "esperadas": 299,
+    "duplicados_mbid": 0,
+    "lotes_reejecutados_omitidos_por_control": 0,
+    "segundos_desde_kill_hasta_drenado": 81,
+    "resultado": "ok"
+  },
+  "consumidos_validos": 299,
+  "enviados_dlq": 5,
+  "sin_duplicados": true
 }

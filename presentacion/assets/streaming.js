@@ -18,10 +18,10 @@
   };
 
   const items = [
-    [pick("eventos_producidos", "producidos", "productor.enviados"), "eventos publicados en Kafka"],
-    [pick("eventos_validos", "consumidos_validos", "consumidor.validos"), "eventos válidos procesados por Spark"],
-    [pick("eventos_dlq", "enviados_dlq", "dlq"), "eventos inválidos enviados a la DLQ"],
-    [pick("filas_postgres", "postgres.lanzamientos_evento", "filas_evento"), "filas en PostgreSQL tras el reinicio"],
+    [pick("productor.eventos_entregados", "eventos_producidos"), "eventos publicados en Kafka, 0 fallidos"],
+    [pick("consumidos_validos"), "eventos válidos procesados por Spark"],
+    [pick("enviados_dlq"), "eventos inválidos enviados a la DLQ"],
+    [pick("postgres.filas_lanzamientos_evento"), "filas en PostgreSQL tras matar Spark, 0 duplicados"],
   ];
 
   document.querySelectorAll("[data-stream-stats]").forEach((box) => {
@@ -30,10 +30,15 @@
       .join("");
   });
 
-  const restart = pick("prueba_reinicio.resultado", "reinicio.resultado", "prueba_reinicio");
+  const R = S.prueba_reinicio || {};
+  const lat = (S.postgres && S.postgres.latencia_extremo_a_extremo_s) || {};
+  const fecha = (S.timestamp || "").slice(0, 10);
   const note = S.ejecutado
-    ? `<b class="ok">Demo ejecutada</b> el ${S.generado_utc || S.timestamp || "día de la corrida"}. ` +
-      (restart ? `Prueba de reinicio del consumidor: ${typeof restart === "string" ? restart : "sin duplicados"}.` : "")
+    ? `<b class="ok">Demo ejecutada</b> el ${fecha}. ` +
+      (R.ejecutada
+        ? `Matamos Spark con SIGKILL a mitad del flujo con ${es(R.filas_postgres_al_matar)} filas escritas; al reiniciar desde el checkpoint terminó en ${es(R.filas_postgres_final)} de ${es(R.esperadas)} y ${es(R.duplicados_mbid)} duplicados. `
+        : "") +
+      (lat.p50 != null ? `Latencia mediana de punta a punta: ${String(lat.p50).replace(".", ",")} s, con micro-lotes cada 10 s.` : "")
     : `<b class="coral">Pendiente.</b> La demo aún no se ha ejecutado en este equipo${S.motivo ? `: ${S.motivo}` : ""}. Se corre con <code>streaming/demo.sh</code>.`;
   document.querySelectorAll("[data-stream-note]").forEach((el) => (el.innerHTML = note));
 })();
