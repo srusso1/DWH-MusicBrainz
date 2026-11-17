@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DWMusicBrainz · Presentaciones</title>
+<meta name="description" content="Presentaciones del proyecto DWMusicBrainz: sustentación completa y versión por criterios de la rúbrica.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #07090f; --text: #efe9de; --muted: #9aa3b2; --faint: #8189a0; --line: rgba(255,255,255,.1);
+    --gold: #d9b26f; --gold-2: #f3d79f; --teal: #57c7b5;
+    --ease: cubic-bezier(.22,1,.36,1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; background: var(--ink); color: var(--text); font-family: "Manrope", system-ui, sans-serif; }
+  body {
+    background:
+      radial-gradient(60% 50% at 85% 0%, rgba(217,178,111,.14), transparent 60%),
+      radial-gradient(50% 50% at 0% 100%, rgba(87,199,181,.1), transparent 60%),
+      var(--ink);
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: clamp(40px, 8vh, 96px) 16px 64px; }
+  .kicker { font: 600 13px/1 "JetBrains Mono", monospace; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); display: flex; gap: 12px; align-items: center; }
+  .kicker::before { content: ""; width: 34px; height: 1px; background: var(--gold); }
+  h1 { font-family: "Fraunces", serif; font-weight: 500; font-size: clamp(48px, 9vw, 112px); line-height: .95; letter-spacing: -.03em; margin: 22px 0 18px; }
+  h1 em { color: var(--gold-2); }
+  .lead { font-size: clamp(17px, 2vw, 21px); line-height: 1.55; color: var(--muted); max-width: 680px; }
+  .decks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 22px; margin-top: clamp(36px, 7vh, 72px); }
+  .deck-card {
+    position: relative; display: flex; flex-direction: column; gap: 14px; min-height: 300px; padding: 34px;
+    border: 1px solid var(--line); border-radius: 22px; text-decoration: none; color: inherit; overflow: hidden;
+    background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
+    transition: transform .4s var(--ease), border-color .4s var(--ease);
+    opacity: 0; transform: translateY(24px); animation: rise .9s var(--ease) forwards;
+  }
+  .deck-card:nth-child(2) { animation-delay: .12s; }
+  .deck-card:hover, .deck-card:focus-visible { transform: translateY(-4px); border-color: var(--gold); outline: none; }
+  .deck-card .tag { font: 600 12px "JetBrains Mono", monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--teal); }
+  .deck-card h2 { font-family: "Fraunces", serif; font-weight: 500; font-size: clamp(30px, 4vw, 42px); line-height: 1.05; }
+  .deck-card p { color: var(--muted); font-size: 17px; line-height: 1.55; }
+  .deck-card .meta { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font: 500 13px "JetBrains Mono", monospace; color: var(--faint); }
+  .deck-card .go { color: var(--gold); font-size: 15px; }
+  .ring { position: absolute; right: -90px; top: -90px; width: 240px; height: 240px; border-radius: 50%;
+    background: repeating-radial-gradient(circle, rgba(217,178,111,.16) 0 1px, transparent 1px 9px); opacity: .7; }
+  .keys { margin-top: 44px; display: flex; flex-wrap: wrap; gap: 10px 22px; color: var(--faint); font-size: 14px; }
+  kbd { font: 600 12px "JetBrains Mono", monospace; color: var(--text); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; padding: 3px 7px; margin-right: 6px; }
+  footer { margin-top: 56px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--faint); font-size: 14px; line-height: 1.6; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .deck-card { animation: none; opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="kicker">Bases de Datos Avanzadas · UPC · 2026</div>
+  <h1>DW<em>Music</em>Brainz</h1>
+  <p class="lead">Data Warehouse de 58,8 millones de pistas reales de MusicBrainz, con procesamiento por lotes en Spark y Delta Lake y una capa en tiempo real con Kafka y Spark Structured Streaming.</p>
+
+  <div class="decks">
+    <a class="deck-card" href="sustentacion.html">
+      <span class="ring" aria-hidden="true"></span>
+      <span class="tag">Versión completa</span>
+      <h2>Sustentación del proyecto</h2>
+      <p>El recorrido entero: problema, arquitectura, Spark y Kafka, proceso, calidad, resultados por requerimiento y límites.</p>
+      <div class="meta"><span>39 diapositivas · ~30 min</span><span class="go">Abrir →</span></div>
+    </a>
+    <a class="deck-card" href="rubrica.html">
+      <span class="ring" aria-hidden="true"></span>
+      <span class="tag">Por criterios</span>
+      <h2>Sustentación según la rúbrica</h2>
+      <p>Ordenada ítem por ítem: objetivos, metodología, arquitectura, herramientas, Apache Spark y Apache Kafka, con la evidencia de cada uno.</p>
+      <div class="meta"><span>31 diapositivas · ~20 min</span><span class="go">Abrir →</span></div>
+    </a>
+  </div>
+
+  <div class="keys">
+    <span><kbd>→</kbd><kbd>←</kbd>navegar</span>
+    <span><kbd>N</kbd>notas del orador</span>
+    <span><kbd>O</kbd>vista general</span>
+    <span><kbd>F</kbd>pantalla completa</span>
+    <span><kbd>Ctrl</kbd><kbd>P</kbd>exportar a PDF</span>
+  </div>
+
+  <footer>Juan Rincón · Sebastián Russo · Jesús Figueroa — Docente: Amilkar Sierra Romano. Las cifras se generan desde las métricas reales del pipeline con <code>scripts/build_presentacion_datos.py</code>.</footer>
+</main>
+</body>
+</html>

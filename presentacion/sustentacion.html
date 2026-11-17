@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DWMusicBrainz · Sustentación</title>
+<meta name="description" content="Sustentación del Data Warehouse DWMusicBrainz: 58,8 millones de pistas con Spark, Delta Lake y Kafka.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,700;1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/deck.css?v=3">
+</head>
+<body>
+<div class="atmos" aria-hidden="true"></div>
+
+<main class="viewport">
+<div class="deck" aria-live="polite">
+
+<!-- ============================ 01 · PORTADA ============================ -->
+<section class="slide cover center">
+  <div class="vinyl" aria-hidden="true"></div>
+  <div class="body">
+    <div class="kicker r" style="--i:0">Bases de Datos Avanzadas · UPC</div>
+    <h1 class="r" style="--i:1">DW<em>Music</em>Brainz</h1>
+    <p class="lead r mt" style="--i:2;max-width:720px">Un Data Warehouse de <b class="gold">58,8 millones de pistas</b> reales: lote con Spark y Delta Lake, tiempo real con Kafka y Spark Structured Streaming.</p>
+    <div class="wave r mt" style="--i:3" aria-hidden="true">
+      <i style="animation-delay:-.1s"></i><i style="animation-delay:-.5s"></i><i style="animation-delay:-.2s"></i><i style="animation-delay:-.8s"></i><i style="animation-delay:-.4s"></i><i style="animation-delay:-.9s"></i><i style="animation-delay:-.3s"></i><i style="animation-delay:-.6s"></i><i style="animation-delay:-.15s"></i><i style="animation-delay:-.7s"></i>
+    </div>
+    <div class="r mt" style="--i:4">
+      <p class="small muted">Juan Rincón · Sebastián Russo · Jesús Figueroa</p>
+      <p class="small muted">Docente: Amilkar Sierra Romano · Ingeniería de Sistemas · Valledupar, 2026</p>
+    </div>
+  </div>
+  <aside class="notes"><p>Presentamos DWMusicBrainz. El reto fue superar 50 millones de registros con datos reales y cubrir tanto procesamiento por lotes como en tiempo real. Usamos el catálogo completo de MusicBrainz.</p></aside>
+</section>
+
+<!-- ============================ 02 · AGENDA ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Recorrido</div>
+    <h2 class="r" style="--i:1">Qué vamos a ver hoy</h2>
+    <div class="grid g3 mt">
+      <div class="card r" style="--i:2"><div class="ico"><svg><use href="#i-target"/></svg></div><h3>01 · El problema</h3><p>Requisito, objetivos y por qué cambiamos de plataforma.</p></div>
+      <div class="card r" style="--i:3"><div class="ico t"><svg><use href="#i-layers"/></svg></div><h3>02 · Arquitectura</h3><p>Medallón, estrella de Kimball, lote y streaming.</p></div>
+      <div class="card r" style="--i:4"><div class="ico b"><svg><use href="#i-spark"/></svg></div><h3>03 · Spark y Kafka</h3><p>Cómo se procesan 58,8 M de filas y eventos en vivo.</p></div>
+      <div class="card r" style="--i:5"><div class="ico v"><svg><use href="#i-check"/></svg></div><h3>04 · Proceso y calidad</h3><p>Seis pasos, 116 reglas bloqueantes y errores corregidos.</p></div>
+      <div class="card r" style="--i:6"><div class="ico c"><svg><use href="#i-chart"/></svg></div><h3>05 · Resultados</h3><p>Lo que dicen los datos: formatos, duración, países, ISRC.</p></div>
+      <div class="card r" style="--i:7"><div class="ico"><svg><use href="#i-star"/></svg></div><h3>06 · Cierre</h3><p>Dashboard, límites honestos y próximos pasos.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>Agenda</span></div>
+  <aside class="notes"><p>Seis bloques. Primero el porqué, luego el cómo, después la evidencia y las conclusiones.</p></aside>
+</section>
+
+<!-- ============================ 03 · RESUMEN ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">La conclusión primero</div>
+    <h2 class="r" style="--i:1">El proyecto en <em>tres cifras</em></h2>
+    <div class="grid g3 mt">
+      <div class="card stat accent r-scale" style="--i:2"><div class="num" data-count="58.81" data-d="1" data-suffix=" M">0</div><div class="lbl">pistas en <code>fact_pista</code>, por encima de los 50 M exigidos</div></div>
+      <div class="card stat r-scale" style="--i:3"><div class="num" data-count="633" data-suffix=" s">0</div><div class="lbl">pipeline completo en Databricks: 10 min 33 s</div></div>
+      <div class="card stat r-scale" style="--i:4"><div class="num" data-count="116">0</div><div class="lbl">reglas bloqueantes de calidad, todas aprobadas</div></div>
+    </div>
+    <div class="card mt r" style="--i:5">
+      <p style="font-size:24px;color:var(--text)"><b class="gold">Mensaje central.</b> El mismo modelo en estrella procesa ahora el catálogo completo, con conteos conciliados contra el origen, y se complementa con una capa de streaming que recibe lanzamientos nuevos en tiempo real.</p>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>Resumen</span></div>
+  <aside class="notes"><p>Cumplimos el requisito con 58,8 millones de pistas reales, el pipeline completo tardó 633 segundos y las 116 reglas bloqueantes pasaron. El resto explica cómo llegamos y qué limitaciones tiene.</p></aside>
+</section>
+
+<!-- ============================ 04 · DIVISOR ============================ -->
+<section class="slide divider center">
+  <div class="body row" style="align-items:center;gap:60px">
+    <div class="num-big r-left">01</div>
+    <div>
+      <div class="kicker r" style="--i:1">Sección</div>
+      <h1 class="r" style="--i:2;font-size:84px">El <em>problema</em></h1>
+      <p class="lead r mt" style="--i:3">Un requisito de volumen, objetivos medibles y un cambio de plataforma.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 05 · OBJETIVOS ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Objetivos</div>
+    <h2 class="r" style="--i:1">Qué nos propusimos y cómo lo medimos</h2>
+    <div class="card accent r" style="--i:2">
+      <p style="font-size:23px;color:var(--text)"><b class="gold">Objetivo general.</b> Construir un Data Warehouse sobre el catálogo completo de MusicBrainz que integre procesamiento por lotes y en tiempo real, para analizar la producción musical por año, formato, país, idioma y artista.</p>
+    </div>
+    <table class="tbl mt">
+      <thead><tr><th>Objetivo específico</th><th>Meta medible</th><th>Resultado</th></tr></thead>
+      <tbody>
+        <tr class="r" style="--i:3"><td>Cargar el volcado completo en lote</td><td>&gt; 50 M de registros reales</td><td class="ok">58,8 M de pistas</td></tr>
+        <tr class="r" style="--i:4"><td>Modelar Medallón + estrella de Kimball</td><td>3 capas, grano declarado</td><td class="ok">3 hechos · 7 dimensiones</td></tr>
+        <tr class="r" style="--i:5"><td>Ingerir eventos en tiempo real</td><td>Kafka → Spark Streaming → BD</td><td class="ok">Capa de velocidad en Docker</td></tr>
+        <tr class="r" style="--i:6"><td>Garantizar la calidad del dato</td><td>0 reglas bloqueantes fallidas</td><td class="ok">116 de 116 aprobadas</td></tr>
+        <tr class="r" style="--i:7"><td>Responder RF01 a RF08</td><td>Dashboard con drill-down</td><td class="ok">3 páginas · AI/BI</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>01 · Problema</span></div>
+  <aside class="notes"><p>Cada objetivo tiene una meta verificable y el resultado está al lado. Así se puede auditar el cumplimiento en la misma diapositiva.</p></aside>
+</section>
+
+<!-- ============================ 06 · REQUISITO ============================ -->
+<section class="slide">
+  <div class="body row">
+    <div class="grow col">
+      <div class="kicker r">El requisito</div>
+      <h2 class="r" style="--i:1">De 15 M a <em>58,8 M</em> de pistas</h2>
+      <div class="chart-box r" style="--i:2"><canvas data-chart="requisito" aria-label="Pistas: carga anterior, requisito y volcado completo"></canvas></div>
+    </div>
+    <div class="col" style="width:520px;justify-content:center">
+      <div class="card f"><h3>Solo <code>track</code> tenía tope</h3><p>TARGET_ROWS dejaba 15 M de 58,8 M de pistas.</p></div>
+      <div class="card f"><h3>Silver ya era grande</h3><p>98,6 M de filas entre todas sus tablas.</p></div>
+      <div class="card f"><h3>El hecho estaba agregado</h3><p>2,97 M de filas por su grano diario, no por falta de datos.</p></div>
+      <div class="card f"><h3>Python solo orquestaba</h3><p>El trabajo pesado lo hacía PostgreSQL en un nodo.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>01 · Problema</span></div>
+  <aside class="notes"><p>Avanzar revela cada hallazgo. La revisión del proyecto corrigió dos ideas: solo track tenía tope y el hecho era pequeño por su grano, no por falta de datos.</p></aside>
+</section>
+
+<!-- ============================ 07 · PLATAFORMA ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">El cambio</div>
+    <h2 class="r" style="--i:1">Cambió la plataforma, <em>no el modelo</em></h2>
+    <table class="tbl">
+      <thead><tr><th>Función</th><th>Entrega anterior</th><th>Ahora</th></tr></thead>
+      <tbody>
+        <tr class="r" style="--i:2"><td>Plataforma</td><td>PostgreSQL local</td><td class="gold">Databricks Free Edition</td></tr>
+        <tr class="r" style="--i:3"><td>Motor</td><td>Un solo nodo</td><td class="gold">Apache Spark serverless</td></tr>
+        <tr class="r" style="--i:4"><td>Almacenamiento</td><td>Tablas PostgreSQL</td><td class="gold">Delta Lake + Unity Catalog</td></tr>
+        <tr class="r" style="--i:5"><td>Orquestación</td><td>Script de Python</td><td class="gold">Lakeflow Jobs</td></tr>
+        <tr class="r" style="--i:6"><td>Tiempo real</td><td>No existía</td><td class="gold">Kafka + Spark Structured Streaming</td></tr>
+        <tr class="r" style="--i:7"><td>Visualización</td><td>Power BI</td><td class="gold">Dashboard AI/BI en Databricks</td></tr>
+      </tbody>
+    </table>
+    <div class="row mt r" style="--i:8"><span class="pill ok"><span class="dot"></span>Se mantiene: Medallón, estrella de Kimball y RF01–RF08</span></div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>01 · Problema</span></div>
+  <aside class="notes"><p>Reemplazamos motor y almacenamiento y agregamos la capa en tiempo real. La entrega anterior sigue intacta en las carpetas etl y sql.</p></aside>
+</section>
+
+<!-- ============================ 08 · DIVISOR ============================ -->
+<section class="slide divider center">
+  <div class="body row" style="align-items:center;gap:60px">
+    <div class="num-big r-left">02</div>
+    <div>
+      <div class="kicker r" style="--i:1">Sección</div>
+      <h1 class="r" style="--i:2;font-size:84px"><em>Arquitectura</em></h1>
+      <p class="lead r mt" style="--i:3">Dos caminos que terminan en el mismo modelo: lote y tiempo real.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 09 · LAMBDA ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Vista general</div>
+    <h2 class="r" style="--i:1" >Arquitectura Lambda: <em>lote + velocidad</em></h2>
+    <div class="grow" data-diagram="lambda"></div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>02 · Arquitectura</span></div>
+  <aside class="notes"><p>Arriba, la capa batch: el volcado oficial pasa por Bronze, Silver y Gold en Databricks. Abajo, la capa de velocidad: un productor publica lanzamientos reales en Kafka, Spark Structured Streaming los valida, agrega en ventanas de un minuto y los escribe en PostgreSQL y en el lago. Los inválidos van a un tópico de errores.</p></aside>
+</section>
+
+<!-- ============================ 10 · MEDALLON ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Metodología</div>
+    <h2 class="r" style="--i:1">Medallón: cada capa tiene <em>una promesa</em></h2>
+    <div style="height:330px" data-diagram="medallion"></div>
+    <div class="grid g3 mt">
+      <div class="card r" style="--i:6"><div class="stat"><div class="num xs" data-m="conteos.silver_principales_total" data-fmt="mill" data-d="1">—</div><div class="lbl">filas en Bronze, iguales a Silver</div></div></div>
+      <div class="card r" style="--i:7"><div class="stat"><div class="num xs">0</div><div class="lbl">pistas perdidas entre volcado, Bronze, Silver y Gold</div></div></div>
+      <div class="card r" style="--i:8"><div class="stat"><div class="num xs">meta.*</div><div class="lbl"><code>etl_audit</code> y <code>data_quality_log</code> registran cada etapa</div></div></div>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>02 · Arquitectura</span></div>
+  <aside class="notes"><p>Bronze no transforma: si una regla de Silver cambia, reprocesamos desde Bronze sin volver a descargar. Silver aplica tipos y calidad. Gold es lo único que consume el negocio.</p></aside>
+</section>
+
+<!-- ============================ 11 · ESTRELLA ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Modelo dimensional · Kimball</div>
+    <h2 class="r" style="--i:1">Una estrella con <em>siete dimensiones</em></h2>
+    <div class="grow" data-diagram="star"></div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>02 · Arquitectura</span></div>
+  <aside class="notes"><p>El hecho solo tiene llaves enteras y métricas aditivas. Cada dimensión tiene una fila cero para el valor desconocido, así ningún join pierde filas.</p></aside>
+</section>
+
+<!-- ============================ 12 · GRANO ============================ -->
+<section class="slide">
+  <div class="body row">
+    <div class="grow col">
+      <div class="kicker r">Grano</div>
+      <h2 class="r" style="--i:1">Gold tiene <em>dos niveles</em> de grano</h2>
+      <div class="card accent r" style="--i:2"><div class="row" style="justify-content:space-between;align-items:baseline"><h3>fact_pista</h3><span class="mono gold" data-m="conteos.gold.fact_pista">—</span></div><p>Una fila por pista: el detalle atómico.</p></div>
+      <div class="card r" style="--i:3"><div class="row" style="justify-content:space-between;align-items:baseline"><h3>fact_produccion_musical</h3><span class="mono gold" data-m="conteos.gold.fact_produccion_musical">—</span></div><p>Día × artista × perfil × área × formato × idioma.</p></div>
+      <div class="card r" style="--i:4"><div class="row" style="justify-content:space-between;align-items:baseline"><h3>fact_distribucion_duracion</h3><span class="mono gold" data-m="conteos.gold.fact_distribucion_duracion">—</span></div><p>Año × formato × idioma × área × banda de duración.</p></div>
+    </div>
+    <div class="card glow-teal r-scale" style="--i:5;width:470px;align-self:center">
+      <div class="kicker" style="color:var(--teal)">Ejemplo real</div>
+      <h3>Lanzamiento <span data-m="ejemplo_grano.lanzamiento_id" data-fmt="raw">—</span> · Shakira</h3>
+      <ul class="list mt-s">
+        <li><b data-m="ejemplo_grano.pistas">—</b> pistas → <span data-m="ejemplo_grano.pistas">—</span> filas en fact_pista</li>
+        <li><b data-m="ejemplo_grano.soportes">—</b> soportes distintos</li>
+        <li>Solo <b>1</b> fila cuenta el lanzamiento</li>
+        <li><b data-m="ejemplo_grano.pistas_isrc">—</b> pistas con ISRC</li>
+      </ul>
+      <p class="small muted mt-s">Así la suma de lanzamientos nunca se duplica.</p>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>02 · Arquitectura</span></div>
+  <aside class="notes"><p>El requisito se cumple en fact_pista. Encima hay hechos agregados para que el dashboard responda rápido. La bandera de primera pista hace que lanzamientos y soportes sean aditivos.</p></aside>
+</section>
+
+<!-- ============================ 13 · TECNOLOGIAS ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Herramientas</div>
+    <h2 class="r" style="--i:1">Cada tecnología responde a <em>una necesidad</em></h2>
+    <div class="grid g4">
+      <div class="card r" style="--i:2"><div class="ico"><svg><use href="#i-cloud"/></svg></div><h3>Databricks</h3><p>Spark administrado sin operar un clúster.</p></div>
+      <div class="card r" style="--i:3"><div class="ico c"><svg><use href="#i-spark"/></svg></div><h3>Apache Spark</h3><p>PySpark, Spark SQL y Structured Streaming.</p></div>
+      <div class="card r" style="--i:4"><div class="ico t"><svg><use href="#i-kafka"/></svg></div><h3>Apache Kafka</h3><p>Bus de eventos durable, particionado y reproducible.</p></div>
+      <div class="card r" style="--i:5"><div class="ico b"><svg><use href="#i-history"/></svg></div><h3>Delta Lake</h3><p>ACID e historial: comparamos versiones con time travel.</p></div>
+      <div class="card r" style="--i:6"><div class="ico v"><svg><use href="#i-shield"/></svg></div><h3>Unity Catalog</h3><p>Gobierno de tablas y Volumes; DBFS está deprecado.</p></div>
+      <div class="card r" style="--i:7"><div class="ico"><svg><use href="#i-flow"/></svg></div><h3>Lakeflow Jobs</h3><p>DAG de 8 tareas sin servidor de orquestación.</p></div>
+      <div class="card r" style="--i:8"><div class="ico b"><svg><use href="#i-db"/></svg></div><h3>PostgreSQL 16</h3><p>Destino transaccional del streaming con UPSERT.</p></div>
+      <div class="card r" style="--i:9"><div class="ico t"><svg><use href="#i-chart"/></svg></div><h3>Dashboard AI/BI</h3><p>Consume Gold en la nube, sin importar datos.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>02 · Arquitectura</span></div>
+  <aside class="notes"><p>Ninguna herramienta está por moda: cada una cubre una necesidad. Kafka y PostgreSQL corren en Docker para la capa de tiempo real.</p></aside>
+</section>
+
+<!-- ============================ 14 · ALTERNATIVAS ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Decisión</div>
+    <h2 class="r" style="--i:1">Alternativas evaluadas</h2>
+    <table class="tbl">
+      <thead><tr><th>Alternativa</th><th>Por qué se descartó</th></tr></thead>
+      <tbody>
+        <tr class="r" style="--i:2"><td>PostgreSQL local</td><td>Un solo nodo, disco limitado y sin práctica distribuida</td></tr>
+        <tr class="r" style="--i:3"><td>Spark local</td><td>13,8 GB de RAM y Java 8: muy justo para este volumen</td></tr>
+        <tr class="r" style="--i:4"><td>DuckDB</td><td>Probablemente alcanza, pero no es procesamiento distribuido</td></tr>
+        <tr class="r" style="--i:5"><td>Snowflake · Redshift · Fabric</td><td>Pruebas temporales; BigQuery sandbox limita a 10 GB</td></tr>
+        <tr class="r" style="--i:6"><td>RabbitMQ · Kinesis</td><td>RabbitMQ no reproduce el historial; Kinesis exige cuenta de pago</td></tr>
+        <tr class="r" style="--i:7"><td>Hadoop y Hive</td><td>Exigen operar un clúster; ecosistema más pesado</td></tr>
+      </tbody>
+    </table>
+    <div class="card mt r" style="--i:8;border-color:rgba(231,131,107,.45)"><p style="color:var(--text)"><b class="coral">Aclaración honesta.</b> 58,8 M de filas no es un volumen extremo y no medimos PostgreSQL contra Spark con los mismos datos. Spark fue una decisión del proyecto, no una conclusión de rendimiento.</p></div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>02 · Arquitectura</span></div>
+  <aside class="notes"><p>Comparamos de forma cualitativa con documentación oficial; no hicimos benchmark. Preferimos decirlo antes de que nos lo pregunten.</p></aside>
+</section>
+
+<!-- ============================ 15 · DIVISOR ============================ -->
+<section class="slide divider center">
+  <div class="body row" style="align-items:center;gap:60px">
+    <div class="num-big r-left">03</div>
+    <div>
+      <div class="kicker r" style="--i:1">Sección</div>
+      <h1 class="r" style="--i:2;font-size:84px">Spark y <em>Kafka</em></h1>
+      <p class="lead r mt" style="--i:3">El motor de lote y el bus de eventos, en el código real.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 16 · SPARK LOTE ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Spark en lote</div>
+    <h2 class="r" style="--i:1">Un DAG de <em>ocho tareas</em> en Lakeflow</h2>
+    <div style="height:350px" data-diagram="batch"></div>
+    <div class="grid g3 mt">
+      <div class="card r" style="--i:10"><h3 class="gold">Broadcast joins</h3><p>Las dimensiones pequeñas viajan a cada ejecutor y evitan el shuffle.</p></div>
+      <div class="card r" style="--i:11"><h3 class="gold">min(struct)</h3><p>Primera pista por grupo sin ordenar cada partición con ROW_NUMBER.</p></div>
+      <div class="card r" style="--i:12"><h3 class="gold">Liquid clustering</h3><p><code>CLUSTER BY (fecha_key, artista_key)</code> en el hecho.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>03 · Spark y Kafka</span></div>
+  <aside class="notes"><p>Cada tarea es reanudable: si ya corrió para esta versión del volcado, se salta. Las tres optimizaciones están en el código de la capa Gold.</p></aside>
+</section>
+
+<!-- ============================ 17 · CODIGO SPARK ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Código real</div>
+    <h2 class="r" style="--i:1">Así se construye el hecho de <em>58,8 M</em> de filas</h2>
+    <div class="grid g2 grow">
+      <div class="code r" style="--i:2" data-file="databricks/pipeline/04_gold_fact_pista.py"><span class="c"># Dimensiones pequeñas: broadcast, sin shuffle</span>
+geografia = F.<span class="fn">broadcast</span>(gold(<span class="s">"dim_geografia"</span>))
+formatos  = F.<span class="fn">broadcast</span>(gold(<span class="s">"dim_formato"</span>))
+idiomas   = F.<span class="fn">broadcast</span>(gold(<span class="s">"dim_idioma"</span>))
+
+<span class="c"># Spark SQL + Delta con liquid clustering</span>
+spark.<span class="fn">sql</span>(
+  <span class="s">"CREATE OR REPLACE TABLE gold.fact_pista "</span>
+  <span class="s">"CLUSTER BY (fecha_key, artista_key) "</span>
+  <span class="s">"AS SELECT * FROM fact_pista_nueva"</span>)</div>
+      <div class="code r" style="--i:3" data-file="databricks/pipeline/lib/transformaciones.py"><span class="k">def</span> <span class="fn">_primera_pista</span>(base, grupo, orden, bandera):
+    <span class="c">"""min(struct) evita ordenar cada partición."""</span>
+    <span class="k">return</span> (
+        base.groupBy(grupo)
+        .agg(F.<span class="fn">min</span>(F.<span class="fn">struct</span>(*orden)).alias(<span class="s">"primera"</span>))
+        .select(F.col(<span class="s">"primera.track_id"</span>),
+                F.lit(<span class="n">1</span>).alias(bandera))
+    )</div>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>03 · Spark y Kafka</span></div>
+  <aside class="notes"><p>Combinamos la API de DataFrames con Spark SQL. La agregación con min(struct) es una sola pasada de groupBy; ROW_NUMBER necesitaría ordenar dentro de cada ventana.</p></aside>
+</section>
+
+<!-- ============================ 18 · STREAMING ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Tiempo real</div>
+    <h2 class="r" style="--i:1">Kafka → Spark Structured Streaming → <em>BD</em></h2>
+    <div class="grow" data-diagram="streaming"></div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>03 · Spark y Kafka</span></div>
+  <aside class="notes"><p>El productor publica cada lanzamiento con su MBID como clave, así todos los eventos de un lanzamiento caen en la misma partición y conservan el orden. Spark lee el tópico, valida con un esquema explícito, manda los inválidos a la DLQ y escribe con UPSERT en PostgreSQL.</p></aside>
+</section>
+
+<!-- ============================ 19 · TOLERANCIA ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Tolerancia a fallos</div>
+    <h2 class="r" style="--i:1">Si algo se cae, <em>nada se duplica</em></h2>
+    <div class="grid g3">
+      <div class="card r" style="--i:2"><div class="ico c"><svg><use href="#i-key"/></svg></div><h3>Productor idempotente</h3><p><code>acks=all</code> y <code>enable.idempotence</code>: un reintento no duplica mensajes.</p></div>
+      <div class="card r" style="--i:3"><div class="ico t"><svg><use href="#i-split"/></svg></div><h3>Clave por lanzamiento</h3><p>El MBID fija la partición y conserva el orden por lanzamiento.</p></div>
+      <div class="card r" style="--i:4"><div class="ico c"><svg><use href="#i-inbox"/></svg></div><h3>Dead letter queue</h3><p>Los eventos mal formados van a otro tópico con su motivo, sin detener el flujo.</p></div>
+      <div class="card r" style="--i:5"><div class="ico v"><svg><use href="#i-replay"/></svg></div><h3>Checkpoints</h3><p>Spark guarda offsets y estado: al reiniciar sigue donde quedó.</p></div>
+      <div class="card r" style="--i:6"><div class="ico b"><svg><use href="#i-db"/></svg></div><h3>UPSERT idempotente</h3><p><code>ON CONFLICT</code> hace que reprocesar un lote no duplique filas.</p></div>
+      <div class="card r" style="--i:7"><div class="ico"><svg><use href="#i-clock"/></svg></div><h3>Watermark</h3><p>Acepta eventos tardíos dentro del margen y libera el estado viejo.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>03 · Spark y Kafka</span></div>
+  <aside class="notes"><p>Las seis piezas juntas dan entrega efectiva exactamente una vez hacia PostgreSQL: Kafka puede reenviar, pero el destino es idempotente.</p></aside>
+</section>
+
+<!-- ============================ 20 · EVIDENCIA STREAMING ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Evidencia</div>
+    <h2 class="r" style="--i:1">La capa de velocidad, <em>ejecutada</em></h2>
+    <div class="grid g4" data-stream-stats></div>
+    <div class="card mt r" style="--i:6"><p data-stream-note style="color:var(--text)"></p></div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>03 · Spark y Kafka</span></div>
+  <aside class="notes"><p>Estas cifras salen de docs/build/metricas_streaming.json, generado por la corrida real de la demo. Incluye la prueba de reinicio del consumidor.</p></aside>
+</section>
+
+<!-- ============================ 21 · DIVISOR ============================ -->
+<section class="slide divider center">
+  <div class="body row" style="align-items:center;gap:60px">
+    <div class="num-big r-left">04</div>
+    <div>
+      <div class="kicker r" style="--i:1">Sección</div>
+      <h1 class="r" style="--i:2;font-size:84px">Proceso y <em>calidad</em></h1>
+      <p class="lead r mt" style="--i:3">Primero reducir el riesgo, después construir, al final validar.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 22 · SEIS PASOS ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Proceso</div>
+    <h2 class="r" style="--i:1">Del volcado a Gold en <em>seis pasos</em></h2>
+    <div class="grid g3">
+      <div class="card f"><div class="kicker">Paso 1</div><h3>Descarga</h3><p>SHA-256 correcto y 11 tablas extraídas.</p></div>
+      <div class="card f"><div class="kicker">Paso 2</div><h3>Carga</h3><p><code>track</code> dividida en 8 bloques por el límite de 5 GiB.</p></div>
+      <div class="card f"><div class="kicker">Paso 3</div><h3>Capacidad</h3><p>Prueba con todas las pistas antes de construir.</p></div>
+      <div class="card f"><div class="kicker">Paso 4</div><h3>Pipeline</h3><p>Bronze, Silver, Gold, validación y job.</p></div>
+      <div class="card f"><div class="kicker">Paso 5</div><h3>Correcciones</h3><p>Catálogos oficiales y desempate por país.</p></div>
+      <div class="card f"><div class="kicker">Paso 6</div><h3>Dashboard</h3><p>3 páginas AI/BI revisadas en el navegador.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>04 · Proceso</span></div>
+  <aside class="notes"><p>Avanzar revela cada paso. Medimos capacidad antes de escribir el pipeline para no descubrir un límite al final.</p></aside>
+</section>
+
+<!-- ============================ 23 · CAPACIDAD ============================ -->
+<section class="slide">
+  <div class="body row">
+    <div class="grow col">
+      <div class="kicker r">Capacidad</div>
+      <h2 class="r" style="--i:1">La prueba despejó <em>la duda principal</em></h2>
+      <div class="chart-box r" style="--i:2"><canvas data-chart="capacidad" aria-label="Segundos por etapa de la prueba de capacidad"></canvas></div>
+    </div>
+    <div class="col" style="width:420px;justify-content:center">
+      <div class="card stat accent r-scale" style="--i:3"><div class="num sm" data-m="totales.pistas">—</div><div class="lbl">pistas tras todos los joins, sin pérdidas</div></div>
+      <div class="card r-scale" style="--i:4;border-color:rgba(240,192,99,.4)"><h3 style="color:var(--warn)">Sin confirmar</h3><p>No se midió cuánta cuota diaria de Free Edition consumió la prueba.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>04 · Proceso</span></div>
+  <aside class="notes"><p>Probamos lo más riesgoso primero: construir el hecho con todas las pistas en Free Edition.</p></aside>
+</section>
+
+<!-- ============================ 24 · ORQUESTACION ============================ -->
+<section class="slide">
+  <div class="body row">
+    <div class="grow col">
+      <div class="kicker r">Orquestación</div>
+      <h2 class="r" style="--i:1">Pipeline completo en <em>10 min 33 s</em></h2>
+      <div class="chart-box r" style="--i:2"><canvas data-chart="orquestacion" aria-label="Segundos por tarea del job"></canvas></div>
+    </div>
+    <div class="col" style="width:420px;justify-content:center">
+      <div class="card stat accent r-scale" style="--i:3"><div class="num" data-count="633" data-suffix=" s">0</div><div class="lbl">duración total de la corrida</div></div>
+      <div class="card r-scale" style="--i:4"><h3>A tener en cuenta</h3><p>Bronze reutilizó 9 tablas de la prueba de capacidad; solo cargó <code>area</code> y <code>language</code>.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>04 · Proceso</span></div>
+  <aside class="notes"><p>La tarea de catálogos se agregó después de esta corrida. Cada tarea registra su resultado en meta.etl_audit.</p></aside>
+</section>
+
+<!-- ============================ 25 · VALIDACION ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Validación</div>
+    <h2 class="r" style="--i:1">Cómo se comprobó el resultado</h2>
+    <div class="grid g2">
+      <div class="card r" style="--i:2"><div class="row" style="align-items:center"><div class="ico"><svg><use href="#i-check"/></svg></div><div class="stat"><div class="num sm" data-count="26">0</div></div></div><p>pruebas con datos pequeños: primero en rojo, luego en verde.</p></div>
+      <div class="card r" style="--i:3"><div class="row" style="align-items:center"><div class="ico t"><svg><use href="#i-shield"/></svg></div><div class="stat"><div class="num sm" data-count="116">0</div></div></div><p>reglas bloqueantes aprobadas, entre Silver y la validación final.</p></div>
+      <div class="card r" style="--i:4"><div class="row" style="align-items:center"><div class="ico b"><svg><use href="#i-gauge"/></svg></div><div class="stat"><div class="num sm" data-m="totales.pistas">—</div></div></div><p>pistas iguales en volcado, Bronze, Silver y Gold.</p></div>
+      <div class="card r" style="--i:5"><div class="row" style="align-items:center"><div class="ico v"><svg><use href="#i-filter"/></svg></div><div class="stat"><div class="num sm">2 filtros</div></div></div><p>Año y Década del dashboard coinciden exactamente con SQL.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>04 · Calidad</span></div>
+  <aside class="notes"><p>Validamos en cuatro niveles: pruebas unitarias, reglas bloqueantes, conciliación de conteos y comparación del dashboard contra SQL.</p></aside>
+</section>
+
+<!-- ============================ 26 · ERRORES ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Gobierno del dato</div>
+    <h2 class="r" style="--i:1">Errores hallados y <em>corregidos</em></h2>
+    <table class="tbl">
+      <thead><tr><th>Error</th><th>Corrección</th><th>Se detectó por</th></tr></thead>
+      <tbody>
+        <tr class="r" style="--i:2"><td>Columnas de medium invertidas</td><td>Orden real del volcado</td><td>Inspección de archivos</td></tr>
+        <tr class="r hl" style="--i:3"><td>Etiquetas heredadas erróneas</td><td>Catálogos oficiales y regla V08</td><td class="coral">Inspección, no por reglas</td></tr>
+        <tr class="r hl" style="--i:4"><td>Desempate por menor ID de país</td><td>Regla nueva y validación V12</td><td class="coral">Inspección, no por reglas</td></tr>
+        <tr class="r" style="--i:5"><td>Límite de 5 GiB al subir track</td><td>8 bloques de 1 GB</td><td>Error de la CLI</td></tr>
+        <tr class="r" style="--i:6"><td>Año 0 en el filtro</td><td>Fila sin fecha fuera del rango</td><td>Revisión visual</td></tr>
+        <tr class="r" style="--i:7"><td>Resultados en caché</td><td>Actualización forzada</td><td>Revisión en el navegador</td></tr>
+      </tbody>
+    </table>
+    <p class="small muted mt r" style="--i:8">Las reglas iniciales revisaban integridad, no significado: por eso dos errores pasaron.</p>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>04 · Calidad</span></div>
+  <aside class="notes"><p>Lo importante es la última columna. Dos errores graves pasaron las validaciones iniciales; los detectamos inspeccionando resultados y después agregamos reglas bloqueantes.</p></aside>
+</section>
+
+<!-- ============================ 27 · AFGHANISTAN ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Caso de estudio</div>
+    <h2 class="r" style="--i:1">Afghanistan: un dato raro <em>era un error</em></h2>
+    <div class="row" style="align-items:stretch">
+      <div class="card stat r-scale" style="--i:2;flex:1;border-color:rgba(231,131,107,.45)"><div class="num" style="color:var(--coral)" data-m="proceso.afganistan_antes.lanzamientos">—</div><div class="lbl">lanzamientos antes</div></div>
+      <div class="r" style="--i:3;display:grid;place-items:center;font-size:60px;color:var(--gold)">→</div>
+      <div class="card stat accent r-scale" style="--i:4;flex:1"><div class="num" data-m="especiales.afganistan_lanzamientos">—</div><div class="lbl">lanzamientos después</div></div>
+      <div class="card r" style="--i:5;flex:1.3"><h3>Causa</h3><p>En cada empate de fecha entre países ganaba el menor ID, y Afghanistan es el 1.</p></div>
+    </div>
+    <table class="tbl mt">
+      <thead><tr><th>Países empatados</th><th>Regla nueva</th><th class="num-c">Lanzamientos</th></tr></thead>
+      <tbody>
+        <tr class="r" style="--i:6"><td>10 o más</td><td>Pasa a [Worldwide]</td><td class="num-c" data-m="proceso.caminos_evento.diez_o_mas">—</td></tr>
+        <tr class="r" style="--i:7"><td>2 a 9</td><td>País con más lanzamientos</td><td class="num-c" data-m="proceso.caminos_evento.dos_a_nueve">—</td></tr>
+        <tr class="r" style="--i:8"><td>[Worldwide] entre los empatados</td><td>Se conserva [Worldwide]</td><td class="num-c" data-m="proceso.caminos_evento.worldwide_explicito">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>04 · Calidad</span></div>
+  <aside class="notes"><p>Los totales no cambiaron: solo se reasignó el territorio. La regla V12 bloquea el job si vuelve a pasar.</p></aside>
+</section>
+
+<!-- ============================ 28 · DIVISOR ============================ -->
+<section class="slide divider center">
+  <div class="body row" style="align-items:center;gap:60px">
+    <div class="num-big r-left">05</div>
+    <div>
+      <div class="kicker r" style="--i:1">Sección</div>
+      <h1 class="r" style="--i:2;font-size:84px">Lo que dicen <em>los datos</em></h1>
+      <p class="lead r mt" style="--i:3">Con el catálogo completo, varias conclusiones anteriores cambiaron.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 29 · ANTES Y AHORA ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Resultados</div>
+    <h2 class="r" style="--i:1">Las cifras cambiaron con <em>todos los datos</em></h2>
+    <table class="tbl">
+      <thead><tr><th>Métrica</th><th class="num-c">Carga de 15 M</th><th class="num-c">Volcado completo</th></tr></thead>
+      <tbody>
+        <tr class="r" style="--i:2"><td>Pistas</td><td class="num-c" data-m="carga_anterior.pistas">—</td><td class="num-c gold" data-m="totales.pistas">—</td></tr>
+        <tr class="r" style="--i:3"><td>Lanzamientos</td><td class="num-c" data-m="carga_anterior.lanzamientos">—</td><td class="num-c gold" data-m="totales.lanzamientos">—</td></tr>
+        <tr class="r" style="--i:4"><td>Soportes</td><td class="num-c" data-m="carga_anterior.soportes">—</td><td class="num-c gold" data-m="totales.soportes">—</td></tr>
+        <tr class="r" style="--i:5"><td>Correlación año–duración 1950–2025</td><td class="num-c">+0,89</td><td class="num-c gold">+0,917</td></tr>
+        <tr class="r hl" style="--i:6"><td>Correlación año–duración 2013–2025</td><td class="num-c">−0,57</td><td class="num-c gold">−0,343</td></tr>
+        <tr class="r hl" style="--i:7"><td>Digital supera a óptico</td><td class="num-c" data-m="carga_anterior.cruce_digital" data-fmt="raw">—</td><td class="num-c gold" data-m="cruce_digital" data-fmt="raw">—</td></tr>
+      </tbody>
+    </table>
+    <p class="small muted mt r" style="--i:8">La carga de 15 M seguía el orden del archivo: no era una muestra aleatoria.</p>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>05 · Resultados</span></div>
+  <aside class="notes"><p>El cambio no es solo de escala: la correlación reciente se debilitó y el cruce digital se adelantó un año.</p></aside>
+</section>
+
+<!-- ============================ 30 · RF04 ============================ -->
+<section class="slide">
+  <div class="body row">
+    <div class="grow col">
+      <div class="kicker r">RF04 · Digital vs físico</div>
+      <h2 class="r" style="--i:1">Digital supera a óptico en <em data-m="cruce_digital" data-fmt="raw">—</em></h2>
+      <div class="chart-box r" style="--i:2"><canvas data-chart="digital_optico" aria-label="Cuota anual de digital, óptico y vinilo"></canvas></div>
+    </div>
+    <div class="col" style="width:360px;justify-content:center">
+      <div class="card stat accent r-scale" style="--i:3"><div class="num sm" data-m="ultimo_anio.digital" data-fmt="pct">—</div><div class="lbl">digital en 2025</div></div>
+      <div class="card stat r-scale" style="--i:4"><div class="num sm" data-m="ultimo_anio.optico" data-fmt="pct">—</div><div class="lbl">óptico en 2025</div></div>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>05 · Resultados</span></div>
+  <aside class="notes"><p>Óptico incluye CD, DVD y similares; por eso no decimos solo CD. El vinilo dominó hasta los 80.</p></aside>
+</section>
+
+<!-- ============================ 31 · RF02 ============================ -->
+<section class="slide">
+  <div class="body row">
+    <div class="grow col">
+      <div class="kicker r">RF02 · Duración</div>
+      <h2 class="r" style="--i:1">La duración típica está entre <em>3 y 4 minutos</em></h2>
+      <div class="chart-box r" style="--i:2"><canvas data-chart="histograma" aria-label="Histograma de duración en bandas de 30 segundos"></canvas></div>
+    </div>
+    <div class="col" style="width:360px;justify-content:center">
+      <div class="card stat accent r-scale" style="--i:3"><div class="num sm" data-m="histograma.dos_mayores_pct" data-fmt="pct">—</div><div class="lbl">de las pistas entre 3:00 y 4:00</div></div>
+      <div class="card stat r-scale" style="--i:4"><div class="num sm"><span data-m="histograma.media_min" data-fmt="dec" data-d="2">—</span> min</div><div class="lbl">duración media por pista</div></div>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>05 · Resultados</span></div>
+  <aside class="notes"><p>Distribución unimodal con cola larga a la derecha. Las dos bandas más frecuentes están resaltadas en dorado.</p></aside>
+</section>
+
+<!-- ============================ 32 · RF05 ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">RF05 · Correlación</div>
+    <h2 class="r" style="--i:1">El acortamiento reciente <em>es débil</em></h2>
+    <div class="grid g3">
+      <div class="card stat r-scale" style="--i:2"><div class="kicker">1950–2025 · 76 años</div><div class="num">+0,917</div><div class="lbl">Tendencia fuerte al alza · +1,08 s por año</div></div>
+      <div class="card stat r-scale" style="--i:3"><div class="kicker">1990–2025 · 36 años</div><div class="num">+0,858</div><div class="lbl">Alza fuerte · +0,66 s por año</div></div>
+      <div class="card stat r-scale" style="--i:4;border-color:rgba(231,131,107,.45)"><div class="kicker" style="color:var(--coral)">2013–2025 · 13 años</div><div class="num" style="color:var(--coral)">−0,343</div><div class="lbl">Descenso débil, no concluyente</div></div>
+    </div>
+    <div class="card mt r" style="--i:5">
+      <ul class="list">
+        <li>Con 13 años, |r| debe superar <b>0,553</b> para ser significativo al 5 %.</li>
+        <li>La hipótesis de canciones más cortas por el streaming <b>no queda demostrada</b>.</li>
+        <li>Pearson usa medias anuales: mide asociación, no causalidad.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>05 · Resultados</span></div>
+  <aside class="notes"><p>Con la carga de 15 M parecía que el streaming acortaba las canciones. Con todos los datos, la evidencia no alcanza.</p></aside>
+</section>
+
+<!-- ============================ 33 · RF03 ============================ -->
+<section class="slide">
+  <div class="body row">
+    <div class="grow col">
+      <div class="kicker r">RF03 · Geografía</div>
+      <h2 class="r" style="--i:1">El mayor bloque <em>no es un país</em></h2>
+      <div class="chart-box r" style="--i:2"><canvas data-chart="paises" aria-label="Lanzamientos por área"></canvas></div>
+    </div>
+    <div class="col" style="width:360px;justify-content:center">
+      <div class="card stat accent r-scale" style="--i:3"><div class="num sm" data-m="especiales.lanzamientos_worldwide" data-fmt="mill" data-d="2">—</div><div class="lbl">lanzamientos en [Worldwide]</div></div>
+      <div class="card stat r-scale" style="--i:4"><div class="num sm">2×</div><div class="lbl">más que Estados Unidos, el primer país</div></div>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>05 · Resultados</span></div>
+  <aside class="notes"><p>Los lanzamientos multiterritorio quedan en [Worldwide]. Por eso comparamos países por separado de esa categoría.</p></aside>
+</section>
+
+<!-- ============================ 34 · RF06 ============================ -->
+<section class="slide">
+  <div class="body row">
+    <div class="grow col">
+      <div class="kicker r">RF06 · ISRC</div>
+      <h2 class="r" style="--i:1">Solo <em data-m="totales.isrc_pct" data-fmt="pct">—</em> de las pistas tiene ISRC</h2>
+      <div class="chart-box r" style="--i:2"><canvas data-chart="isrc" aria-label="Cobertura ISRC por década"></canvas></div>
+    </div>
+    <div class="col" style="width:360px;justify-content:center">
+      <div class="card stat accent r-scale" style="--i:3"><div class="num xs" data-m="totales.pistas_isrc">—</div><div class="lbl">pistas con código ISRC</div></div>
+      <div class="card stat r-scale" style="--i:4"><div class="num xs" data-m="emergentes.total">—</div><div class="lbl">artistas emergentes desde 2015</div></div>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>05 · Resultados</span></div>
+  <aside class="notes"><p>Indica cuántas pistas registradas en MusicBrainz tienen código, no el registro real en la industria.</p></aside>
+</section>
+
+<!-- ============================ 35 · DASHBOARD ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Dashboard</div>
+    <h2 class="r" style="--i:1">Tres páginas en <em>Databricks AI/BI</em></h2>
+    <div class="grid g3 grow">
+      <figure class="col r" style="--i:2"><div class="shot" style="height:340px"><img src="assets/img/dash_resumen.png" alt="Página Resumen ejecutivo del dashboard"></div><figcaption class="small muted">Resumen ejecutivo</figcaption></figure>
+      <figure class="col r" style="--i:3"><div class="shot" style="height:340px"><img src="assets/img/dash_detallado.png" alt="Página Análisis detallado del dashboard"></div><figcaption class="small muted">Análisis detallado</figcaption></figure>
+      <figure class="col r" style="--i:4"><div class="shot" style="height:340px"><img src="assets/img/dash_calidad.png" alt="Página Calidad y catálogo del dashboard"></div><figcaption class="small muted">Calidad y catálogo</figcaption></figure>
+    </div>
+    <div class="row r" style="--i:5;gap:14px">
+      <span class="pill gold"><span data-m="dashboard.paginas">—</span>&nbsp;páginas</span>
+      <span class="pill gold"><span data-m="dashboard.widgets">—</span>&nbsp;widgets</span>
+      <span class="pill gold"><span data-m="dashboard.datasets">—</span>&nbsp;datasets</span>
+      <span class="pill ok"><span class="dot"></span>Drill-down temporal y geográfico</span>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>06 · Cierre</span></div>
+  <aside class="notes"><p>Corre sobre el warehouse: no depende de importar 11,5 millones de filas a nuestros equipos.</p></aside>
+</section>
+
+<!-- ============================ 36 · DRILL ============================ -->
+<section class="slide">
+  <div class="body row">
+    <div class="col" style="width:520px;justify-content:center">
+      <div class="kicker r">Interacción</div>
+      <h2 class="r" style="--i:1">Drill-down y <em>filtrado cruzado</em></h2>
+      <ul class="list r" style="--i:2">
+        <li><b>Temporal:</b> década → año → trimestre → mes.</li>
+        <li><b>Geográfico:</b> país → tipo de área → área.</li>
+        <li>Un clic en un gráfico filtra los demás.</li>
+        <li>Paleta validada para daltonismo y contraste.</li>
+      </ul>
+    </div>
+    <div class="shot grow r-scale" style="--i:3;height:640px;align-self:center"><img src="assets/img/dash_drill.png" alt="Drill-down del dashboard"></div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>06 · Cierre</span></div>
+  <aside class="notes"><p>El drill-down llega hasta mes en las tablas dinámicas. Cada gráfico responde a un tipo de pregunta según Abela.</p></aside>
+</section>
+
+<!-- ============================ 37 · LIMITES ============================ -->
+<section class="slide">
+  <div class="body">
+    <div class="kicker r">Límites</div>
+    <h2 class="r" style="--i:1">Lo que este trabajo <em>no resuelve</em></h2>
+    <div class="grid g3">
+      <div class="card r" style="--i:2"><h3 class="coral">Datos</h3><ul class="list mt-s small"><li>Fechas anteriores a 1900 van a «sin fecha»</li><li><span data-m="especiales.pistas_fecha_futura">—</span> pistas con años futuros</li><li>Calidad y categorías: criterio propio</li></ul></div>
+      <div class="card r" style="--i:3"><h3 class="blue">Dashboard</h3><ul class="list mt-s small"><li>Drill-down hasta mes, no hasta día</li><li>Top N no se recalcula con filtros</li><li>Power BI queda en la entrega anterior</li></ul></div>
+      <div class="card r" style="--i:4"><h3 class="violet">Sin medir</h3><ul class="list mt-s small"><li>PostgreSQL contra Spark</li><li>Beneficio del liquid clustering</li><li>Streaming solo local, un broker</li></ul></div>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>06 · Cierre</span></div>
+  <aside class="notes"><p>Preferimos declarar los límites antes de que nos los pregunten. La capa de streaming es una demostración local con un broker; en producción usaríamos replicación 3.</p></aside>
+</section>
+
+<!-- ============================ 38 · CONCLUSIONES ============================ -->
+<section class="slide">
+  <div class="body row">
+    <div class="grow col" style="justify-content:center">
+      <div class="kicker r">Conclusiones</div>
+      <h2 class="r" style="--i:1">Lo que nos <em>llevamos</em></h2>
+      <ul class="list check r" style="--i:2">
+        <li><b>Requisito cumplido:</b> 58.809.976 pistas reales y conciliadas.</li>
+        <li><b>Lote y tiempo real</b> conviven sobre el mismo modelo.</li>
+        <li>Los resultados <b>corrigen conclusiones</b> de la entrega anterior.</li>
+        <li>Validar integridad no basta: <b>también el significado</b>.</li>
+      </ul>
+    </div>
+    <div class="card accent r-scale" style="--i:3;width:470px;align-self:center">
+      <h3 class="gold">Próximos pasos</h3>
+      <ul class="list mt-s">
+        <li>Llevar el streaming a Databricks con Kafka gestionado</li>
+        <li>Completar la jerarquía geográfica</li>
+        <li>Medir PostgreSQL contra Spark</li>
+        <li>Medir el liquid clustering</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>06 · Cierre</span></div>
+</section>
+
+<!-- ============================ 39 · GRACIAS ============================ -->
+<section class="slide cover center">
+  <div class="vinyl" aria-hidden="true" style="opacity:.6"></div>
+  <div class="body">
+    <div class="kicker r">Gracias</div>
+    <h1 class="r" style="--i:1">¿<em>Preguntas</em>?</h1>
+    <p class="lead r mt" style="--i:2;max-width:680px">Código, pipeline, dashboard y esta presentación están en el repositorio del proyecto.</p>
+  </div>
+</section>
+
+</div>
+</main>
+
+<div class="chrome"><div class="bar"></div></div>
+<a class="home" href="index.html">← Inicio</a>
+<nav class="hud" aria-label="Controles">
+  <button data-act="grid" title="Vista general (O)" aria-label="Vista general">▦</button>
+  <button data-act="notes" title="Notas del orador (N)" aria-label="Notas del orador">✎</button>
+  <button data-act="prev" title="Anterior (←)" aria-label="Anterior">‹</button>
+  <span class="count">01 / 01</span>
+  <button data-act="next" title="Siguiente (→)" aria-label="Siguiente">›</button>
+</nav>
+<div class="notes-panel" role="region" aria-label="Notas del orador"></div>
+
+<script src="assets/icons.js?v=3"></script>
+<script src="assets/datos.js?v=3"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="assets/charts.js?v=3"></script>
+<script src="assets/diagrams.js?v=3"></script>
+<script src="assets/streaming.js?v=3"></script>
+<script src="assets/deck.js?v=3"></script>
+</body>
+</html>

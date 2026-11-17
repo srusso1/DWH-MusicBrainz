@@ -25,6 +25,10 @@ mbdump.tar.bz2 (C:\Users\sebas\Downloads\mbdump.tar.bz2 o data/downloads/)
 Esquema meta: meta.etl_audit y meta.data_quality_log (auditoría de lotes y reglas de calidad)
 ```
 
+**Capa de streaming (tiempo real):** además del flujo batch, el repositorio incluye una capa de velocidad Kafka → Spark Structured Streaming → PostgreSQL con lanzamientos reales de la API de MusicBrainz, Dead Letter Queue y tolerancia a fallos por checkpoints y UPSERT idempotente. Ver [`streaming/README.md`](streaming/README.md) (demo: `bash streaming/demo.sh`).
+
+**Presentaciones (GitHub Pages):** la carpeta [`presentacion/`](presentacion/) contiene dos sustentaciones web: la versión completa y una ordenada por criterios de la rúbrica. Se publican con `.github/workflows/pages.yml`; los datos se regeneran con `python scripts/build_presentacion_datos.py`.
+
 ---
 
 ## 2. Declaración de Negocio y Grano Histórico Diario
