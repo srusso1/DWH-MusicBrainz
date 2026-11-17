@@ -9,3 +9,4 @@ reportlab
 python-pptx
 matplotlib
 Pillow
+confluent-kafka

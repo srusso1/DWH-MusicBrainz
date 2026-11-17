@@ -148,3 +148,13 @@ erDiagram
 ## 4. Auditoría y Trazabilidad (Capa Meta)
 * **`meta.etl_audit`:** Registra cada lote de carga, capa origen/destino, filas leídas, filas insertadas, tiempos de inicio/fin y tasas de rendimiento (filas/segundo).
 * **`meta.data_quality_log`:** Almacena las pruebas de integridad referencial (0 huérfanos en las 6 dimensiones) y consistencia de métricas aditivas ejecutadas al cierre del pipeline Gold.
+---
+
+## 5. Capa de Streaming (Speed Layer)
+El sistema sigue un esquema **Lambda**: la capa batch (Databricks, PySpark + Delta) recalcula la historia completa, y una capa de velocidad procesa lanzamientos nuevos en segundos. El detalle está en [`streaming/README.md`](../streaming/README.md).
+
+* **Ingesta:** `streaming/productor.py` (confluent-kafka) publica lanzamientos reales de la API WS2 de MusicBrainz (o reproduce `streaming/fixtures/lanzamientos_muestra.jsonl`) en el tópico `musicbrainz.lanzamientos` (3 particiones, clave = MBID). Productor idempotente con `acks=all`.
+* **Procesamiento:** `streaming/consumidor_spark.py` (Spark 3.5.3 Structured Streaming) valida cada evento con las mismas reglas del productor; los inválidos van a `musicbrainz.lanzamientos.dlq` con el motivo y el offset de origen.
+* **Sumideros:** Bronze local en parquet particionado por fecha de ingesta; `streaming.lanzamientos_evento` (UPSERT por MBID) y `streaming.lanzamientos_ventana` (ventanas de 1 minuto por país y formato, con watermark de 2 minutos) en PostgreSQL.
+* **Tolerancia a fallos:** checkpoint por consulta, UPSERT idempotente y bitácora `streaming.control_lotes (consulta, batch_id)` escrita en la misma transacción, de modo que un micro-lote re-ejecutado tras una caída no duplica filas.
+* **Infraestructura:** `streaming/docker-compose.streaming.yml` (Kafka 3.8.0 en modo KRaft, inicialización de tópicos y Spark) se combina con el `docker-compose.yml` raíz para reutilizar PostgreSQL. DDL en `sql/streaming/01_schema_streaming.sql`.

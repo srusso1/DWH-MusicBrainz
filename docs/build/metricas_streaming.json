@@ -1,0 +1,12 @@
+{
+  "ejecutado": false,
+  "timestamp": "2026-11-17T22:45:00Z",
+  "motivo": "Docker Desktop no pudo iniciar en esta maquina: el backend (com.docker.backend.exe 4.88.1) se cierra al arrancar con el error 'initializing Ingest server: remove C:/Users/JUAN/AppData/Local/Docker/run/sailor-ingest.sock: The file cannot be accessed by the system'. Sin daemon de Docker no fue posible levantar Kafka, Spark ni PostgreSQL, por lo que no hay metricas de la corrida extremo a extremo ni de la prueba de reinicio.",
+  "verificado_sin_docker": {
+    "pruebas_python_puro": "41 aprobadas (python -m pytest tests/streaming, Python 3.13; la prueba Spark se omite por falta de PySpark)",
+    "pruebas_con_spark_local": "46 aprobadas (incluye 5 pruebas con PySpark 3.5.3 en modo batch, Python 3.11 + Java 8) sobre el fixture real: 299 validos, 5 a la DLQ con sus motivos, suma de lanzamientos en ventanas = 299",
+    "fixture": "299 lanzamientos reales capturados de la API WS2 + 5 lineas de inyeccion de fallas",
+    "deduplicacion_en_captura_api": "1 MBID repetido entre paginas descartado"
+  },
+  "como_generar": "bash streaming/demo.sh (sobrescribe este archivo con metricas reales)"
+}

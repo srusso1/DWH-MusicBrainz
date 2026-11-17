@@ -1,0 +1,111 @@
+# Capa de streaming (speed layer). Se combina con el docker-compose.yml raiz para
+# reutilizar el servicio ``postgres``. Ejecutar SIEMPRE desde la raiz del repo:
+#
+#   docker compose -f docker-compose.yml -f streaming/docker-compose.streaming.yml up -d
+#
+# Las rutas relativas se resuelven contra la raiz (directorio del primer archivo).
+
+services:
+  # Ampliacion del servicio existente: healthcheck + montaje del DDL de streaming.
+  postgres:
+    volumes:
+      - ./sql/streaming:/sql/streaming:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-postgres} -d ${PG_DATABASE:-dw_musicbrainz}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # Broker Kafka unico en modo KRaft (sin ZooKeeper).
+  kafka:
+    image: apache/kafka:3.8.0
+    container_name: dw_musicbrainz_kafka
+    ports:
+      - "9092:9092"            # listener EXTERNA para productores en el host
+    environment:
+      CLUSTER_ID: "4L6g3nShT-eMCtK--X86sw"
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: INTERNA://:19092,EXTERNA://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNA://kafka:19092,EXTERNA://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNA:PLAINTEXT,EXTERNA:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNA
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"   # los topicos se crean explicitamente
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server kafka:19092 > /dev/null 2>&1"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+
+  # Contenedor de un solo uso: crea los topicos con retencion explicita.
+  kafka-init:
+    image: apache/kafka:3.8.0
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        set -e
+        K=/opt/kafka/bin/kafka-topics.sh
+        $$K --bootstrap-server kafka:19092 --create --if-not-exists \
+            --topic musicbrainz.lanzamientos --partitions 3 --replication-factor 1 \
+            --config retention.ms=604800000 --config cleanup.policy=delete \
+            --config min.insync.replicas=1
+        $$K --bootstrap-server kafka:19092 --create --if-not-exists \
+            --topic musicbrainz.lanzamientos.dlq --partitions 1 --replication-factor 1 \
+            --config retention.ms=2592000000 --config cleanup.policy=delete
+        $$K --bootstrap-server kafka:19092 --describe --topic musicbrainz.lanzamientos
+        $$K --bootstrap-server kafka:19092 --describe --topic musicbrainz.lanzamientos.dlq
+
+  # Consumidor Spark Structured Streaming (modo local, 2 nucleos).
+  spark-consumidor:
+    image: apache/spark:3.5.3-python3
+    container_name: dw_musicbrainz_spark
+    user: root
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    environment:
+      PYTHONPATH: /opt/app
+      KAFKA_BOOTSTRAP: kafka:19092
+      PG_URL: jdbc:postgresql://postgres:5432/${PG_DATABASE:-dw_musicbrainz}
+      PG_USER: ${PG_USER:-postgres}
+      PG_PASSWORD: ${PG_PASSWORD:-postgres123}
+      RUTA_LAGO: /opt/lake
+      RUTA_CHECKPOINTS: /opt/checkpoints
+      MAX_OFFSETS_POR_LOTE: ${MAX_OFFSETS_POR_LOTE:-100}
+      INTERVALO_LOTE: ${INTERVALO_LOTE:-10 seconds}
+    command:
+      - /opt/spark/bin/spark-submit
+      - --master
+      - local[2]
+      - --conf
+      - spark.jars.ivy=/opt/ivy
+      - --packages
+      - org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3,org.postgresql:postgresql:42.7.4
+      - /opt/app/streaming/consumidor_spark.py
+    volumes:
+      - ./streaming:/opt/app/streaming:ro
+      - spark_lake:/opt/lake
+      - spark_checkpoints:/opt/checkpoints
+      - spark_ivy:/opt/ivy
+
+volumes:
+  kafka_data:
+  spark_lake:          # lago local: /opt/lake/bronze/lanzamientos (parquet)
+  spark_checkpoints:   # un checkpoint por consulta: bronze, dlq, eventos, ventanas
+  spark_ivy:           # cache de dependencias --packages

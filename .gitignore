@@ -20,3 +20,6 @@ powerbi_backup_*/
 .codegraph/
 .playwright-mcp/
 node_modules/
+
+# Capa de streaming: estado local de la demo (logs y metricas intermedias)
+streaming/_runtime/
