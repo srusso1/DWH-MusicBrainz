@@ -650,21 +650,6 @@ spark.<span class="fn">sql</span>(
   <aside class="notes"><p>El drill-down llega hasta mes en las tablas dinámicas. Cada gráfico responde a un tipo de pregunta según Abela.</p></aside>
 </section>
 
-<!-- ============================ 37 · LIMITES ============================ -->
-<section class="slide">
-  <div class="body">
-    <div class="kicker r">Límites</div>
-    <h2 class="r" style="--i:1">Lo que este trabajo <em>no resuelve</em></h2>
-    <div class="grid g3">
-      <div class="card r" style="--i:2"><h3 class="coral">Datos</h3><ul class="list mt-s small"><li>Fechas anteriores a 1900 van a «sin fecha»</li><li><span data-m="especiales.pistas_fecha_futura">—</span> pistas con años futuros</li><li>Calidad y categorías: criterio propio</li></ul></div>
-      <div class="card r" style="--i:3"><h3 class="blue">Dashboard</h3><ul class="list mt-s small"><li>Drill-down hasta mes, no hasta día</li><li>Top N no se recalcula con filtros</li><li>Power BI queda en la entrega anterior</li></ul></div>
-      <div class="card r" style="--i:4"><h3 class="violet">Sin medir</h3><ul class="list mt-s small"><li>PostgreSQL contra Spark</li><li>Beneficio del liquid clustering</li><li>Streaming solo local, un broker</li></ul></div>
-    </div>
-  </div>
-  <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>06 · Cierre</span></div>
-  <aside class="notes"><p>Preferimos declarar los límites antes de que nos los pregunten. La capa de streaming es una demostración local con un broker; en producción usaríamos replicación 3.</p></aside>
-</section>
-
 <!-- ============================ 38 · CONCLUSIONES ============================ -->
 <section class="slide">
   <div class="body row">
