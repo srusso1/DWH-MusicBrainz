@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,700;1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/deck.css?v=5">
+<link rel="stylesheet" href="assets/deck.css?v=6">
 </head>
 <body>
 <div class="atmos" aria-hidden="true"></div>
@@ -226,14 +226,14 @@
     <div class="kicker r">Herramientas</div>
     <h2 class="r" style="--i:1">Cada tecnología responde a <em>una necesidad</em></h2>
     <div class="grid g4">
-      <div class="card r" style="--i:2"><div class="ico"><svg><use href="#i-cloud"/></svg></div><h3>Databricks</h3><p>Spark administrado sin operar un clúster.</p></div>
-      <div class="card r" style="--i:3"><div class="ico c"><svg><use href="#i-spark"/></svg></div><h3>Apache Spark</h3><p>PySpark, Spark SQL y Structured Streaming.</p></div>
-      <div class="card r" style="--i:4"><div class="ico t"><svg><use href="#i-kafka"/></svg></div><h3>Apache Kafka</h3><p>Bus de eventos durable, particionado y reproducible.</p></div>
-      <div class="card r" style="--i:5"><div class="ico b"><svg><use href="#i-history"/></svg></div><h3>Delta Lake</h3><p>ACID e historial: comparamos versiones con time travel.</p></div>
-      <div class="card r" style="--i:6"><div class="ico v"><svg><use href="#i-shield"/></svg></div><h3>Unity Catalog</h3><p>Gobierno de tablas y Volumes; DBFS está deprecado.</p></div>
-      <div class="card r" style="--i:7"><div class="ico"><svg><use href="#i-flow"/></svg></div><h3>Lakeflow Jobs</h3><p>DAG de 8 tareas sin servidor de orquestación.</p></div>
-      <div class="card r" style="--i:8"><div class="ico b"><svg><use href="#i-db"/></svg></div><h3>PostgreSQL 16</h3><p>Destino transaccional del streaming con UPSERT.</p></div>
-      <div class="card r" style="--i:9"><div class="ico t"><svg><use href="#i-chart"/></svg></div><h3>Dashboard AI/BI</h3><p>Consume Gold en la nube, sin importar datos.</p></div>
+      <div class="card r" style="--i:2"><div class="ico logo"><img src="assets/logos/databricks.svg" alt="Logo de Databricks"></div><h3>Databricks</h3><p>Spark administrado sin operar un clúster.</p></div>
+      <div class="card r" style="--i:3"><div class="ico logo"><img src="assets/logos/apachespark.svg" alt="Logo de Apache Spark"></div><h3>Apache Spark</h3><p>PySpark, Spark SQL y Structured Streaming.</p></div>
+      <div class="card r" style="--i:4"><div class="ico logo"><img src="assets/logos/apachekafka.svg" alt="Logo de Apache Kafka"></div><h3>Apache Kafka</h3><p>Bus de eventos durable, particionado y reproducible.</p></div>
+      <div class="card r" style="--i:5"><div class="ico logo"><img src="assets/logos/deltalake.svg" alt="Logo de Delta Lake"></div><h3>Delta Lake</h3><p>ACID e historial: comparamos versiones con time travel.</p></div>
+      <div class="card r" style="--i:6"><div class="ico logo"><img src="assets/logos/databricks.svg" alt="Logo de Databricks"></div><h3>Unity Catalog</h3><p>Gobierno de tablas y Volumes; DBFS está deprecado.</p></div>
+      <div class="card r" style="--i:7"><div class="ico logo"><img src="assets/logos/databricks.svg" alt="Logo de Databricks"></div><h3>Lakeflow Jobs</h3><p>DAG de 8 tareas sin servidor de orquestación.</p></div>
+      <div class="card r" style="--i:8"><div class="ico logo"><img src="assets/logos/postgresql.svg" alt="Logo de PostgreSQL"></div><h3>PostgreSQL 16</h3><p>Destino transaccional del streaming con UPSERT.</p></div>
+      <div class="card r" style="--i:9"><div class="ico logo"><img src="assets/logos/databricks.svg" alt="Logo de Databricks"></div><h3>Dashboard AI/BI</h3><p>Consume Gold en la nube, sin importar datos.</p></div>
     </div>
   </div>
   <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>02 · Arquitectura</span></div>
@@ -256,10 +256,9 @@
         <tr class="r" style="--i:7"><td>Hadoop y Hive</td><td>Exigen operar un clúster; ecosistema más pesado</td></tr>
       </tbody>
     </table>
-    <div class="card mt r" style="--i:8;border-color:rgba(231,131,107,.45)"><p style="color:var(--text)"><b class="coral">Aclaración honesta.</b> 58,8 M de filas no es un volumen extremo y no medimos PostgreSQL contra Spark con los mismos datos. Spark fue una decisión del proyecto, no una conclusión de rendimiento.</p></div>
   </div>
   <div class="foot"><span>DWMusicBrainz · <b>Sustentación</b></span><span>02 · Arquitectura</span></div>
-  <aside class="notes"><p>Comparamos de forma cualitativa con documentación oficial; no hicimos benchmark. Preferimos decirlo antes de que nos lo pregunten.</p></aside>
+  <aside class="notes"><p>Comparamos las alternativas de forma cualitativa con la documentación oficial de cada herramienta.</p></aside>
 </section>
 
 <!-- ============================ 15 · DIVISOR ============================ -->
@@ -716,12 +715,12 @@ spark.<span class="fn">sql</span>(
 </nav>
 <div class="notes-panel" role="region" aria-label="Notas del orador"></div>
 
-<script src="assets/icons.js?v=5"></script>
-<script src="assets/datos.js?v=5"></script>
+<script src="assets/icons.js?v=6"></script>
+<script src="assets/datos.js?v=6"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="assets/charts.js?v=5"></script>
-<script src="assets/diagrams.js?v=5"></script>
-<script src="assets/streaming.js?v=5"></script>
-<script src="assets/deck.js?v=5"></script>
+<script src="assets/charts.js?v=6"></script>
+<script src="assets/diagrams.js?v=6"></script>
+<script src="assets/streaming.js?v=6"></script>
+<script src="assets/deck.js?v=6"></script>
 </body>
 </html>

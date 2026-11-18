@@ -408,3 +408,7 @@ body.overview .slide .f { opacity: 1; filter: none; transform: none; }
   .slide .r, .slide .r-scale, .slide .r-left, .slide .pop, .f { opacity: 1 !important; transform: none !important; filter: none !important; animation: none !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* Technology logos instead of generic icons */
+.card .ico.logo { background: rgba(255,255,255,.05); border-color: var(--line-2); }
+.card .ico.logo img { width: 30px; height: 30px; object-fit: contain; }
