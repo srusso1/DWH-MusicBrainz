@@ -106,7 +106,7 @@
     <div class="kicker r">Criterio 1 · Objetivo general</div>
     <h2 class="r" style="--i:1">Un objetivo, <em>cinco propiedades</em></h2>
     <div class="card accent r" style="--i:2">
-      <p style="font-size:25px;color:var(--text);font-family:var(--serif)">Construir, en el semestre 2026-2, un Data Warehouse sobre el catálogo completo de MusicBrainz que integre procesamiento por lotes con Spark y en tiempo real con Kafka, para responder ocho requerimientos analíticos con datos validados.</p>
+      <p style="font-size:25px;color:var(--text);font-family:var(--serif)">Desarrollar, en el semestre 2026-2, un Data Warehouse sobre el catálogo completo de MusicBrainz que integre procesamiento por lotes con Apache Spark y en tiempo real con Apache Kafka, para analizar la producción musical por año, formato, país, idioma y artista con datos validados.</p>
     </div>
     <div class="grid g5 mt" style="grid-template-columns:repeat(5,1fr)">
       <div class="card r" style="--i:3"><h3 class="gold">Específico</h3><p>Un dominio, un volcado, ocho preguntas RF01–RF08.</p></div>
@@ -124,16 +124,13 @@
 <section class="slide">
   <div class="body">
     <div class="kicker r">Criterio 1 · Objetivos específicos</div>
-    <h2 class="r" style="--i:1">Cada objetivo con su meta <em>y su resultado</em></h2>
+    <h2 class="r" style="--i:1">Identificar, evaluar <em>e implementar</em></h2>
     <table class="tbl">
       <thead><tr><th>Objetivo específico</th><th>Tipo</th><th>Meta medible</th><th>Resultado</th></tr></thead>
       <tbody>
-        <tr class="r" style="--i:2"><td>Cargar el volcado completo</td><td><span class="pill gold">Lote</span></td><td>&gt; 50 M de registros reales</td><td class="ok">58.809.976 pistas</td></tr>
-        <tr class="r" style="--i:3"><td>Modelar Medallón + Kimball</td><td><span class="pill gold">Lote</span></td><td>3 capas y grano declarado</td><td class="ok">3 hechos · 7 dimensiones</td></tr>
-        <tr class="r" style="--i:4"><td>Procesar en Spark distribuido</td><td><span class="pill gold">Lote</span></td><td>Pipeline completo &lt; 15 min</td><td class="ok">633 s</td></tr>
-        <tr class="r" style="--i:5"><td>Ingerir lanzamientos en vivo</td><td><span class="pill" style="color:var(--teal);border-color:rgba(87,199,181,.4)">Tiempo real</span></td><td>Kafka → Spark → BD con DLQ</td><td class="ok">Capa de velocidad</td></tr>
-        <tr class="r" style="--i:6"><td>Garantizar la calidad</td><td><span class="pill">Ambos</span></td><td>0 reglas bloqueantes fallidas</td><td class="ok">116 / 116</td></tr>
-        <tr class="r" style="--i:7"><td>Responder RF01–RF08</td><td><span class="pill">Ambos</span></td><td>Dashboard con drill-down</td><td class="ok">3 páginas AI/BI</td></tr>
+        <tr class="r" style="--i:2"><td><b class="gold">Identificar</b> las fuentes, entidades y reglas de calidad del volcado oficial de MusicBrainz necesarias para responder RF01–RF08</td><td><span class="pill">Ambos</span></td><td>11 tablas y 6 catálogos con contrato de datos y reglas documentadas</td><td class="ok">142,9 M de filas conciliadas con el volcado</td></tr>
+        <tr class="r" style="--i:3"><td><b class="gold">Evaluar</b> las metodologías (Medallón, Kimball, Inmon) y tecnologías para procesar más de 50 M de registros en lote y en tiempo real</td><td><span class="pill">Ambos</span></td><td>Alternativas comparadas con una decisión justificada por categoría</td><td class="ok">Medallón + Kimball · Databricks, Spark y Kafka</td></tr>
+        <tr class="r" style="--i:4"><td><b class="gold">Implementar</b> el pipeline Bronze–Silver–Gold en Spark y la capa Kafka → Spark Streaming → PostgreSQL, con validación y dashboard</td><td><span class="pill gold">Lote</span> <span class="pill" style="color:var(--teal);border-color:rgba(87,199,181,.4)">Tiempo real</span></td><td>&gt; 50 M de filas, 0 reglas bloqueantes fallidas, 0 duplicados tras un fallo</td><td class="ok">58.809.976 pistas · 116/116 · 299/299</td></tr>
       </tbody>
     </table>
   </div>
@@ -517,7 +514,7 @@ spark.<span class="fn">sql</span>(
     <table class="tbl">
       <thead><tr><th>Criterio</th><th>Evidencia principal</th><th>Dónde verlo</th></tr></thead>
       <tbody>
-        <tr class="r" style="--i:2"><td>1 · Objetivos</td><td>Objetivo SMART y 6 metas con resultado medido</td><td><span class="pill gold">Diapositivas 4 – 6</span></td></tr>
+        <tr class="r" style="--i:2"><td>1 · Objetivos</td><td>Objetivo general SMART y 3 específicos: identificar, evaluar e implementar</td><td><span class="pill gold">Diapositivas 4 – 6</span></td></tr>
         <tr class="r" style="--i:3"><td>2 · Metodología</td><td>Medallón + estrella; 116 reglas; fila cero</td><td><span class="pill gold">Diapositivas 8 – 11</span></td></tr>
         <tr class="r" style="--i:4"><td>3 · Arquitectura</td><td>Diagramas batch, streaming y de interacción</td><td><span class="pill gold">Diapositivas 13 – 17</span></td></tr>
         <tr class="r" style="--i:5"><td>4 · Herramientas</td><td>8 categorías con alternativa de mercado</td><td><span class="pill gold">Diapositivas 19 – 20</span></td></tr>

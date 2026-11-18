@@ -88,16 +88,14 @@
     <div class="kicker r">Objetivos</div>
     <h2 class="r" style="--i:1">Qué nos propusimos y cómo lo medimos</h2>
     <div class="card accent r" style="--i:2">
-      <p style="font-size:23px;color:var(--text)"><b class="gold">Objetivo general.</b> Construir un Data Warehouse sobre el catálogo completo de MusicBrainz que integre procesamiento por lotes y en tiempo real, para analizar la producción musical por año, formato, país, idioma y artista.</p>
+      <p style="font-size:23px;color:var(--text)"><b class="gold">Objetivo general.</b> Desarrollar un Data Warehouse sobre el catálogo completo de MusicBrainz que integre procesamiento por lotes con Apache Spark y en tiempo real con Apache Kafka, para analizar la producción musical por año, formato, país, idioma y artista con datos validados.</p>
     </div>
     <table class="tbl mt">
       <thead><tr><th>Objetivo específico</th><th>Meta medible</th><th>Resultado</th></tr></thead>
       <tbody>
-        <tr class="r" style="--i:3"><td>Cargar el volcado completo en lote</td><td>&gt; 50 M de registros reales</td><td class="ok">58,8 M de pistas</td></tr>
-        <tr class="r" style="--i:4"><td>Modelar Medallón + estrella de Kimball</td><td>3 capas, grano declarado</td><td class="ok">3 hechos · 7 dimensiones</td></tr>
-        <tr class="r" style="--i:5"><td>Ingerir eventos en tiempo real</td><td>Kafka → Spark Streaming → BD</td><td class="ok">Capa de velocidad en Docker</td></tr>
-        <tr class="r" style="--i:6"><td>Garantizar la calidad del dato</td><td>0 reglas bloqueantes fallidas</td><td class="ok">116 de 116 aprobadas</td></tr>
-        <tr class="r" style="--i:7"><td>Responder RF01 a RF08</td><td>Dashboard con drill-down</td><td class="ok">3 páginas · AI/BI</td></tr>
+        <tr class="r" style="--i:3"><td><b class="gold">Identificar</b> las fuentes, entidades y reglas de calidad del volcado de MusicBrainz necesarias para RF01–RF08</td><td>11 tablas y 6 catálogos con contrato de datos</td><td class="ok">142,9 M de filas conciliadas</td></tr>
+        <tr class="r" style="--i:4"><td><b class="gold">Evaluar</b> las metodologías y tecnologías para procesar más de 50 M de registros en lote y en tiempo real</td><td>Alternativas comparadas y decisión justificada</td><td class="ok">Medallón + Kimball · Spark + Kafka</td></tr>
+        <tr class="r" style="--i:5"><td><b class="gold">Implementar</b> el pipeline Bronze–Silver–Gold y la capa Kafka → Spark → PostgreSQL con validación y dashboard</td><td>&gt; 50 M de filas y 0 reglas bloqueantes fallidas</td><td class="ok">58,8 M pistas · 116/116 · 0 duplicados</td></tr>
       </tbody>
     </table>
   </div>
