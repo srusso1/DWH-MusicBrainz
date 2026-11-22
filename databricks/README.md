@@ -16,7 +16,7 @@ Pipeline Medallón sobre Spark y Delta Lake para el volcado completo de MusicBra
 | `pipeline/06_validacion.py` | Integridad, aditividad y reconciliación |
 | `pipeline/lib/` | Contrato de datos, reglas, etiquetas y auditoría |
 | `pipeline/job.json` | Definición del job de Lakeflow |
-| `dashboards/DWMusicBrainz.lvdash.json` | Dashboard AI/BI de 3 páginas sobre `workspace.gold` |
+| `dashboards/DWMusicBrainz.lvdash.json` | Dashboard AI/BI de 4 páginas sobre `workspace.gold` (3 vistas de una pantalla + exploración drill-down) |
 | `spikes/` | Prueba de capacidad descartable |
 
 ## Ejecución
@@ -64,7 +64,7 @@ Para reconstruir solo algunas tablas, ejecutar el job con `forzar=true` y `solo=
 
 ## Dashboard AI/BI
 
-`dashboards/DWMusicBrainz.lvdash.json` reproduce las 3 páginas del reporte de Power BI. Para desplegarlo:
+`dashboards/DWMusicBrainz.lvdash.json` reproduce las 3 páginas del reporte de Power BI, compactadas a una pantalla (Top 5), y agrega una página de exploración con los drill-down. Para desplegarlo:
 
 1. Crear un archivo JSON con `display_name`, `warehouse_id`, `parent_path` y `serialized_dashboard`, este último con el contenido del `.lvdash.json` como texto.
 2. Crear el dashboard: `databricks lakeview create --json @cuerpo.json --profile musicbrainz`. Se pasa por archivo porque supera el largo de línea de comandos de Windows.
