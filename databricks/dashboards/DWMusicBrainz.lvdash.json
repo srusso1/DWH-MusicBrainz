@@ -36,7 +36,7 @@
         "top_tipos AS (\n",
         "  SELECT tipo_artista FROM (\n",
         "    SELECT tipo_artista, RANK() OVER (ORDER BY SUM(lanzamientos) DESC) AS r\n",
-        "    FROM base GROUP BY tipo_artista\n",
+        "    FROM base WHERE tipo_artista <> 'Personaje Ficticio' GROUP BY tipo_artista\n",
         "  ) WHERE r <= 5\n",
         ")\n",
         "SELECT b.*, tp.nombre_pais IS NOT NULL AS es_top5_pais, ti.nombre_idioma IS NOT NULL AS es_top5_idioma,\n",
@@ -2068,8 +2068,8 @@
                       "expression": "`nombre_pais`"
                     },
                     {
-                      "name": "lanzamientos",
-                      "expression": "`lanzamientos`"
+                      "name": "lanzamientos_log10",
+                      "expression": "`lanzamientos_log10`"
                     },
                     {
                       "name": "participacion_digital",
@@ -2085,10 +2085,17 @@
               "widgetType": "scatter",
               "encodings": {
                 "x": {
-                  "fieldName": "lanzamientos",
-                  "displayName": "Lanzamientos",
+                  "fieldName": "lanzamientos_log10",
+                  "displayName": "Lanzamientos (log₁₀: 5 = 100 mil, 6 = 1 M)",
                   "scale": {
                     "type": "quantitative"
+                  },
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    }
                   }
                 },
                 "y": {
@@ -2162,7 +2169,7 @@
                 "showTitle": true,
                 "title": "Volumen vs. digitalización por país (Top 10)",
                 "showDescription": true,
-                "description": "Pasa el cursor sobre un punto para ver el país."
+                "description": "Escala logarítmica: 5 = 100 mil y 6 = 1 millón de lanzamientos. Pasa el cursor para ver el país."
               }
             }
           },
