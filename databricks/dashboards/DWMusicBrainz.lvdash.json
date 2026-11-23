@@ -76,7 +76,6 @@
         "  FROM workspace.gold.fact_produccion_musical f\n",
         "JOIN workspace.gold.dim_fecha d ON f.fecha_key = d.fecha_key\n",
         "JOIN workspace.gold.dim_formato x ON f.formato_key = x.formato_key\n",
-        "JOIN workspace.gold.dim_lanzamiento l ON f.lanzamiento_key = l.lanzamiento_key\n",
         "JOIN workspace.gold.dim_geografia g ON f.geografia_key = g.geografia_key\n",
         "JOIN workspace.gold.dim_artista a ON f.artista_key = a.artista_key\n",
         "JOIN workspace.gold.dim_idioma i ON f.idioma_key = i.idioma_key\n",
@@ -89,32 +88,40 @@
         "  ) WHERE r <= 30\n",
         ")\n",
         "SELECT b.*, tp.nombre_pais IS NOT NULL AS es_top30_pais\n",
-        "FROM base b LEFT JOIN top_paises tp ON b.nombre_pais = tp.nombre_pais\n"
+        "FROM base b LEFT JOIN top_paises tp ON b.nombre_pais = tp.nombre_pais"
       ]
     },
     {
       "name": "ds_dispersion_pais",
       "displayName": "Dispersión por país",
       "queryLines": [
-        "WITH paises AS (\n",
-        "  SELECT g.nombre_pais,\n",
-        "         SUM(f.lanzamientos_total) AS lanzamientos,\n",
-        "         SUM(CASE WHEN x.categoria_formato = 'Digital / Streaming' THEN f.lanzamientos_total ELSE 0 END) AS lanzamientos_digitales\n",
+        "WITH base AS (\n",
+        "  SELECT\n",
+        "    g.nombre_pais,\n",
+        "    i.nombre_idioma,\n",
+        "    a.tipo_artista,\n",
+        "    d.decada,\n",
+        "    SUM(f.lanzamientos_total) AS lanzamientos,\n",
+        "    SUM(CASE WHEN x.categoria_formato = 'Digital / Streaming' THEN f.lanzamientos_total ELSE 0 END) AS lanzamientos_digitales\n",
         "  FROM workspace.gold.fact_produccion_musical f\n",
         "  JOIN workspace.gold.dim_formato x ON f.formato_key = x.formato_key\n",
         "  JOIN workspace.gold.dim_geografia g ON f.geografia_key = g.geografia_key\n",
+        "  JOIN workspace.gold.dim_idioma i ON f.idioma_key = i.idioma_key\n",
+        "  JOIN workspace.gold.dim_artista a ON f.artista_key = a.artista_key\n",
+        "  JOIN workspace.gold.dim_fecha d ON f.fecha_key = d.fecha_key\n",
         "  WHERE g.tipo_area = 'País'\n",
-        "  GROUP BY g.nombre_pais\n",
+        "  GROUP BY ALL\n",
         "),\n",
         "top_paises AS (\n",
-        "  SELECT *, RANK() OVER (ORDER BY lanzamientos DESC) AS r FROM paises\n",
+        "  SELECT nombre_pais FROM (\n",
+        "    SELECT nombre_pais, RANK() OVER (ORDER BY SUM(lanzamientos) DESC) AS r\n",
+        "    FROM base GROUP BY nombre_pais\n",
+        "  ) WHERE r <= 10\n",
         ")\n",
-        "SELECT nombre_pais, lanzamientos,\n",
-        "       LOG10(lanzamientos) AS lanzamientos_log10,\n",
-        "       lanzamientos_digitales / lanzamientos AS participacion_digital\n",
-        "FROM top_paises\n",
-        "WHERE r <= 10 AND lanzamientos > 0\n",
-        ""
+        "SELECT b.*\n",
+        "FROM base b\n",
+        "JOIN top_paises tp ON b.nombre_pais = tp.nombre_pais\n",
+        "WHERE b.lanzamientos > 0"
       ]
     },
     {
@@ -175,7 +182,7 @@
       "displayName": "Calidad y catálogo",
       "queryLines": [
         "WITH base AS (\n",
-        "  SELECT d.siglo, d.decada, d.anio, d.nombre_trimestre, d.mes, a.tipo_artista, l.tipo_empaque,\n",
+        "  SELECT d.siglo, d.decada, d.anio, d.nombre_trimestre, d.mes, NOT (d.mes = 1 AND d.dia = 1) AS tiene_mes_exacto, a.tipo_artista, l.tipo_empaque,\n",
         "         g.nombre_pais, g.tipo_area, g.nombre_area, g.geografia_key,\n",
         "         SUM(f.lanzamientos_total) AS lanzamientos,\n",
         "         SUM(f.soportes_total) AS soportes,\n",
@@ -183,11 +190,9 @@
         "         SUM(f.pistas_con_isrc_total) AS pistas_isrc\n",
         "  FROM workspace.gold.fact_produccion_musical f\n",
         "JOIN workspace.gold.dim_fecha d ON f.fecha_key = d.fecha_key\n",
-        "JOIN workspace.gold.dim_formato x ON f.formato_key = x.formato_key\n",
         "JOIN workspace.gold.dim_lanzamiento l ON f.lanzamiento_key = l.lanzamiento_key\n",
         "JOIN workspace.gold.dim_geografia g ON f.geografia_key = g.geografia_key\n",
         "JOIN workspace.gold.dim_artista a ON f.artista_key = a.artista_key\n",
-        "JOIN workspace.gold.dim_idioma i ON f.idioma_key = i.idioma_key\n",
         "  GROUP BY ALL\n",
         "),\n",
         "top_paises AS (\n",
@@ -214,8 +219,7 @@
         "FROM base b\n",
         "LEFT JOIN top_paises tp ON b.nombre_pais = tp.nombre_pais\n",
         "LEFT JOIN top_areas ta ON b.geografia_key = ta.geografia_key\n",
-        "LEFT JOIN top_empaques te ON b.tipo_empaque = te.tipo_empaque\n",
-        ""
+        "LEFT JOIN top_empaques te ON b.tipo_empaque = te.tipo_empaque"
       ]
     },
     {
@@ -246,7 +250,7 @@
         "    HAVING SUM(f.pistas_con_isrc_total) = SUM(f.pistas_total)\n",
         "  ) WHERE r <= 5\n",
         ")\n",
-        "SELECT a.artista_key, a.nombre_artista, a.nombre_pais AS pais_artista, a.anio_inicio, a.tipo_artista,\n",
+        "SELECT a.artista_key, a.nombre_artista, CASE WHEN a.nombre_pais IN ('No Aplica', 'Sin País Registrado') THEN 'Sin país registrado' ELSE a.nombre_pais END AS pais_artista, a.anio_inicio, a.tipo_artista,\n",
         "       l.tipo_empaque, g.nombre_pais, d.decada,\n",
         "       SUM(f.lanzamientos_total) AS lanzamientos,\n",
         "       SUM(f.pistas_total) AS pistas,\n",
@@ -257,8 +261,25 @@
         "JOIN workspace.gold.dim_lanzamiento l ON f.lanzamiento_key = l.lanzamiento_key\n",
         "JOIN workspace.gold.dim_geografia g ON f.geografia_key = g.geografia_key\n",
         "JOIN workspace.gold.dim_fecha d ON f.fecha_key = d.fecha_key\n",
-        "GROUP BY ALL\n",
-        ""
+        "GROUP BY ALL"
+      ]
+    },
+    {
+      "name": "ds_rf05_correlacion",
+      "displayName": "RF05: Correlación año vs. duración (1950–2025)",
+      "queryLines": [
+        "WITH anual AS (\n",
+        "  SELECT\n",
+        "    d.anio,\n",
+        "    SUM(f.duracion_total_minutos) / NULLIF(SUM(f.pistas_completas_total), 0) AS duracion_prom_min\n",
+        "  FROM workspace.gold.fact_produccion_musical f\n",
+        "  JOIN workspace.gold.dim_fecha d ON f.fecha_key = d.fecha_key\n",
+        "  WHERE d.anio BETWEEN 1950 AND 2025\n",
+        "  GROUP BY d.anio\n",
+        "  HAVING SUM(f.pistas_completas_total) > 0\n",
+        ")\n",
+        "SELECT ROUND(CORR(anio, duracion_prom_min), 2) AS correlacion_r\n",
+        "FROM anual"
       ]
     }
   ],
@@ -511,7 +532,9 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Lanzamientos"
+                "title": "Lanzamientos",
+                "showDescription": true,
+                "description": "Ediciones comerciales en el catálogo"
               }
             }
           },
@@ -519,7 +542,7 @@
             "x": 0,
             "y": 3,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -559,7 +582,9 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Pistas"
+                "title": "Pistas",
+                "showDescription": true,
+                "description": "Total de pistas en todos los soportes"
               }
             }
           },
@@ -567,7 +592,7 @@
             "x": 3,
             "y": 3,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -607,7 +632,9 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Artistas activos"
+                "title": "Artistas activos",
+                "showDescription": true,
+                "description": "Solistas, bandas, orquestas y coros"
               }
             }
           },
@@ -615,7 +642,7 @@
             "x": 6,
             "y": 3,
             "width": 2,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -654,7 +681,9 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Cobertura ISRC"
+                "title": "Cobertura ISRC",
+                "showDescription": true,
+                "description": "% de pistas con código ISRC"
               }
             }
           },
@@ -662,7 +691,7 @@
             "x": 10,
             "y": 3,
             "width": 2,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -701,7 +730,9 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Participación digital"
+                "title": "Participación digital",
+                "showDescription": true,
+                "description": "Cuota en Digital / Streaming"
               }
             }
           },
@@ -709,7 +740,7 @@
             "x": 8,
             "y": 3,
             "width": 2,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -779,19 +810,19 @@
                     "mappings": [
                       {
                         "value": "Digital / Streaming",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "Físico / Óptico",
-                        "color": "#C2691A"
+                        "color": "#F59E0B"
                       },
                       {
                         "value": "Físico / Vinilo",
-                        "color": "#08A08C"
+                        "color": "#14B8A6"
                       },
                       {
                         "value": "Físico / Magnético",
-                        "color": "#8064B5"
+                        "color": "#A78BFA"
                       },
                       {
                         "value": "Otros Formatos",
@@ -807,13 +838,15 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Evolución de formatos musicales (1950–2025)"
+                "title": "Evolución de formatos musicales (1950–2025)",
+                "showDescription": true,
+                "description": "Transición del vinilo al CD/óptico y al dominio digital actual."
               }
             }
           },
           "position": {
             "x": 0,
-            "y": 5,
+            "y": 6,
             "width": 8,
             "height": 6
           }
@@ -901,11 +934,11 @@
                     "mappings": [
                       {
                         "value": "Digital",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "Óptico (CD/DVD)",
-                        "color": "#C2691A"
+                        "color": "#F59E0B"
                       }
                     ]
                   }
@@ -913,8 +946,8 @@
               },
               "mark": {
                 "colors": [
-                  "#1F5FA8",
-                  "#C2691A"
+                  "#3B82F6",
+                  "#F59E0B"
                 ]
               },
               "frame": {
@@ -927,7 +960,7 @@
           },
           "position": {
             "x": 8,
-            "y": 5,
+            "y": 6,
             "width": 4,
             "height": 6
           }
@@ -991,7 +1024,7 @@
                     "mappings": [
                       {
                         "value": "United States",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "United Kingdom",
@@ -1041,13 +1074,15 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Top 5 países por lanzamientos"
+                "title": "Top 5 países por lanzamientos",
+                "showDescription": true,
+                "description": "Excluye territorio [Worldwide] y áreas sin país."
               }
             }
           },
           "position": {
             "x": 0,
-            "y": 11,
+            "y": 12,
             "width": 4,
             "height": 6
           }
@@ -1108,7 +1143,7 @@
                     "mappings": [
                       {
                         "value": "Persona / Solista",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "Grupo / Banda",
@@ -1146,13 +1181,15 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Tipo de artista"
+                "title": "Tipo de artista",
+                "showDescription": true,
+                "description": "Distribución por perfil autoral registrado."
               }
             }
           },
           "position": {
             "x": 8,
-            "y": 11,
+            "y": 12,
             "width": 4,
             "height": 6
           }
@@ -1219,7 +1256,7 @@
                     "mappings": [
                       {
                         "value": "English",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "Japanese",
@@ -1261,13 +1298,15 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Top 5 idiomas"
+                "title": "Top 5 idiomas",
+                "showDescription": true,
+                "description": "Catálogo oficial ISO 639-3 (sin indeterminados)."
               }
             }
           },
           "position": {
             "x": 4,
-            "y": 11,
+            "y": 12,
             "width": 4,
             "height": 6
           }
@@ -1338,6 +1377,19 @@
                   ],
                   "disaggregated": false
                 }
+              },
+              {
+                "name": "f_f_pais2_ds_dispersion_pais",
+                "query": {
+                  "datasetName": "ds_dispersion_pais",
+                  "fields": [
+                    {
+                      "name": "nombre_pais",
+                      "expression": "`nombre_pais`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
               }
             ],
             "spec": {
@@ -1359,6 +1411,11 @@
                     "fieldName": "nombre_pais",
                     "displayName": "País",
                     "queryName": "f_f_pais2_ds_artistas_top"
+                  },
+                  {
+                    "fieldName": "nombre_pais",
+                    "displayName": "nombre_pais",
+                    "queryName": "f_f_pais2_ds_dispersion_pais"
                   }
                 ]
               },
@@ -1417,6 +1474,19 @@
                   ],
                   "disaggregated": false
                 }
+              },
+              {
+                "name": "f_f_idioma2_ds_dispersion_pais",
+                "query": {
+                  "datasetName": "ds_dispersion_pais",
+                  "fields": [
+                    {
+                      "name": "nombre_idioma",
+                      "expression": "`nombre_idioma`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
               }
             ],
             "spec": {
@@ -1438,6 +1508,11 @@
                     "fieldName": "nombre_idioma",
                     "displayName": "Idioma",
                     "queryName": "f_f_idioma2_ds_artistas_top"
+                  },
+                  {
+                    "fieldName": "nombre_idioma",
+                    "displayName": "nombre_idioma",
+                    "queryName": "f_f_idioma2_ds_dispersion_pais"
                   }
                 ]
               },
@@ -1483,6 +1558,19 @@
                   ],
                   "disaggregated": false
                 }
+              },
+              {
+                "name": "f_f_tipo2_ds_dispersion_pais",
+                "query": {
+                  "datasetName": "ds_dispersion_pais",
+                  "fields": [
+                    {
+                      "name": "tipo_artista",
+                      "expression": "`tipo_artista`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
               }
             ],
             "spec": {
@@ -1499,6 +1587,11 @@
                     "fieldName": "tipo_artista",
                     "displayName": "Tipo de artista",
                     "queryName": "f_f_tipo2_ds_artistas_top"
+                  },
+                  {
+                    "fieldName": "tipo_artista",
+                    "displayName": "tipo_artista",
+                    "queryName": "f_f_tipo2_ds_dispersion_pais"
                   }
                 ]
               },
@@ -1557,6 +1650,19 @@
                   ],
                   "disaggregated": false
                 }
+              },
+              {
+                "name": "f_f_decada2_ds_dispersion_pais",
+                "query": {
+                  "datasetName": "ds_dispersion_pais",
+                  "fields": [
+                    {
+                      "name": "decada",
+                      "expression": "`decada`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
               }
             ],
             "spec": {
@@ -1578,6 +1684,11 @@
                     "fieldName": "decada",
                     "displayName": "Década",
                     "queryName": "f_f_decada2_ds_artistas_top"
+                  },
+                  {
+                    "fieldName": "decada",
+                    "displayName": "decada",
+                    "queryName": "f_f_decada2_ds_dispersion_pais"
                   }
                 ]
               },
@@ -1631,15 +1742,17 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Pistas por lanzamiento"
+                "title": "Pistas / lanzamiento",
+                "showDescription": true,
+                "description": "Densidad media por álbum"
               }
             }
           },
           "position": {
-            "x": 0,
+            "x": 7,
             "y": 3,
-            "width": 3,
-            "height": 2
+            "width": 2,
+            "height": 3
           }
         },
         {
@@ -1679,15 +1792,17 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Duración promedio por pista (min)"
+                "title": "Duración prom. (min)",
+                "showDescription": true,
+                "description": "Media ponderada (> 0 s)"
               }
             }
           },
           "position": {
-            "x": 3,
+            "x": 0,
             "y": 3,
-            "width": 3,
-            "height": 2
+            "width": 2,
+            "height": 3
           }
         },
         {
@@ -1726,15 +1841,17 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Pistas de más de 5 minutos"
+                "title": "Pistas > 5 min",
+                "showDescription": true,
+                "description": "Canciones largas (> 300 s)"
               }
             }
           },
           "position": {
-            "x": 6,
+            "x": 5,
             "y": 3,
-            "width": 3,
-            "height": 2
+            "width": 2,
+            "height": 3
           }
         },
         {
@@ -1774,7 +1891,9 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Horas totales de audio"
+                "title": "Horas totales de audio",
+                "showDescription": true,
+                "description": "Catálogo acumulado en horas"
               }
             }
           },
@@ -1782,7 +1901,7 @@
             "x": 9,
             "y": 3,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -1841,7 +1960,7 @@
                       },
                       {
                         "value": "3–4 min",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "4–5 min",
@@ -1870,13 +1989,13 @@
                 "showTitle": true,
                 "title": "Distribución de duración de las canciones",
                 "showDescription": true,
-                "description": "Resaltado: 3–4 min, la banda más frecuente."
+                "description": "Resaltado: 3–4 min (banda más frecuente). Nota: el filtro Tipo de artista no aplica."
               }
             }
           },
           "position": {
             "x": 0,
-            "y": 5,
+            "y": 6,
             "width": 6,
             "height": 6
           }
@@ -1941,19 +2060,19 @@
                     "mappings": [
                       {
                         "value": "Digital / Streaming",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "Físico / Óptico",
-                        "color": "#C2691A"
+                        "color": "#F59E0B"
                       },
                       {
                         "value": "Físico / Vinilo",
-                        "color": "#08A08C"
+                        "color": "#14B8A6"
                       },
                       {
                         "value": "Físico / Magnético",
-                        "color": "#8064B5"
+                        "color": "#A78BFA"
                       },
                       {
                         "value": "Otros Formatos",
@@ -1969,7 +2088,9 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Mezcla de formatos por década (1950–2025)"
+                "title": "Mezcla de formatos por década (1950–2025)",
+                "showDescription": true,
+                "description": "Proporción de lanzamientos por categoría de soporte."
               },
               "mark": {
                 "layout": "percent-stack"
@@ -1978,7 +2099,7 @@
           },
           "position": {
             "x": 6,
-            "y": 5,
+            "y": 6,
             "width": 6,
             "height": 6
           }
@@ -2038,18 +2159,20 @@
               },
               "mark": {
                 "colors": [
-                  "#2A6BBF"
+                  "#3B82F6"
                 ]
               },
               "frame": {
                 "showTitle": true,
-                "title": "Top 5 artistas por lanzamientos"
+                "title": "Top 5 artistas por lanzamientos",
+                "showDescription": true,
+                "description": "Excluye créditos genéricos entre corchetes."
               }
             }
           },
           "position": {
             "x": 0,
-            "y": 11,
+            "y": 12,
             "width": 6,
             "height": 6
           }
@@ -2069,14 +2192,18 @@
                     },
                     {
                       "name": "lanzamientos_log10",
-                      "expression": "`lanzamientos_log10`"
+                      "expression": "LOG10(NULLIF(SUM(`lanzamientos`), 0))"
                     },
                     {
                       "name": "participacion_digital",
-                      "expression": "`participacion_digital`"
+                      "expression": "SUM(`lanzamientos_digitales`) / NULLIF(SUM(`lanzamientos`), 0)"
+                    },
+                    {
+                      "name": "lanzamientos",
+                      "expression": "SUM(`lanzamientos`)"
                     }
                   ],
-                  "disaggregated": true
+                  "disaggregated": false
                 }
               }
             ],
@@ -2120,43 +2247,43 @@
                     "mappings": [
                       {
                         "value": "United States",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "United Kingdom",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "Japan",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "Germany",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "France",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "Netherlands",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "Canada",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "Italy",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "Australia",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "Spain",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       }
                     ]
                   },
@@ -2169,15 +2296,64 @@
                 "showTitle": true,
                 "title": "Volumen vs. digitalización por país (Top 10)",
                 "showDescription": true,
-                "description": "Escala logarítmica: 5 = 100 mil y 6 = 1 millón de lanzamientos. Pasa el cursor para ver el país."
+                "description": "Responde a los 4 filtros. Escala log₁₀: 5 = 100 mil y 6 = 1 millón de lanzamientos."
               }
             }
           },
           "position": {
             "x": 6,
-            "y": 11,
+            "y": 12,
             "width": 6,
             "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "k_corr_rf05",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_rf05_correlacion",
+                  "fields": [
+                    {
+                      "name": "correlacion_r",
+                      "expression": "`correlacion_r`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "correlacion_r",
+                  "displayName": "Correlación (r)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Correlación Año vs. Duración (r)",
+                "showDescription": true,
+                "description": "RF05 · Pearson media anual 1950–2025"
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 3,
+            "width": 3,
+            "height": 3
           }
         }
       ]
@@ -2556,7 +2732,9 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Cobertura ISRC"
+                "title": "Cobertura ISRC",
+                "showDescription": true,
+                "description": "% de pistas con código ISRC"
               }
             }
           },
@@ -2564,7 +2742,7 @@
             "x": 0,
             "y": 3,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -2604,7 +2782,9 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Pistas por lanzamiento"
+                "title": "Pistas por lanzamiento",
+                "showDescription": true,
+                "description": "Promedio de pistas por edición"
               }
             }
           },
@@ -2612,7 +2792,7 @@
             "x": 3,
             "y": 3,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -2652,7 +2832,9 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Pistas por soporte"
+                "title": "Pistas por soporte",
+                "showDescription": true,
+                "description": "Promedio de pistas por disco/medio"
               }
             }
           },
@@ -2660,7 +2842,7 @@
             "x": 6,
             "y": 3,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -2700,7 +2882,9 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Artistas emergentes (desde 2015)"
+                "title": "Artistas emergentes (≥ 2015)",
+                "showDescription": true,
+                "description": "Artistas con año de inicio desde 2015"
               }
             }
           },
@@ -2708,7 +2892,7 @@
             "x": 9,
             "y": 3,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -2772,7 +2956,7 @@
                       },
                       {
                         "value": "Siglo XXI",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       }
                     ]
                   }
@@ -2780,13 +2964,15 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Lanzamientos por década"
+                "title": "Lanzamientos por década",
+                "showDescription": true,
+                "description": "Crecimiento histórico acumulado del catálogo."
               }
             }
           },
           "position": {
             "x": 0,
-            "y": 5,
+            "y": 6,
             "width": 5,
             "height": 6
           }
@@ -2851,7 +3037,7 @@
                     "mappings": [
                       {
                         "value": "País",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "Otro / No Clasificado",
@@ -2866,13 +3052,15 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Top 5 áreas geográficas"
+                "title": "Top 5 áreas geográficas",
+                "showDescription": true,
+                "description": "[Worldwide] agrupa lanzamientos multiterritorio."
               }
             }
           },
           "position": {
             "x": 5,
-            "y": 5,
+            "y": 6,
             "width": 3,
             "height": 6
           }
@@ -2957,7 +3145,7 @@
                     "mappings": [
                       {
                         "value": "Pistas por lanzamiento",
-                        "color": "#2A6BBF"
+                        "color": "#3B82F6"
                       },
                       {
                         "value": "Pistas por soporte",
@@ -2977,15 +3165,15 @@
               "mark": {
                 "layout": "group",
                 "colors": [
-                  "#1F5FA8",
-                  "#C2691A"
+                  "#3B82F6",
+                  "#F59E0B"
                 ]
               }
             }
           },
           "position": {
             "x": 8,
-            "y": 5,
+            "y": 6,
             "width": 4,
             "height": 6
           }
@@ -3088,13 +3276,15 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Cobertura ISRC por país y tipo de artista (Top 5 países)"
+                "title": "Cobertura ISRC por país y tipo de artista (Top 5 países)",
+                "showDescription": true,
+                "description": "Intensidad proporcional al % de pistas con ISRC."
               }
             }
           },
           "position": {
             "x": 0,
-            "y": 11,
+            "y": 12,
             "width": 6,
             "height": 6
           }
@@ -3190,13 +3380,15 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Top 5 artistas emergentes con 100 % ISRC"
+                "title": "Top 5 artistas emergentes con 100 % ISRC",
+                "showDescription": true,
+                "description": "Inicio desde 2015 y formalización completa."
               }
             }
           },
           "position": {
             "x": 6,
-            "y": 11,
+            "y": 12,
             "width": 6,
             "height": 6
           }
@@ -3240,32 +3432,6 @@
                   ],
                   "disaggregated": false
                 }
-              },
-              {
-                "name": "f_f_decada4_ds_emergentes",
-                "query": {
-                  "datasetName": "ds_emergentes",
-                  "fields": [
-                    {
-                      "name": "decada",
-                      "expression": "`decada`"
-                    }
-                  ],
-                  "disaggregated": false
-                }
-              },
-              {
-                "name": "f_f_decada4_ds_emergentes_top",
-                "query": {
-                  "datasetName": "ds_emergentes_top",
-                  "fields": [
-                    {
-                      "name": "decada",
-                      "expression": "`decada`"
-                    }
-                  ],
-                  "disaggregated": false
-                }
               }
             ],
             "spec": {
@@ -3277,16 +3443,6 @@
                     "fieldName": "decada",
                     "displayName": "Década",
                     "queryName": "f_f_decada4_ds_calidad"
-                  },
-                  {
-                    "fieldName": "decada",
-                    "displayName": "Década",
-                    "queryName": "f_f_decada4_ds_emergentes"
-                  },
-                  {
-                    "fieldName": "decada",
-                    "displayName": "Década",
-                    "queryName": "f_f_decada4_ds_emergentes_top"
                   }
                 ]
               },
@@ -3319,32 +3475,6 @@
                   ],
                   "disaggregated": false
                 }
-              },
-              {
-                "name": "f_f_tipo4_ds_emergentes",
-                "query": {
-                  "datasetName": "ds_emergentes",
-                  "fields": [
-                    {
-                      "name": "tipo_artista",
-                      "expression": "`tipo_artista`"
-                    }
-                  ],
-                  "disaggregated": false
-                }
-              },
-              {
-                "name": "f_f_tipo4_ds_emergentes_top",
-                "query": {
-                  "datasetName": "ds_emergentes_top",
-                  "fields": [
-                    {
-                      "name": "tipo_artista",
-                      "expression": "`tipo_artista`"
-                    }
-                  ],
-                  "disaggregated": false
-                }
               }
             ],
             "spec": {
@@ -3356,16 +3486,6 @@
                     "fieldName": "tipo_artista",
                     "displayName": "Tipo de artista",
                     "queryName": "f_f_tipo4_ds_calidad"
-                  },
-                  {
-                    "fieldName": "tipo_artista",
-                    "displayName": "Tipo de artista",
-                    "queryName": "f_f_tipo4_ds_emergentes"
-                  },
-                  {
-                    "fieldName": "tipo_artista",
-                    "displayName": "Tipo de artista",
-                    "queryName": "f_f_tipo4_ds_emergentes_top"
                   }
                 ]
               },
@@ -3398,32 +3518,6 @@
                   ],
                   "disaggregated": false
                 }
-              },
-              {
-                "name": "f_f_empaque4_ds_emergentes",
-                "query": {
-                  "datasetName": "ds_emergentes",
-                  "fields": [
-                    {
-                      "name": "tipo_empaque",
-                      "expression": "`tipo_empaque`"
-                    }
-                  ],
-                  "disaggregated": false
-                }
-              },
-              {
-                "name": "f_f_empaque4_ds_emergentes_top",
-                "query": {
-                  "datasetName": "ds_emergentes_top",
-                  "fields": [
-                    {
-                      "name": "tipo_empaque",
-                      "expression": "`tipo_empaque`"
-                    }
-                  ],
-                  "disaggregated": false
-                }
               }
             ],
             "spec": {
@@ -3435,16 +3529,6 @@
                     "fieldName": "tipo_empaque",
                     "displayName": "Tipo de empaque",
                     "queryName": "f_f_empaque4_ds_calidad"
-                  },
-                  {
-                    "fieldName": "tipo_empaque",
-                    "displayName": "Tipo de empaque",
-                    "queryName": "f_f_empaque4_ds_emergentes"
-                  },
-                  {
-                    "fieldName": "tipo_empaque",
-                    "displayName": "Tipo de empaque",
-                    "queryName": "f_f_empaque4_ds_emergentes_top"
                   }
                 ]
               },
@@ -3477,32 +3561,6 @@
                   ],
                   "disaggregated": false
                 }
-              },
-              {
-                "name": "f_f_pais4_ds_emergentes",
-                "query": {
-                  "datasetName": "ds_emergentes",
-                  "fields": [
-                    {
-                      "name": "nombre_pais",
-                      "expression": "`nombre_pais`"
-                    }
-                  ],
-                  "disaggregated": false
-                }
-              },
-              {
-                "name": "f_f_pais4_ds_emergentes_top",
-                "query": {
-                  "datasetName": "ds_emergentes_top",
-                  "fields": [
-                    {
-                      "name": "nombre_pais",
-                      "expression": "`nombre_pais`"
-                    }
-                  ],
-                  "disaggregated": false
-                }
               }
             ],
             "spec": {
@@ -3514,16 +3572,6 @@
                     "fieldName": "nombre_pais",
                     "displayName": "País",
                     "queryName": "f_f_pais4_ds_calidad"
-                  },
-                  {
-                    "fieldName": "nombre_pais",
-                    "displayName": "País",
-                    "queryName": "f_f_pais4_ds_emergentes"
-                  },
-                  {
-                    "fieldName": "nombre_pais",
-                    "displayName": "País",
-                    "queryName": "f_f_pais4_ds_emergentes_top"
                   }
                 ]
               },
@@ -3594,7 +3642,7 @@
               },
               "mark": {
                 "colors": [
-                  "#1F5FA8"
+                  "#3B82F6"
                 ]
               }
             }
@@ -3631,7 +3679,10 @@
                   "disaggregated": false,
                   "filters": [
                     {
-                      "expression": "`anio` BETWEEN 1900 AND 2025"
+                      "expression": "`mes` BETWEEN 1 AND 12"
+                    },
+                    {
+                      "expression": "`tiene_mes_exacto` = TRUE"
                     }
                   ]
                 }
@@ -3686,9 +3737,9 @@
               },
               "frame": {
                 "showTitle": true,
-                "title": "Lanzamientos por mes",
+                "title": "Estacionalidad mensual real (sin fechas imputadas 01-01)",
                 "showDescription": true,
-                "description": "Los tonos alternos separan trimestres. Enero incluye las fechas que solo tienen año."
+                "description": "Excluye lanzamientos con solo año imputados al 1 de enero; los tonos separan trimestres."
               }
             }
           },
@@ -3737,6 +3788,20 @@
                   "filters": [
                     {
                       "expression": "`anio` BETWEEN 1900 AND 2025"
+                    }
+                  ],
+                  "orders": [
+                    {
+                      "direction": "DESC",
+                      "expression": "`siglo`"
+                    },
+                    {
+                      "direction": "DESC",
+                      "expression": "`decada`"
+                    },
+                    {
+                      "direction": "DESC",
+                      "expression": "`anio_txt`"
                     }
                   ]
                 }
@@ -3790,7 +3855,7 @@
                 "showTitle": true,
                 "title": "Drill-down temporal: siglo, década, año, trimestre y mes",
                 "showDescription": true,
-                "description": "Clic derecho sobre un valor y luego Drill down. Para volver, Drill up en el encabezado."
+                "description": "Ordenado del periodo más reciente al histórico. Clic derecho → Drill down / Drill up."
               }
             }
           },
@@ -3827,7 +3892,13 @@
                       "expression": "SUM(`lanzamientos`)"
                     }
                   ],
-                  "disaggregated": false
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "DESC",
+                      "expression": "SUM(`lanzamientos`)"
+                    }
+                  ]
                 }
               }
             ],
@@ -3871,7 +3942,7 @@
                 "showTitle": true,
                 "title": "Drill-down geográfico: país, tipo de área y área",
                 "showDescription": true,
-                "description": "Clic derecho sobre un valor y luego Drill down. Para volver, Drill up en el encabezado."
+                "description": "Ordenado por mayor volumen de lanzamientos. Clic derecho → Drill down / Drill up."
               }
             }
           },
@@ -3882,34 +3953,40 @@
             "height": 8
           }
         }
-      ]
+      ],
+      "layoutVersion": "GRID_V1"
     }
   ],
   "uiSettings": {
     "theme": {
       "widgetHeaderAlignment": "LEFT",
       "canvasBackgroundColor": {
-        "light": "#F4F6F8"
+        "light": "#F4F6F9",
+        "dark": "#0B1220"
       },
       "widgetBackgroundColor": {
-        "light": "#FFFFFF"
+        "light": "#FFFFFF",
+        "dark": "#131C2E"
       },
       "widgetBorderColor": {
-        "light": "#E3E7EC"
+        "light": "#E2E8F0",
+        "dark": "#24324B"
       },
       "fontColor": {
-        "light": "#1F2A37"
+        "light": "#0F172A",
+        "dark": "#F1F5F9"
       },
       "selectionColor": {
-        "light": "#1F5FA8"
+        "light": "#2563EB",
+        "dark": "#60A5FA"
       },
       "visualizationColors": [
-        "#1F5FA8",
-        "#C2691A",
-        "#08A08C",
-        "#8064B5",
-        "#9AA5B1",
-        "#D5DAE1"
+        "#3B82F6",
+        "#F59E0B",
+        "#14B8A6",
+        "#A78BFA",
+        "#94A3B8",
+        "#64748B"
       ]
     },
     "applyModeEnabled": false
